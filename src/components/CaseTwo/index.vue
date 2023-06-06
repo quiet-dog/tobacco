@@ -72,8 +72,8 @@
                     <ElTableColumn prop="manufacturer" label="厂商"></ElTableColumn>
                     <ElTableColumn label="包装规格"></ElTableColumn>
                     <ElTableColumn prop="quantity" label="样品数量"></ElTableColumn>
-                    <ElTableColumn prop="" label="商品条码"></ElTableColumn>
-                    <ElTableColumn label="添加时间"></ElTableColumn>
+                    <ElTableColumn prop="good_code" label="商品条码"></ElTableColumn>
+                    <ElTableColumn prop="add_time" label="添加时间"></ElTableColumn>
                     <ElTableColumn label="添加人"></ElTableColumn>
                     <!-- <ElTableColumn label="是否扫描"></ElTableColumn>
                     <ElTableColumn>
@@ -111,10 +111,14 @@
 <script setup lang="ts">
 import { getTobaccoListApi } from '@/api/tobacco';
 import { uuid } from '@/utils';
+import { ElMessage } from 'element-plus';
+import { codeStore } from '@/store/code'
 
 const { samples = [] } = defineProps<{
     samples: any[]
 }>()
+
+const codeS = codeStore()
 const activeStep = inject("activeStep")
 let tobaccoForm = $ref({
     tobaccoName: "",
@@ -142,12 +146,28 @@ const handeleSize = (val: number) => {
 }
 
 function getScangerCode(code: any) {
+    console.log('12312312312')
     getTobaccoListApi(code).then(res => {
+        tobaccoForm.tobaccoCode = res.result.barcode
+        tobaccoForm.tobaccoName = res.result.name
+        tobaccoForm.tobaccoFactory = res.result.company
+        tobaccoForm.tobaccoType = res.result.type
         console.log("getTobaccoListApi", res)
     }).catch(err => {
-        console.log('getTobaccoListApi error', err)
+        tobaccoForm.tobaccoCode = ""
+        tobaccoForm.tobaccoName = ""
+        tobaccoForm.tobaccoFactory = ""
+        tobaccoForm.tobaccoType = ""
+        ElMessage({
+            type: "error",
+            message: err.msg
+        })
     })
 }
+
+watch(() => codeS.code, (val) => {
+    console.log('code change')
+})
 
 function createTobaccoDetail() {
     for (let i = 0; i < Number(tobaccoForm.tobaccoNum); i++) {
@@ -155,8 +175,9 @@ function createTobaccoDetail() {
             name: tobaccoForm.tobaccoName,
             code: uuid(16, 8),
             manufacturer: tobaccoForm.tobaccoFactory,
-            quantity: 1,
-            date: new Date().getTime(),
+            quantity: String(1),
+            add_time: new Date().getTime(),
+            good_code: tobaccoForm.tobaccoCode,
         })
     }
 }
@@ -167,5 +188,9 @@ function goNext(val: number) {
 function goPrev(val: number) {
     activeStep.setActiveStep(val)
 }
+
+onMounted(() => {
+
+})
 </script>
 <style scoped></style>

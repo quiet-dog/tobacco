@@ -13,6 +13,13 @@ const http = axios.create({
 })
 // 设置拦截器
 http.interceptors.request.use(config => {
+
+    // 判断请求的地址
+
+    if (config.url?.includes('/barcode2/query')) {
+        return config
+    }
+
     config.headers['Authorization'] = 'Bearer ' + '12345678abc'
     return config
 }

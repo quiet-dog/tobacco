@@ -3,7 +3,7 @@ import http from "@/http";
 import { AxiosRequestConfig } from "axios";
 // 封装响应的类型
 // 创建异步请求
-export const baseURL = "http://192.168.0.81:8080";
+export const baseURL = "http://192.168.0.81:8081";
 // 判断当前环境是nwjs还是浏览器
 async function myRequest<T>(options: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     try {

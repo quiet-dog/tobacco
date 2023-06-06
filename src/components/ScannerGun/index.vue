@@ -7,12 +7,13 @@
 const emit = defineEmits<{
     change: [code: string]
 }>()
-let lastTime: number | null = $ref(null);
-let nextTime = $ref(null);
-let code = $ref("");
-let lastCode: string | undefined, nextCode = $ref(undefined);
+let code = $ref("")
+let lastTime: number | null = (null);
+let nextTime = (null);
+// let code = $ref("");
+let lastCode: string | undefined, nextCode = (undefined);
+
 function getScannerCode(e: KeyboardEvent) {
-    // console.log(e)
     if (lastCode === undefined) {
         lastCode = String(e.key);
         lastTime = new Date().getTime();
@@ -20,9 +21,13 @@ function getScannerCode(e: KeyboardEvent) {
     }
     nextCode = String(e.key);
     nextTime = new Date().getTime();
-    if (lastCode != undefined && lastTime != null && nextTime - lastTime <= 30) {
+    if (lastCode != undefined && lastTime != null && nextTime - lastTime <= 20) {
         // 扫码枪输入
         if (nextCode === "Enter") {
+            console.log("jinru ")
+            code += lastCode
+            console.log("codeS.code", code)
+
             emit("change", code)
             code = "";
             lastCode = undefined
@@ -32,14 +37,21 @@ function getScannerCode(e: KeyboardEvent) {
             lastCode = nextCode;
             lastTime = nextTime
         }
+    } else {
+        code = ""
+        lastCode = undefined
+        lastTime = null
+        nextTime = null
+        nextCode = undefined
     }
 }
+
 onMounted(() => {
     // 监听是不是扫码枪输入的内容,获取扫码枪的数据
-    window.document.addEventListener('keydown', getScannerCode, true)
+    document.addEventListener('keydown', getScannerCode, true)
 })
 onUnmounted(() => {
-    window.document.removeEventListener('keydown', getScannerCode, true)
+    document.removeEventListener('keydown', getScannerCode, true)
 })
 </script>
 <style scoped></style>

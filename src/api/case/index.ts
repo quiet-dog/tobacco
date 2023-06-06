@@ -7,3 +7,12 @@ export function createCaseApi(data: any) {
         data
     })
 }
+
+// 获取案件列表
+export function getCaseListApi(data: any) {
+    return myRequest({
+        url: "/api/admin/law_case/getlist",
+        method: "post",
+        data
+    })
+}

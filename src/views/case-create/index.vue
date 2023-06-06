@@ -25,6 +25,7 @@
 <script lang="ts" setup>
 import { createCaseApi } from '@/api/case';
 import { dayjs } from 'element-plus';
+import { ElMessage } from 'element-plus';
 
 let activeStep = $ref(1)
 
@@ -63,8 +64,15 @@ function createCase() {
             sampling_time: dayjs(new Date).valueOf(),
             samples: []
         }
+        ElMessage({
+            message: res.msg,
+            type: 'success'
+        })
     }).catch(err => {
-        console.log(err)
+        ElMessage({
+            message: err.msg,
+            type: 'error'
+        })
     })
 }
 

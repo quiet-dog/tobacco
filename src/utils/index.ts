@@ -1,3 +1,5 @@
+import { dayjs } from "element-plus";
+
 // 生成uuid
 export function uuid(len: number, radix: number) {
     var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
@@ -26,4 +28,8 @@ export function uuid(len: number, radix: number) {
     }
 
     return uuid.join('');
+}
+
+export function formatDate(date: number) {
+    return dayjs(date).format("YYYY/MM/DD HH:mm:ss")
 }

@@ -37,8 +37,8 @@
                             </el-select>
                         </div>
                         <div class="pr-2">
-                            <el-date-picker style="width: 250px;" size="large" v-model="datePickerValue" type="daterange"
-                                :shortcuts="timeValue === '1' ? datePickerShortcuts : datePickerShortcuts"
+                            <el-date-picker value-format="x" style="width: 250px;" size="large" v-model="datePickerValue"
+                                type="daterange" :shortcuts="timeValue === '1' ? datePickerShortcuts : datePickerShortcuts"
                                 range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
                                 @change="changePickerTime" />
                         </div>
@@ -70,7 +70,12 @@
                             <ElTableColumn prop="code" label="存放位置"></ElTableColumn>
                             <ElTableColumn prop="code" label="案件名称"></ElTableColumn>
                             <ElTableColumn prop="code" label="抽样时间"></ElTableColumn>
-                            <ElTableColumn prop="code" label="鉴定结果"></ElTableColumn>
+                            <ElTableColumn prop="code" label="鉴定结果">
+                                <template #default="scope">
+                                    <el-tag v-if="scope.row.is_real" type="success">真烟</el-tag>
+                                    <el-tag v-else type="danger">假烟</el-tag>
+                                </template>
+                            </ElTableColumn>
                             <ElTableColumn prop="code" label="库存状态"></ElTableColumn>
                             <ElTableColumn prop="code" label="入库人"></ElTableColumn>
                             <ElTableColumn prop="info" label="入库时间"></ElTableColumn>
@@ -94,7 +99,7 @@
                 </div>
             </el-main>
         </el-container>
-        <ElDrawer v-model="drawerVisible" title="样品概述" width="50%">
+        <ElDrawer v-model="drawerVisible" @closed="closeDrawer" title="样品概述" width="50%">
             <div>
                 <el-card shadow="hover" class="title-card-my">
                     <template #header>
@@ -160,15 +165,15 @@
                         </template>
                         <div>
                             <div>
-                                <el-table :data="tableData" :default-sort="{ prop: 'date', order: 'descending' }"
+                                <el-table :data="tableData2" :default-sort="{ prop: 'date', order: 'descending' }"
                                     :header-cell-style="{ background: '#FAFAFA' }" width="100%">
                                     <el-table-column prop="code" label="编号" width="150"></el-table-column>
 
                                     <el-table-column prop="name" label="样品名称" width="150" show-overflow-tooltip>
                                     </el-table-column>
-                                    <el-table-column prop="direction" label="厂商">
+                                    <el-table-column prop="manufacturer" label="厂商">
                                     </el-table-column>
-                                    <el-table-column prop="clean_status" label="包装形式" width="100">
+                                    <el-table-column prop="stock_status" label="包装形式" width="100">
                                     </el-table-column>
                                     <el-table-column prop="name" label="操作">
                                         <template #default="scope">
@@ -201,16 +206,17 @@
 </template>
 <script setup lang="ts">
 import { getAreaSelectorApi } from '@/api/area';
+import { getSampleListApi } from '@/api/sample';
 
-let timeValue = $ref('')
+let timeValue = $ref('1')
 let timeOption = [
     {
-        value: 'Option1',
-        label: 'Option1',
+        value: '1',
+        label: '抽样时间',
     },
     {
-        value: 'Option2',
-        label: 'Option2',
+        value: '2',
+        label: '入库时间',
     }
 ]
 let setActive = $ref(0)
@@ -244,34 +250,62 @@ const datePickerShortcuts = ref([
         },
     },
 ]);
-const datePickerValue = $ref([])
+const datePickerValue = $ref(null)
 
 const changePickerTime = (val: any) => {
-    console.log(val)
+    // console.log(datePickerValue)
+    getSampleList()
 }
 let tableData = $ref([{
     name: "222"
 }])
 let total = $ref(0)
 let page = $ref(1)
-let pageSize = $ref(10)
+let pageSize = $ref(20)
 let treeMenu = $ref([])
 const handlePage = (val: number) => {
+    getSampleList()
 }
 
 const handeleSize = (val: number) => {
+    getSampleList()
+}
+
+function handlePage2(val: number) {
+    getWaitSampleLisst()
+}
+
+function handeleSize2(val: number) {
+    getWaitSampleLisst()
 }
 
 function changeTimeValue(val) {
-
+    getSampleList()
 }
 let shelf_id = $ref(0)
 function selectId(val: number) {
+    if (shelf_id === val) {
+        return
+    }
+    page = 1
+    pageSize = 20
     shelf_id = val
+    getSampleList()
 }
+
 function rowClickTableData(row, column, event) {
     console.log(row)
+    law_case_id = row.law_case_id
     drawerVisible = true
+    getWaitSampleLisst()
+}
+
+function closeDrawer() {
+    law_case_id = 0
+    tableData2 = []
+    page2 = 1
+    pageSize2 = 5
+    total2 = 0
 }
 
 function getAreaMenuList() {
@@ -283,8 +317,40 @@ function getAreaMenuList() {
     })
 }
 
+function getSampleList() {
+    getSampleListApi({
+        page_index: page,
+        page_size: pageSize,
+        shelf_id: shelf_id === 0 ? undefined : shelf_id,
+        storage_time_start: timeValue === '2' ? undefined : datePickerValue === null ? undefined : datePickerValue[0],
+        storage_time_end: timeValue === '2' ? undefined : datePickerValue === null ? undefined : datePickerValue[1],
+        sampling_time_start: timeValue === '1' ? undefined : datePickerValue === null ? undefined : datePickerValue[0],
+        sampling_time_end: timeValue === '1' ? undefined : datePickerValue === null ? undefined : datePickerValue[1],
+    }).then(res => {
+        tableData = res.data.list
+        total = res.data.total
+    })
+}
+
+let tableData2 = $ref([])
+let page2 = $ref(1)
+let pageSize2 = $ref(5)
+let total2 = $ref(0)
+let law_case_id = $ref(0)
+function getWaitSampleLisst() {
+    getSampleListApi({
+        page_index: page2,
+        page_size: pageSize2,
+        law_case_id: law_case_id === 0 ? undefined : law_case_id
+    }).then(res => {
+        tableData2 = res.data.list
+        total2 = res.data.total
+    })
+}
+
 onMounted(() => {
     getAreaMenuList()
+    getSampleList()
 })
 
 onActivated(() => {

@@ -2,12 +2,14 @@ import myRequest from ".."
 // 获取商品信息列表
 export function getTobaccoListApi(code: number) {
     return myRequest({
-        url: 'https://bff.gds.org.cn/gds/searching-api/ProductService/ProductListByGTIN',
+        url: 'https://jisutxmcx.market.alicloudapi.com/barcode2/query',
         method: 'get',
         params: {
-            PageSize: 30,
-            PageIndex: 1,
-            SearchItem: code
+            barcode: code
+        },
+        headers: {
+            Authorization: "APPCODE df18cb4ac86c4d5291339e659767c924"
         }
     })
 }
+
