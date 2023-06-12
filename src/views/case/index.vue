@@ -3,12 +3,52 @@
         <el-container class="h-full">
             <el-aside width="250px" class="border-right-my">
                 <el-menu>
-                    <ElMenuItem index="1" @click="goRouter('/home/case/identification')">待鉴定</ElMenuItem>
-                    <ElMenuItem index="2" @click="goRouter('/home/case/enter')">待入库</ElMenuItem>
-                    <ElMenuItem index="3" @click="goRouter('/home/case/int')">在库案件</ElMenuItem>
-                    <ElMenuItem index="4" @click="goRouter('/home/case/expires')">期满案件</ElMenuItem>
-                    <ElMenuItem index="5" @click="goRouter('/home/case/archive')">归档案件</ElMenuItem>
-                    <ElMenuItem index="6" @click="goRouter('/home/case/overdue')">超期案件</ElMenuItem>
+                    <ElMenuItem index="1" @click="goRouter('/home/case/identification')">
+                        <svg class="icon" aria-hidden="true" style="width: 20px;fill: #3BC4CF;height: 20px;">
+                            <use xlink:href="#icon-chakan"></use>
+                        </svg>
+                        <span class="pl-5">待鉴定</span>
+                    </ElMenuItem>
+                    <ElMenuItem index="2" @click="goRouter('/home/case/enter')">
+                        <svg class="icon" aria-hidden="true" style="width: 20px;fill: #A6A6FF;height: 20px;">
+                            <use xlink:href="#icon-a-ruku2"></use>
+                        </svg>
+                        <span class="pl-5">
+                            待入库
+                        </span>
+                    </ElMenuItem>
+                    <ElMenuItem index="3" @click="goRouter('/home/case/int')">
+                        <svg class="icon" aria-hidden="true" style="width: 20px;fill: #70B603;height: 20px;">
+                            <use xlink:href="#icon-zaiku"></use>
+                        </svg>
+                        <span class="pl-5">
+                            在库案件
+                        </span>
+                    </ElMenuItem>
+                    <ElMenuItem index="4" @click="goRouter('/home/case/expires')">
+                        <svg class="icon" aria-hidden="true" style="width: 20px;fill: #F9C27B;height: 20px;">
+                            <use xlink:href="#icon-a-daoqichanpin2"></use>
+                        </svg>
+                        <span class="pl-5">
+                            期满案件
+                        </span>
+                    </ElMenuItem>
+                    <ElMenuItem index="5" @click="goRouter('/home/case/archive')">
+                        <svg class="icon" aria-hidden="true" style="width: 20px;fill: #000000;height: 20px;">
+                            <use xlink:href="#icon-guidang"></use>
+                        </svg>
+                        <span class="pl-5">
+                            归档案件
+                        </span>
+                    </ElMenuItem>
+                    <ElMenuItem index="6" @click="goRouter('/home/case/overdue')">
+                        <svg class="icon" aria-hidden="true" style="width: 20px;fill: #F86F6F;height: 20px;">
+                            <use xlink:href="#icon-daoqichanpin"></use>
+                        </svg>
+                        <span class="pl-5">
+                            超期案件
+                        </span>
+                    </ElMenuItem>
                 </el-menu>
             </el-aside>
             <el-main class="h-full">

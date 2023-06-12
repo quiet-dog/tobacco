@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // const baseURL = import.meta.env.DEV ? "/api" : "http://192.168.0.130:8080";
-const baseURL = "http://192.168.0.81:8080";
+const baseURL = "http://192.168.0.81:8081";
 const http = axios.create({
     baseURL,
     headers: {

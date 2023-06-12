@@ -1,65 +1,6 @@
 <template>
     <div class="h-full">
-        <div style="height: 150px;">
-            <el-row>
-                <el-col :span="12">
-                    <div>
-                        <h1 class="text-2xl">条码生成</h1>
-                        <h4>可使用扫码枪扫描商品条码，系统将自动查询样品信息</h4>
-                    </div>
-                </el-col>
-                <el-col :span="12">
-                    <div class="pt-4">
-                        <el-row :gutter="20">
-                            <el-col :span="7">
-                                <ElFormItem label="条数">
-                                    <ElInput />
-                                </ElFormItem>
-                            </el-col>
-                            <el-col :span="7">
-                                <ElFormItem label="条数">
-                                    <ElInput />
-                                </ElFormItem>
-                            </el-col>
-                            <el-col :span="7">
-                                <ElFormItem label="条数">
-                                    <ElInput />
-                                </ElFormItem>
-                            </el-col>
-                            <el-col :span="3">
-                                <ElButton>生成</ElButton>
-                            </el-col>
-                        </el-row>
-                    </div>
-                </el-col>
-            </el-row>
-            <el-row :gutter="20">
-                <el-col :span="6">
-                    <ElFormItem label="样品名称">
-                        <ElInput />
-                    </ElFormItem>
-                </el-col>
-                <el-col :span="6">
-                    <ElFormItem label="厂商名称">
-                        <ElInput />
-                    </ElFormItem>
-                </el-col>
-                <el-col :span="6">
-                    <ElFormItem label="样品名称">
-                        <ElInput />
-                    </ElFormItem>
-                </el-col>
-                <el-col :span="6">
-                    <ElFormItem label="包装规格">
-                        <ElSelect>
-                            <ElOption label="Zone one" value="shanghai"></ElOption>
-                            <ElOption label="Zone two" value="beijing"> </ElOption>
-                        </ElSelect>
-                    </ElFormItem>
-                </el-col>
-            </el-row>
-        </div>
-        <div style="height: calc(100% - 150px);">
+        <div style="height: calc(100%);">
             <div style="height: calc(100% - 60px);">
                 <ElTable max-height="100%" height="100%" :data="tableData"
                     :default-sort="{ prop: 'date', order: 'descending' }" :header-cell-style="{ background: '#FAFAFA' }"

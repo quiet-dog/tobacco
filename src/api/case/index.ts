@@ -16,3 +16,26 @@ export function getCaseListApi(data: any) {
         data
     })
 }
+
+// 单独获取案件
+export function getCaseApi(id: any) {
+    return myRequest({
+        url: `/api/admin/law_case/get`,
+        method: "post",
+        data: {
+            id
+        }
+    })
+}
+
+// 保存案件
+export function saveCaseApi(data: any) {
+    return myRequest({
+        url: '/api/admin/law_case/identify',
+        method: 'post',
+        data,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+}

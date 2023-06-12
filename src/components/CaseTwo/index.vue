@@ -129,6 +129,7 @@ let tobaccoForm = $ref({
 })
 let page = $ref(1)
 let pageSize = $ref(20)
+const route = useRoute()
 const total = $computed(() => {
     return samples.length
 })
@@ -147,6 +148,7 @@ const handeleSize = (val: number) => {
 
 function getScangerCode(code: any) {
     console.log('12312312312')
+    if (route.path.search("create") === -1) return
     getTobaccoListApi(code).then(res => {
         tobaccoForm.tobaccoCode = res.result.barcode
         tobaccoForm.tobaccoName = res.result.name

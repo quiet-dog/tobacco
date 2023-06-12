@@ -26,7 +26,8 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { Edit } from '@element-plus/icons-vue'
+import { Edit, DataLine } from '@element-plus/icons-vue'
+// <el-icon><DataLine /></el-icon>
 </script>
 <style scoped>
 #main-header :deep(> div > div > div.el-page-header__left > div.el-divider.el-divider--vertical) {

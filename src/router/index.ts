@@ -89,7 +89,12 @@ const routes: RouteRecordRaw[] = [
                 name: 'area',
             }
         ]
-    },
+    }, {
+        path: '/print',
+        component: () => import('@/views/print/index.vue'),
+        name: 'test',
+        meta: { title: '测试' }
+    }
 ]
 
 const router = createRouter({

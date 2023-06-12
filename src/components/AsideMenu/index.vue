@@ -4,7 +4,7 @@
             <el-menu-item index="1" @click="goRouter('/home/screen')">
                 <template #title>
                     <el-icon>
-                        <location />
+                        <DataLine />
                     </el-icon>
                     <span>数据大屏</span>
                 </template>
@@ -12,7 +12,7 @@
             <el-menu-item index="2" @click="goRouter('/home/case')">
                 <template #title>
                     <el-icon>
-                        <location />
+                        <Management />
                     </el-icon>
                     <span>案件中心</span>
                 </template>
@@ -20,7 +20,7 @@
             <el-menu-item index="3" @click="goRouter('/home/tobacco')">
                 <template #title>
                     <el-icon>
-                        <location />
+                        <Tickets />
                     </el-icon>
                     <span>烟草管理</span>
                 </template>
@@ -28,7 +28,7 @@
             <el-menu-item index="4" @click="goRouter('/home/warehouse')">
                 <template #title>
                     <el-icon>
-                        <location />
+                        <OfficeBuilding />
                     </el-icon>
                     <span>库房管理</span>
                 </template>
@@ -36,7 +36,7 @@
             <el-menu-item index="5" @click="goRouter('/home/user')">
                 <template #title>
                     <el-icon>
-                        <location />
+                        <User />
                     </el-icon>
                     <span>用户管理</span>
                 </template>
@@ -46,6 +46,8 @@
     </div>
 </template>
 <script lang="ts" setup>
+import { DataLine, Management, User, Tickets, OfficeBuilding } from '@element-plus/icons-vue'
+// <el-icon><DataLine /></el-icon>
 
 const router = useRouter();
 function goRouter(path: string) {

@@ -9,13 +9,11 @@ export function getSampleListApi(data: any) {
 }
 
 // 通过code获取单个样本
-export function getSampleByCodeApi(code: string) {
+export function getSampleByCodeApi(data: any) {
     return myRequest({
         url: '/api/admin/sample/getbycode',
         method: 'POST',
-        data: {
-            code
-        }
+        data
     })
 }
 
@@ -23,6 +21,15 @@ export function getSampleByCodeApi(code: string) {
 export function sampleIdentifyApi(data: any) {
     return myRequest({
         url: '/api/admin/sample/identify',
+        method: 'POST',
+        data
+    })
+}
+
+// 设置剩余样品状态
+export function setSampleStatusApi(data: any) {
+    return myRequest({
+        url: '/api/admin/law_case/identify/patch',
         method: 'POST',
         data
     })

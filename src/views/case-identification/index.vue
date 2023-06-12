@@ -51,23 +51,23 @@
             <template #table>
                 <ElTable max-height="100%" height="100%" @row-click="handleRowDrawer" :data="tableData"
                     :header-cell-style="{ background: '#FAFAFA' }">
-                    <el-table-column prop="report_code" label="流水号" />
-                    <el-table-column prop="name" label="案件名称" />
-                    <el-table-column prop="seized_site" label="查扣地点" />
-                    <el-table-column prop="party" label="当事人" />
-                    <el-table-column prop="value" label="案值（元）" />
-                    <el-table-column prop="reason" label="查扣原因" />
-                    <el-table-column prop="sampling_time" label="抽样时间">
+                    <el-table-column prop="report_code" label="流水号" show-overflow-tooltip />
+                    <el-table-column prop="name" label="案件名称" show-overflow-tooltip />
+                    <el-table-column prop="seized_site" label="查扣地点" show-overflow-tooltip />
+                    <el-table-column prop="party" label="当事人" show-overflow-tooltip />
+                    <el-table-column prop="value" label="案值（元）" show-overflow-tooltip />
+                    <el-table-column prop="reason" label="查扣原因" show-overflow-tooltip />
+                    <el-table-column prop="sampling_time" label="抽样时间" show-overflow-tooltip>
                         <template #default="scope">
                             <span>{{ scope.row.sampling_time ? formatDate(scope.row.sampling_time) : "-" }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="sampler" label="抽样人" />
-                    <el-table-column prop="delivery_location" label="抽样地点" />
-                    <el-table-column prop="entrust_unit" label="委托单位" />
-                    <el-table-column width="150">
+                    <el-table-column prop="sampler" label="抽样人" show-overflow-tooltip />
+                    <el-table-column prop="delivery_location" label="抽样地点" show-overflow-tooltip />
+                    <el-table-column prop="entrust_unit" label="委托单位" show-overflow-tooltip />
+                    <el-table-column width="150" show-overflow-tooltip>
                         <template #default="scope">
-                            <ElButton text style="padding: 0px;"> 编辑</ElButton>
+                            <ElButton text style="padding: 0px;" type="primary"> 编辑</ElButton>
                             <ElButton text style="padding: 0px;" type="danger"> 取消</ElButton>
                         </template>
                     </el-table-column>
@@ -87,7 +87,7 @@
                 <el-card shadow="hover" class="title-card-my">
                     <template #header>
                         <div class="flex">
-                            <div class="border-l-4 border-blue-400 pl-2 text-3xl">概述</div>
+                            <div class="border-l-4 border-blue-400 pl-2 text-2xl">概述</div>
                             <div class="flex-grow">
                             </div>
                         </div>
@@ -105,7 +105,7 @@
                                 <el-descriptions-item label-align="right" label="查扣原因">
                                     <el-tag>{{ taskInfo.reason }}</el-tag>
                                 </el-descriptions-item>
-                                <el-descriptions-item label-align="left" label="抽样时间">{{ taskInfo.sampling_time
+                                <el-descriptions-item label-align="left" label="抽样时间">{{ formatDate(taskInfo.sampling_time)
                                 }}</el-descriptions-item>
                                 <el-descriptions-item label-align="right" label="查扣地点">{{ taskInfo.delivery_location
                                 }}</el-descriptions-item>
@@ -146,7 +146,7 @@
                     <el-card shadow="hover" class="title-card-my">
                         <template #header>
                             <div class="flex">
-                                <div class="border-l-4 border-blue-400 pl-2 text-3xl">待检列表</div>
+                                <div class="border-l-4 border-blue-400 pl-2 text-2xl">待检列表</div>
                                 <div class="flex-grow"></div>
                             </div>
                         </template>
@@ -154,13 +154,14 @@
                             <div>
                                 <el-table :data="tableData2" :default-sort="{ prop: 'date', order: 'descending' }"
                                     :header-cell-style="{ background: '#FAFAFA' }" width="100%">
-                                    <el-table-column prop="code" label="编号" width="150"></el-table-column>
+                                    <el-table-column prop="code" label="编号" width="150"
+                                        show-overflow-tooltip></el-table-column>
 
                                     <el-table-column prop="name" label="样品名称" width="150" show-overflow-tooltip>
                                     </el-table-column>
-                                    <el-table-column prop="manufacturer" label="厂商">
+                                    <el-table-column prop="manufacturer" label="厂商" show-overflow-tooltip>
                                     </el-table-column>
-                                    <el-table-column prop="packing_spec" label="包装形式" width="100">
+                                    <el-table-column prop="packing_spec" label="包装形式" width="100" show-overflow-tooltip>
                                     </el-table-column>
                                     <el-table-column prop="name" label="操作">
                                         <template #default="scope">
@@ -204,7 +205,7 @@
 
                         </div>
                         <div>
-                            <ElButton @click="openProgress">鉴定进度({{ progress }}/{{ 100 }})</ElButton>
+                            <ElButton @click="openProgress">鉴定进度({{ isCheck }}/{{ total2 }})</ElButton>
                         </div>
                     </div>
                     <div style="height: 450px;" v-if="scannerTable1.length > 0" class="px-36 pt-10">
@@ -304,14 +305,20 @@
                 <div v-if="targetDialog === 3">
                     <div>
                         <el-row>
-                            <el-col :span="12">
+                            <el-col :span="24">
                                 <el-row>
                                     <el-col :span="24">
                                         <h1 style="font-size:20px;font-weight: 700;">上传图片</h1>
                                         <div style="height:300px" class="mt-5" id="upload-file">
-                                            <el-upload style="height: 100%;" size="large" class="upload-demo" drag
-                                                action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-                                                multiple>
+                                            <el-upload v-model:file-list="fileList" :on-change="fileChange" :headers="{
+                                                'Authorization': 'Bearer ' + '12345678abc'
+                                            }" ref="upload" style="height: 100%;" size="large" class="upload-demo" drag
+                                                action="http://192.168.0.81:8081/api/admin/law_case/identify" multiple
+                                                :auto-upload="false" :data="{
+                                                    'law_case_id': law_case_id,
+                                                    'remark': saveCaseForm.remark,
+                                                    'report_code': saveCaseForm.report_code
+                                                }">
                                                 <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                                                 <div class="el-upload__text">
                                                     点击或拖动文件进行上传
@@ -334,18 +341,16 @@
                                     </el-col>
                                 </el-row>
 
-                                <ElForm label-width="100">
-                                    <ElFormItem label="备注">
-                                        <ElInput />
+                                <ElForm :model="saveCaseForm" label-width="100" style="width: 50%;">
+                                    <ElFormItem prop="remark" label="备注">
+                                        <ElInput v-model="saveCaseForm.remark" />
                                     </ElFormItem>
-                                    <ElFormItem label="报告编号">
-                                        <ElInput />
+                                    <ElFormItem prop="report_code" label="报告编号">
+                                        <ElInput v-model="saveCaseForm.report_code" />
                                     </ElFormItem>
                                 </ElForm>
                             </el-col>
-                            <el-col :span="12">
-                                code
-                            </el-col>
+
                         </el-row>
 
                     </div>
@@ -357,22 +362,62 @@
                             <ElButton @click="drawer1 = false">取消</ElButton>
                         </div>
                         <div>
-                            <ElButton size="large">完成</ElButton>
+                            <ElButton size="large" @click="submitSavaCase">完成</ElButton>
                         </div>
                     </div>
                 </div>
 
             </div>
+
+            <ElDialog v-model="drawer2" title="鉴定进度" @closed="closedDialog2">
+                <div>
+                    <div class="flex">
+                        <div style="width: calc(100% - 250px);">
+                            <el-tabs v-model="tabsValue4" @tab-change="changeTabs4">
+                                <el-tab-pane name="0" :label="`正品(${real_quantity})`"></el-tab-pane>
+                                <el-tab-pane name="1" :label="`赝品${fake_quantity}`"></el-tab-pane>
+                                <el-tab-pane name="2" :label="`未鉴定${unidentified_quantity}`"></el-tab-pane>
+                            </el-tabs>
+                        </div>
+                        <div style="width: 250px;">
+                            <ElButton type="primary" @click="setAllCaseStatus(true)" :loading="loading2">均为正品</ElButton>
+                            <ElButton type="danger" @click="setAllCaseStatus(true)">均为赝品</ElButton>
+                        </div>
+                    </div>
+                    <div>
+                        <ElTable :data="statusTableData" height="100%" :header-cell-style="{ background: '#FAFAFA' }">
+                            <ElTableColumn prop="name" label="编号"></ElTableColumn>
+                            <ElTableColumn label="厂商"></ElTableColumn>
+                            <ElTableColumn label="包装形式"></ElTableColumn>
+                            <ElTableColumn label="鉴定结果"></ElTableColumn>
+                            <ElTableColumn label="鉴定人"></ElTableColumn>
+                            <ElTableColumn label="鉴定时间"></ElTableColumn>
+                        </ElTable>
+                    </div>
+                    <div class="flex">
+                        <div>
+                            共{{ total4 }}条
+                        </div>
+                        <div class="flex-grow">
+                        </div>
+                        <div>
+                            <el-pagination v-model:currentPage="page4" @current-change="handlePage4"
+                                @size-change="handeleSize4" v-model:page-size="pageSize4" large layout="prev, pager, next"
+                                :total="total4" />
+                        </div>
+                    </div>
+                </div>
+            </ElDialog>
         </ElDialog>
     </div>
 </template>
 <script lang="ts" setup>
-import { getCaseListApi } from '@/api/case';
-import { getSampleListApi, getSampleByCodeApi, sampleIdentifyApi } from '@/api/sample';
+import { getCaseApi, getCaseListApi, saveCaseApi } from '@/api/case';
+import { getSampleListApi, getSampleByCodeApi, sampleIdentifyApi, setSampleStatusApi } from '@/api/sample';
 import { formatDate } from "@/utils"
 import { ElMessage } from 'element-plus';
 
-
+const status = $ref("待鉴定")
 const router = useRouter()
 function goCreatTask(path: string) {
     router.push(path)
@@ -391,16 +436,18 @@ let timeOption = [
 ]
 let tableData = $ref([])
 let tableData2 = $ref([])
-let total1 = $ref(50)
-let total2 = $ref(50)
+let total1 = $ref(0)
+let total2 = $ref(0)
 let drawer = $ref(false)
 let setActive = $ref(0)
 let page1 = $ref(1)
 let pageSize1 = $ref(10)
 let page2 = $ref(1)
 let pageSize2 = $ref(5)
-let task_id = $ref(0)
+let law_case_id = $ref(0)
 let drawer1 = $ref(false)
+let upload = $ref()
+let fileList = $ref([])
 
 const datePickerShortcuts = ref([
     {
@@ -464,10 +511,14 @@ let taskInfo = $ref({
 })
 const handleRowDrawer = (row: any, _column: any, _event: any) => {
     drawer = true
-    task_id = row.id
+    law_case_id = row.id
     taskInfo = row
+    console.log('roqwww', row)
+    isCheck = row.identify_result.identified_quantity
+    unidentified_quantity = row.identify_result.unidentified_quantity
+    fake_quantity = row.identify_result.fake_quantity
+    real_quantity = row.identify_result.real_quantity
     getSampleList()
-    console.log(row)
 }
 
 function changeSelect(val) {
@@ -478,7 +529,16 @@ function closedDrawer() {
     page2 = 1
     pageSize2 = 5
     total2 = 0
-    task_id = 0
+    law_case_id = 0
+}
+
+function closedDialog2() {
+    tabsValue4 = '0'
+    page4 = 1
+    pageSize4 = 5
+    total4 = 0
+    statusTableData = []
+    loading2 = false
 }
 
 function openDialog() {
@@ -517,10 +577,14 @@ let drawer2 = $ref(false)
 let tabsValue = $ref('0')
 
 let scannerTableT_table = $ref([])
-
+const route = useRoute()
 function getScannerCode(val) {
     // console.log(val)
-    getSampleByCodeApi(val).then(res => {
+    if (route.path.search("indenti") !== -1) return
+    getSampleByCodeApi({
+        code: val,
+        law_case_id
+    }).then(res => {
         scannerTable1 = []
         scannerTable1.push(res.data)
     }).catch(err => {
@@ -542,13 +606,26 @@ function falseScanner() {
 
 function openProgress() {
     drawer2 = true
+    getStatusSampleList()
 }
 
+let isCheck = $ref(0)
+let real_quantity = $ref(0)
+let fake_quantity = $ref(0)
+let unidentified_quantity = $ref(0)
+let saveCaseForm = $ref({
+    remark: '',
+    report_code: ''
+})
 function setIsSample(id: any, val: boolean) {
     sampleIdentifyApi({
         id,
         is_real: val
     }).then(res => {
+        isCheck = res.data.law_case.identify_result.identified_quantity
+        real_quantity = res.data.law_case.identify_result.real_quantity
+        fake_quantity = res.data.law_case.identify_result.fake_quantity
+        unidentified_quantity = res.data.law_case.identify_result.unidentified_quantity
         ElMessage({
             type: 'success',
             message: res.msg
@@ -570,7 +647,82 @@ function closedDrawer1() {
     scannerTable1 = []
     scannerTableT_table = []
     targetDialog = 1
+    isCheck = 0
+    real_quantity = 0
+    fake_quantity = 0
+    unidentified_quantity = 0
+    saveCaseForm.remark = ''
+    saveCaseForm.report_code = ''
+    fileList = []
+    files = []
 }
+
+let files = []
+const fileChange = (uploadFile, uploadFiles) => {
+    // fileList = fileList.slice(-3)
+    // console.log(uploadFile, uploadFiles)
+    // fileList = uploadFiles
+    files = uploadFiles
+}
+
+function submitSavaCase() {
+    // upload.submit()
+    const formData = new FormData()
+    files.forEach(item => {
+        formData.append('files', item.raw)
+    })
+    formData.append('law_case_id', String(law_case_id))
+    formData.append('remark', saveCaseForm.remark)
+    formData.append('report_code', saveCaseForm.report_code)
+    saveCaseApi(formData).then(res => {
+        ElMessage({
+            type: 'success',
+            message: res.msg
+        })
+        drawer1 = false
+    }).catch(err => {
+        ElMessage({
+            type: 'error',
+            message: err.msg
+        })
+    })
+}
+
+
+function handlePage4(val) {
+    getStatusSampleList()
+}
+
+function handeleSize4(val) {
+    getStatusSampleList()
+}
+
+let loading2 = $ref(false)
+function setAllCaseStatus(val: boolean) {
+    loading2 = true
+    setSampleStatusApi({
+        law_case_id,
+        is_real: val
+    }).then(res => {
+        isCheck = res.data.identify_result.identified_quantity
+        real_quantity = res.data.identify_result.real_quantity
+        fake_quantity = res.data.identify_result.fake_quantity
+        unidentified_quantity = res.data.identify_result.unidentified_quantity
+        ElMessage({
+            type: 'success',
+            message: res.msg
+        })
+        loading2 = false
+    }).catch(err => {
+        ElMessage({
+            type: 'error',
+            message: err.msg
+        })
+        loading2 = false
+
+    })
+}
+
 
 function getCaseList() {
     getCaseListApi({
@@ -580,6 +732,7 @@ function getCaseList() {
         storage_time_end: timeValue === '2' ? undefined : datePickerValue === null ? undefined : datePickerValue[1],
         sampling_time_start: timeValue === '1' ? undefined : datePickerValue === null ? undefined : datePickerValue[0],
         sampling_time_end: timeValue === '1' ? undefined : datePickerValue === null ? undefined : datePickerValue[1],
+        status
     }).then(res => {
         total1 = res.data.total
         tableData = res.data.list
@@ -590,10 +743,28 @@ function getSampleList() {
     getSampleListApi({
         page_index: page2,
         page_size: pageSize2,
-        task_id: task_id === 0 ? undefined : task_id,
+        law_case_id: law_case_id === 0 ? undefined : law_case_id,
     }).then(res => {
         total2 = res.data.total
         tableData2 = res.data.list
+    })
+}
+
+let statusTableData = $ref([])
+let tabsValue4 = $ref("0")
+function changeTabs4(val) {
+    getStatusSampleList()
+}
+
+function getStatusSampleList() {
+    getSampleListApi({
+        page_index: page4,
+        page_size: pageSize4,
+        law_case_id: law_case_id === 0 ? undefined : law_case_id,
+        is_real: tabsValue4 === '0' ? true : false
+    }).then(res => {
+        total4 = res.data.total
+        statusTableData = res.data.list
     })
 }
 
@@ -601,7 +772,7 @@ function getCheckSampleLisk() {
     getSampleListApi({
         page_index: page3,
         page_size: pageSize3,
-        task_id: task_id === 0 ? undefined : task_id,
+        law_case_id: law_case_id === 0 ? undefined : law_case_id,
         is_real: tabsValue === '0' ? true : false
     }).then(res => {
         // total2 = res.data.total
