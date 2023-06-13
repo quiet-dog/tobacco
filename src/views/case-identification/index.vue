@@ -198,9 +198,9 @@
                 <div v-if="targetDialog === 1" class="w-full h-full">
                     <ScannerGun @change="getScannerCode" />
                     <div class="flex">
-                        <div>
+                        <!-- <div>
                             <ElButton @click="falseScanner">假装扫描</ElButton>
-                        </div>
+                        </div> -->
                         <div class="flex-grow">
 
                         </div>
@@ -309,7 +309,7 @@
                                 <el-row>
                                     <el-col :span="24">
                                         <h1 style="font-size:20px;font-weight: 700;">上传图片</h1>
-                                        <div style="height:300px" class="mt-5" id="upload-file">
+                                        <div style="height:200px" class="mt-5" id="upload-file">
                                             <el-upload v-model:file-list="fileList" :on-change="fileChange" :headers="{
                                                 'Authorization': 'Bearer ' + '12345678abc'
                                             }" ref="upload" style="height: 100%;" size="large" class="upload-demo" drag
@@ -336,6 +336,23 @@
                                                         </div>
                                                     </div>
                                                 </template>
+                                            </el-upload>
+                                        </div>
+                                    </el-col>
+                                </el-row>
+                                <el-row>
+                                    <el-col :span="24">
+                                        <h1 style="font-size:20px;font-weight: 700;">上传图片</h1>
+                                        <div style="height:200px" class="mt-5" id="upload-file">
+                                            <el-upload v-model:file-list="fileList" :before-upload="beforeAvatarUpload"
+                                                :on-change="imgFileChange" ref="uploadRef2" style="height: 100%;"
+                                                size="large" class="upload-demo" drag
+                                                action="http://192.168.0.81:8081/api/admin/law_case/identify" :limit="1"
+                                                :on-exceed="handleExceed" :auto-upload="false" :show-file-list="false">
+                                                <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+                                                <el-icon v-else class="avatar-uploader-icon">
+                                                    <Plus />
+                                                </el-icon>
                                             </el-upload>
                                         </div>
                                     </el-col>
@@ -415,8 +432,22 @@
 import { getCaseApi, getCaseListApi, saveCaseApi } from '@/api/case';
 import { getSampleListApi, getSampleByCodeApi, sampleIdentifyApi, setSampleStatusApi } from '@/api/sample';
 import { formatDate } from "@/utils"
-import { ElMessage } from 'element-plus';
+import { ElMessage, genFileId } from 'element-plus';
+import { Plus } from '@element-plus/icons-vue'
+import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
 
+const imageUrl = ref('')
+function beforeAvatarUpload(rawFile) {
+    if (rawFile.type !== 'image/jpeg') {
+        ElMessage.error('Avatar picture must be JPG format!')
+        return false
+    } else if (rawFile.size / 1024 / 1024 > 2) {
+        ElMessage.error('Avatar picture size can not exceed 2MB!')
+        return false
+    }
+    imageUrl.value = URL.createObjectURL(rawFile)
+    return true
+}
 const status = $ref("待鉴定")
 const router = useRouter()
 function goCreatTask(path: string) {
@@ -448,7 +479,13 @@ let law_case_id = $ref(0)
 let drawer1 = $ref(false)
 let upload = $ref()
 let fileList = $ref([])
-
+const uploadRef2 = ref()
+const handleExceed = (files) => {
+    uploadRef2.value!.clearFiles()
+    const filea = files[0]
+    filea.uid = genFileId()
+    uploadRef2.value!.handleStart(filea)
+}
 const datePickerShortcuts = ref([
     {
         text: '上一周',
@@ -665,7 +702,8 @@ function closedDrawer1() {
     files = []
 }
 
-let files = []
+let files = $ref([])
+let imgFile = $ref()
 const fileChange = (uploadFile, uploadFiles) => {
     // fileList = fileList.slice(-3)
     // console.log(uploadFile, uploadFiles)
@@ -673,12 +711,19 @@ const fileChange = (uploadFile, uploadFiles) => {
     files = uploadFiles
 }
 
+const imgFileChange = (uploadFile, uploadFiles) => {
+
+    imgFile = uploadFile
+}
+
+
 function submitSavaCase() {
     // upload.submit()
     const formData = new FormData()
     files.forEach(item => {
         formData.append('files', item.raw)
     })
+    formData.append('cover_file', imgFile.raw)
     formData.append('law_case_id', String(law_case_id))
     formData.append('remark', saveCaseForm.remark)
     formData.append('report_code', saveCaseForm.report_code)
