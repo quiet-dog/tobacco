@@ -32,7 +32,7 @@
                                 @change="changePickerTime" />
                         </div>
 
-                        <div>
+                        <!-- <div>
                             <el-dropdown size="large" split-button type="primary">
                                 批量操作
                                 <template #dropdown>
@@ -44,14 +44,14 @@
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </template>
             <template #table>
                 <ElTable max-height="100%" height="100%" @row-click="handleRowDrawer" :data="tableData"
                     :header-cell-style="{ background: '#FAFAFA' }">
-                    <el-table-column prop="report_code" label="流水号" show-overflow-tooltip />
+                    <el-table-column prop="id" label="流水号" show-overflow-tooltip />
                     <el-table-column prop="name" label="案件名称" show-overflow-tooltip />
                     <el-table-column prop="seized_site" label="查扣地点" show-overflow-tooltip />
                     <el-table-column prop="party" label="当事人" show-overflow-tooltip />
@@ -67,7 +67,7 @@
                     <el-table-column prop="entrust_unit" label="委托单位" show-overflow-tooltip />
                     <el-table-column width="150" show-overflow-tooltip>
                         <template #default="scope">
-                            <ElButton text style="padding: 0px;" type="primary"> 编辑</ElButton>
+                            <!-- <ElButton text style="padding: 0px;" type="primary"> 编辑</ElButton> -->
                             <ElButton text style="padding: 0px;" type="danger"> 取消</ElButton>
                         </template>
                     </el-table-column>
@@ -372,14 +372,14 @@
             <ElDialog v-model="drawer2" title="鉴定进度" @closed="closedDialog2">
                 <div>
                     <div class="flex">
-                        <div style="width: calc(100% - 250px);">
+                        <div :style="{ width: tabsValue4 === '2' ? 'calc(100% - 250px)' : '100%' }">
                             <el-tabs v-model="tabsValue4" @tab-change="changeTabs4">
                                 <el-tab-pane name="0" :label="`正品(${real_quantity})`"></el-tab-pane>
                                 <el-tab-pane name="1" :label="`赝品${fake_quantity}`"></el-tab-pane>
                                 <el-tab-pane name="2" :label="`未鉴定${unidentified_quantity}`"></el-tab-pane>
                             </el-tabs>
                         </div>
-                        <div style="width: 250px;">
+                        <div style="width: 250px;" v-if="tabsValue4 === '2'">
                             <ElButton type="primary" @click="setAllCaseStatus(true)" :loading="loading2">均为正品</ElButton>
                             <ElButton type="danger" @click="setAllCaseStatus(true)">均为赝品</ElButton>
                         </div>
@@ -514,10 +514,13 @@ const handleRowDrawer = (row: any, _column: any, _event: any) => {
     law_case_id = row.id
     taskInfo = row
     console.log('roqwww', row)
-    isCheck = row.identify_result.identified_quantity
-    unidentified_quantity = row.identify_result.unidentified_quantity
-    fake_quantity = row.identify_result.fake_quantity
-    real_quantity = row.identify_result.real_quantity
+
+    getCaseApi(law_case_id).then(res => {
+        isCheck = res.data.identify_result.identified_quantity
+        unidentified_quantity = res.data.identify_result.unidentified_quantity
+        fake_quantity = res.data.identify_result.fake_quantity
+        real_quantity = res.data.identify_result.real_quantity
+    })
     getSampleList()
 }
 
@@ -581,18 +584,23 @@ const route = useRoute()
 function getScannerCode(val) {
     // console.log(val)
     if (route.path.search("indenti") !== -1) return
-    getSampleByCodeApi({
-        code: val,
-        law_case_id
-    }).then(res => {
-        scannerTable1 = []
-        scannerTable1.push(res.data)
-    }).catch(err => {
-        ElMessage({
-            type: 'error',
-            message: err.msg
+    const parts = val.split("/")
+    if (parts.length >= 5) {
+        const content = parts[4];
+        getSampleByCodeApi({
+            code: content,
+            law_case_id
+        }).then(res => {
+            scannerTable1 = []
+            scannerTable1.push(res.data)
+        }).catch(err => {
+            ElMessage({
+                type: 'error',
+                message: err.msg
+            })
         })
-    })
+    }
+
 }
 
 function falseScanner() {
@@ -647,10 +655,10 @@ function closedDrawer1() {
     scannerTable1 = []
     scannerTableT_table = []
     targetDialog = 1
-    isCheck = 0
-    real_quantity = 0
-    fake_quantity = 0
-    unidentified_quantity = 0
+    // isCheck = 0
+    // real_quantity = 0
+    // fake_quantity = 0
+    // unidentified_quantity = 0
     saveCaseForm.remark = ''
     saveCaseForm.report_code = ''
     fileList = []

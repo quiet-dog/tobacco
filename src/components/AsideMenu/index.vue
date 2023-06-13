@@ -1,14 +1,14 @@
 <template>
     <div>
         <el-menu :default-active="defaultActive" class="el-menu-vertical-demo">
-            <el-menu-item index="1" @click="goRouter('/home/screen')">
+            <!-- <el-menu-item index="1" @click="goRouter('/home/screen')">
                 <template #title>
                     <el-icon>
                         <DataLine />
                     </el-icon>
                     <span>数据大屏</span>
                 </template>
-            </el-menu-item>
+            </el-menu-item> -->
             <el-menu-item index="2" @click="goRouter('/home/case')">
                 <template #title>
                     <el-icon>

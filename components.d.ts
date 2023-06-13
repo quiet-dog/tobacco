@@ -10,6 +10,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AsideMenu: typeof import('./src/components/AsideMenu/index.vue')['default']
+    CaseFour: typeof import('./src/components/CaseFour/index.vue')['default']
     CaseHeader: typeof import('./src/components/CaseHeader/index.vue')['default']
     CaseOne: typeof import('./src/components/CaseOne/index.vue')['default']
     CaseThree: typeof import('./src/components/CaseThree/index.vue')['default']

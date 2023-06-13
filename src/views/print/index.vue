@@ -37,10 +37,14 @@ let hiprintTemplate = new hiprint.PrintTemplate({
 // }
 function test22() {
     let data = {
-        all1: '2',
-        all2: '222',
-        all3: '333',
-        qrcode: '121'
+        sample_name: "黄金叶红旗渠烟红旗渠烟",
+        code: "ZWD61230600077",
+        case_name: '测试的案件名称件名称',
+        danwei: "飞度智能科技有限责任公司",
+        person: "测试人",
+        reason: "测试原因",
+        money: "1000",
+        link: "https://www.bilibili.com/?spm_id_from=444.41.0.0"
     }
     console.log("list", hiprintTemplate.getPrinterList())
 

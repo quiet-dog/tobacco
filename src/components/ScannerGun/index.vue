@@ -21,7 +21,7 @@ function getScannerCode(e: KeyboardEvent) {
     }
     nextCode = String(e.key);
     nextTime = new Date().getTime();
-    if (lastCode != undefined && lastTime != null && nextTime - lastTime <= 20) {
+    if (lastCode != undefined && lastTime != null && nextTime - lastTime <= 30) {
         // 扫码枪输入
         if (nextCode === "Enter") {
             console.log("jinru ")
@@ -29,8 +29,11 @@ function getScannerCode(e: KeyboardEvent) {
             console.log("codeS.code", code)
 
             emit("change", code)
-            code = "";
+            code = ""
             lastCode = undefined
+            lastTime = null
+            nextTime = null
+            nextCode = undefined
             return;
         } else {
             code += lastCode

@@ -16,27 +16,36 @@
                     </ElFormItem>
                     <ElFormItem :rules="[{ required: true, message: '请填写委托单位', trigger: ['blur', 'change'], }]"
                         prop="entrust_unit" label="委托单位" class="w-72">
-                        <el-select v-model="form.entrust_unit" placeholder="请选择">
-                            <el-option label="Zone one" value="shanghai" />
-                            <el-option label="Zone two" value="beijing" />
+                        <el-select v-model="form.entrust_unit" filterable placeholder="请选择">
+                            <!-- <el-option label="Zone one" value="shanghai" />
+                            <el-option label="Zone two" value="beijing" /> -->
+                            <el-option v-for="item in positionList" :label="item" :value="item" />
                         </el-select>
                     </ElFormItem>
                     <ElFormItem :rules="[{ required: true, message: '请填写查扣原因', trigger: ['blur', 'change'], }]"
                         prop="reason" label="查扣原因" class="w-72">
                         <el-select v-model="form.reason" placeholder="请选择">
-                            <el-option label="Zone one" value="shanghai" />
-                            <el-option label="Zone two" value="beijing" />
+                            <el-option label="刑事案件" value="刑事案件" />
+                            <el-option label="民事案件" value="民事案件" />
                         </el-select>
                     </ElFormItem>
                     <ElFormItem :rules="[{ required: true, message: '请填写案值（元）', trigger: ['blur', 'change'], }]"
                         prop="value" label="案值（元）" class="w-72">
                         <ElInput v-model="form.value" placeholder="请输入案值"></ElInput>
                     </ElFormItem>
-                    <ElFormItem :rules="[{ required: true, message: '请填写发货地点', trigger: ['blur', 'change'], }]"
-                        prop="delivery_location" label="发货地点">
+                    <ElFormItem prop="value" label="快递公司" class="w-72">
+                        <!-- <ElInput v-model="form.express_company" placeholder="请输入快递公司"></ElInput> -->
+                        <ElSelect v-model="form.express_company" filterable>
+                            <ElOption v-for="item in expressCompanies" :label="item" :value="item" />
+                        </ElSelect>
+                    </ElFormItem>
+                    <ElFormItem prop="value" label="快递单号" class="w-72">
+                        <ElInput v-model="form.express_number" placeholder="请输入快递单号"></ElInput>
+                    </ElFormItem>
+                    <ElFormItem prop="delivery_location" label="发货地点">
                         <el-row>
                             <el-col :span="12">
-                                <el-cascader placeholder="请选择地区" size="large" :options="regionData"
+                                <el-cascader :key="reload" filterable placeholder="请选择地区" size="large" :options="regionData"
                                     @change="handleDeliveryChange">
                                 </el-cascader>
                             </el-col>
@@ -50,7 +59,7 @@
                         prop="seized_site" label="查扣地址">
                         <el-row>
                             <el-col :span="12">
-                                <el-cascader placeholder="请选择地区" size="large" :options="regionData"
+                                <el-cascader :key="reload" filterable placeholder="请选择地区" size="large" :options="regionData"
                                     @change="handleSeizedChange">
                                 </el-cascader>
                             </el-col>
@@ -63,7 +72,7 @@
                         prop="sampling_site" label="抽样地址">
                         <el-row>
                             <el-col :span="12">
-                                <el-cascader placeholder="请选择地区" size="large" :options="regionData"
+                                <el-cascader :key="reload" filterable placeholder="请选择地区" size="large" :options="regionData"
                                     @change="handleSamplingChange">
                                 </el-cascader>
                             </el-col>
@@ -117,6 +126,8 @@ const { form = {
     sampling_site: '',
     sampler: '',
     sampling_time: dayjs(new Date).valueOf(),
+    express_company: "",
+    express_number: "",
     samples: []
 
 } } = defineProps<{
@@ -132,10 +143,63 @@ const { form = {
         sampling_site: string,
         sampler: string,
         sampling_time: number,
+        express_company: string,
+        express_number: string,
         samples: any[]
     }
 }>()
 const formRef = ref()
+let reload = $ref(Math.random())
+const positionList = [
+    "秦都区局",
+    "渭城区局",
+    "兴平市局",
+    "泾阳县局",
+    "武功县局",
+    "三原县局",
+    "乾县局",
+    "礼泉县局",
+    "淳化县局",
+    "旬邑县局",
+    "永寿县局",
+    "彬州市局",
+    "长武县局"
+];
+
+const expressCompanies = [
+    "顺丰速运",
+    "EMS（邮政速递）",
+    "圆通速递",
+    "中通快递",
+    "韵达快递",
+    "申通快递",
+    "百世快递",
+    "天天快递",
+    "京东物流",
+    "快捷快递",
+    "德邦物流",
+    "邮政快递包裹",
+    "优速快递",
+    "全峰快递",
+    "汇通快递",
+    "宅急送",
+    "安能物流",
+    "如风达快递",
+    "速尔快递",
+    "安鲜达快递",
+    "易迅快递",
+    "德邦快递",
+    "速腾快递",
+    "瑞丰速递",
+    "飞豹快递",
+    "希伊艾斯快递",
+    "万象物流",
+    "韵达电商",
+    "中铁快运",
+    "比利时邮政",
+    "极兔快递"
+];
+
 
 const shortcuts = [
     {
@@ -236,6 +300,18 @@ function goNext(val: number) {
         }
     })
 }
+
+function resetFields() {
+    seized_site = ""
+    sampling_site = ""
+    delivery_location = ""
+    delivery_location_addr = ""
+    seized_site_addr = ""
+    sampling_site_addr = ""
+    reload = Math.random()
+    formRef.value.resetFields()
+}
+defineExpose({ resetFields })
 onMounted(() => {
 })
 </script>

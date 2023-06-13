@@ -2,7 +2,7 @@
     <div class="h-full">
         <el-container class="h-full">
             <el-header style="height: 200px;">
-                <h1 class="text-3xl pt-5">新建案件</h1>
+                <h1 class="text-2xl pt-5">新建案件</h1>
                 <div class="px-36">
                     <ElSteps :active="activeStep" align-center>
                         <el-step title="基本信息" />
@@ -14,10 +14,11 @@
             </el-header>
             <el-main style="height: calc(100% - 200px);">
                 <el-scrollbar v-show="activeStep === 1" height="100%">
-                    <CaseOne v-model:form="form" v-show="activeStep === 1" />
+                    <CaseOne ref="caseOneRef" v-model:form="form" v-show="activeStep === 1" />
                 </el-scrollbar>
-                <CaseTwo v-model:samples="form.samples" v-show="activeStep === 2" />
+                <CaseTwo ref="caseTwoRef" v-model:samples="form.samples" v-model:formF="form" v-show="activeStep === 2" />
                 <CaseThree @create="createCase" :samples="form.samples" v-show="activeStep === 3" />
+                <CaseFour v-show="activeStep === 4" />
             </el-main>
         </el-container>
     </div>
@@ -28,7 +29,8 @@ import { dayjs } from 'element-plus';
 import { ElMessage } from 'element-plus';
 
 let activeStep = $ref(1)
-
+const caseOneRef = ref()
+const caseTwoRef = ref()
 let form = $ref({
     name: '',
     party: '',
@@ -41,6 +43,8 @@ let form = $ref({
     sampling_site: '',
     sampler: '',
     sampling_time: dayjs(new Date).valueOf(),
+    express_company: "",
+    express_number: "",
     samples: []
 })
 function setActiveStep(step: number) {
@@ -81,6 +85,13 @@ provide("activeStep", {
 })
 watch(() => form.name, (val) => {
     console.log("formsss", val)
+})
+
+watch(() => activeStep, (val, old) => {
+    if (old === 4 && val === 1) {
+        caseOneRef.value.resetFields()
+        caseTwoRef.value.clearData()
+    }
 })
 </script>
 <style scoped></style>

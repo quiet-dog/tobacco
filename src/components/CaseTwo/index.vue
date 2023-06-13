@@ -14,6 +14,38 @@
                     <div class="flex-grow">
 
                     </div>
+                    <div class="pt-4 pr-2">
+                        <el-row>
+                            <el-col :span="24">
+                                <ElFormItem label="选择打印机">
+                                    <ElSelect v-model="selectPrint">
+                                        <ElOption v-for="item in printList" :key="item.name" :label="item.name"
+                                            :value="item.name" />
+                                    </ElSelect>
+                                </ElFormItem>
+
+                            </el-col>
+                        </el-row>
+
+                    </div>
+                    <div class="pt-4 pr-2" style="width: 400px;">
+                        <el-row>
+                            <el-col :span="24">
+                                <ElFormItem label="编号">
+                                    <ElInput v-model="tobaccoForm.code" />
+                                </ElFormItem>
+                            </el-col>
+                        </el-row>
+                    </div>
+                    <div class="pt-4 pr-2" style="width: 400px;">
+                        <el-row>
+                            <el-col :span="24">
+                                <ElFormItem label="样品数量">
+                                    <ElInput v-model="tobaccoForm.quantity" />
+                                </ElFormItem>
+                            </el-col>
+                        </el-row>
+                    </div>
                     <div class="pt-4" style="width: 400px;">
                         <el-row :gutter="10">
                             <el-col :span="18">
@@ -111,11 +143,61 @@
 <script setup lang="ts">
 import { getTobaccoListApi } from '@/api/tobacco';
 import { uuid } from '@/utils';
-import { ElMessage } from 'element-plus';
+import { ElMessage, dayjs } from 'element-plus';
 import { codeStore } from '@/store/code'
+import { disAutoConnect, hiprint } from 'vue-plugin-hiprint'
+import template from '@/views/print/template'
+// import { ElSelect } from 'element-plus/es/components/index.js';
+// import { ElOption } from 'element-plus/es/components/index.js';
 
-const { samples = [] } = defineProps<{
-    samples: any[]
+let aaa = $ref(template)
+
+disAutoConnect();
+let hiprintTemplate = new hiprint.PrintTemplate({
+    template: aaa,
+    settingContainer: "#PrintElementOptionSetting",
+
+});
+let printList = $ref([])
+let selectPrint = $ref("")
+function test22() {
+    let data = {
+        sample_name: "黄金叶红旗渠烟红旗渠烟",
+        code: "ZWD61230600077",
+        case_name: '测试的案件名称件名称',
+        danwei: "飞度智能科技有限责任公司",
+        person: "测试人",
+        reason: "测试原因",
+        money: "1000",
+        link: "https://www.bilibili.com/?spm_id_from=444.41.0.0"
+    }
+
+    hiprintTemplate.getHtml(data);
+
+    hiprintTemplate.print2(data, {
+        printer: list[4].name,
+    });
+
+}
+
+const { samples = [], formF = {
+    name: '',
+    party: '',
+    entrust_unit: '',
+    reason: '',
+    value: '',
+    report_code: '',
+    delivery_location: '',
+    seized_site: '',
+    sampling_site: '',
+    sampler: '',
+    sampling_time: dayjs(new Date).valueOf(),
+    express_company: "",
+    express_number: "",
+    samples: []
+} } = defineProps<{
+    samples: any[],
+    formF: any
 }>()
 
 const codeS = codeStore()
@@ -125,7 +207,9 @@ let tobaccoForm = $ref({
     tobaccoFactory: "",
     tobaccoCode: "",
     tobaccoType: "",
-    tobaccoNum: ""
+    tobaccoNum: "",
+    code: "",
+    quantity: ""
 })
 let page = $ref(1)
 let pageSize = $ref(20)
@@ -154,12 +238,18 @@ function getScangerCode(code: any) {
         tobaccoForm.tobaccoName = res.result.name
         tobaccoForm.tobaccoFactory = res.result.company
         tobaccoForm.tobaccoType = res.result.type
+        tobaccoForm.code = ""
+        tobaccoForm.tobaccoNum = ""
+        tobaccoForm.quantity = ""
         console.log("getTobaccoListApi", res)
     }).catch(err => {
         tobaccoForm.tobaccoCode = ""
         tobaccoForm.tobaccoName = ""
         tobaccoForm.tobaccoFactory = ""
         tobaccoForm.tobaccoType = ""
+        tobaccoForm.code = ""
+        tobaccoForm.tobaccoNum = ""
+        tobaccoForm.quantity = ""
         ElMessage({
             type: "error",
             message: err.msg
@@ -172,16 +262,70 @@ watch(() => codeS.code, (val) => {
 })
 
 function createTobaccoDetail() {
+    if (tobaccoForm.code === "") {
+        ElMessage({
+            type: "error",
+            message: "请先填写条码编号"
+        })
+        return
+    }
+    if (tobaccoForm.quantity === "") {
+        ElMessage({
+            type: "error",
+            message: "请先填写数量"
+        })
+        return
+    }
+    if (Number(tobaccoForm.tobaccoNum) == 0) {
+        ElMessage({
+            type: "error",
+            message: "请先填写数量"
+        })
+        return
+    }
+    if (tobaccoForm.tobaccoNum === "" || tobaccoForm.tobaccoName === "" || tobaccoForm.tobaccoFactory === "" || tobaccoForm.tobaccoType === "") {
+        ElMessage({
+            type: "error",
+            message: "请先扫描条码"
+        })
+        return
+    }
     for (let i = 0; i < Number(tobaccoForm.tobaccoNum); i++) {
         samples.push({
             name: tobaccoForm.tobaccoName,
-            code: uuid(16, 8),
+            code: tobaccoForm.code,
             manufacturer: tobaccoForm.tobaccoFactory,
-            quantity: String(1),
+            quantity: tobaccoForm.quantity,
             add_time: new Date().getTime(),
             good_code: tobaccoForm.tobaccoCode,
         })
     }
+    let printData = []
+    for (let i = 0; i < Number(tobaccoForm.tobaccoNum); i++) {
+        printData.push({
+            sample_name: tobaccoForm.tobaccoName,
+            code: tobaccoForm.code,
+            case_name: formF.name,
+            danwei: formF.entrust_unit,
+            person: formF.reason,
+            reason: formF.sampler,
+            money: formF.value,
+            link: "http://192.168.0.81:8081/r/" + tobaccoForm.code
+        })
+    }
+
+    if (selectPrint === "") {
+        ElMessage({
+            type: "error",
+            message: "请选择打印机"
+        })
+        return
+    }
+
+    hiprintTemplate.getHtml(printData);
+    hiprintTemplate.print2(printData, {
+        printer: selectPrint,
+    });
 }
 
 function goNext(val: number) {
@@ -191,8 +335,27 @@ function goPrev(val: number) {
     activeStep.setActiveStep(val)
 }
 
-onMounted(() => {
+function clearData() {
+    tobaccoForm.tobaccoCode = ""
+    tobaccoForm.tobaccoName = ""
+    tobaccoForm.tobaccoFactory = ""
+    tobaccoForm.tobaccoType = ""
+    tobaccoForm.code = ""
+    tobaccoForm.tobaccoNum = ""
+    tobaccoForm.quantity = ""
+}
 
+defineExpose({ clearData })
+onMounted(() => {
+    // hiprint.init()
+    // window.hiwebSocket.stop()
+    window.hiwebSocket.setHost('192.168.0.64:17521')
+    // window.hiwebSocket.start()
+    hiprintTemplate.design("#hiprint-printTemplate");
+    setTimeout(() => {
+        printList = hiprintTemplate.getPrinterList()
+        console.log("222", printList)
+    }, 2000)
 })
 </script>
 <style scoped></style>

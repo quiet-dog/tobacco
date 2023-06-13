@@ -31,7 +31,7 @@
                                 @change="changePickerTime" />
                         </div>
 
-                        <div>
+                        <!-- <div>
                             <el-dropdown size="large" split-button type="primary">
                                 批量操作
                                 <template #dropdown>
@@ -43,7 +43,7 @@
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </template>
@@ -66,7 +66,7 @@
                     <el-table-column prop="entrust_unit" label="委托单位" show-overflow-tooltip />
                     <el-table-column width="150">
                         <template #default="scope">
-                            <ElButton text style="padding: 0px;"> 编辑</ElButton>
+                            <!-- <ElButton text style="padding: 0px;"> 编辑</ElButton> -->
                             <ElButton text style="padding: 0px;" type="danger"> 取消</ElButton>
                         </template>
                     </el-table-column>
