@@ -19,8 +19,16 @@ http.interceptors.request.use(config => {
     if (config.url?.includes('/barcode2/query')) {
         return config
     }
+    if (config.url?.includes('/login')) {
+        return config
+    } else {
+        const token = sessionStorage.getItem('token')
+        console.log('token', token)
+        if (token) {
+            config.headers.Authorization = 'Bearer ' + token
+        }
+    }
 
-    config.headers['Authorization'] = 'Bearer ' + '12345678abc'
     return config
 }
     , error => {

@@ -2,7 +2,7 @@
     <div class="h-full">
         <el-container class="h-full">
             <el-aside width="250px" class="border-right-my">
-                <el-menu>
+                <el-menu :default-active="defaultActive">
                     <ElMenuItem index="1" @click="goRouter('/home/case/identification')">
                         <svg class="icon" aria-hidden="true" style="width: 20px;fill: #3BC4CF;height: 20px;">
                             <use xlink:href="#icon-chakan"></use>
@@ -62,9 +62,41 @@
 </template>
 <script lang="ts" setup>
 const router = useRouter()
+let defaultActive = $ref('1')
 function goRouter(path: string) {
     router.push(path)
 }
+watch(() => router.currentRoute.value.path, (val, old) => {
+    // 获取/home/后面的内容
+    if (val.search('identification') !== -1) {
+        defaultActive = "1"
+        return
+    }
+    if (val.search('enter') !== -1) {
+        defaultActive = "2"
+        return
+    }
+    if (val.search('int') !== -1) {
+        defaultActive = "3"
+        return
+    }
+    if (val.search('expires') !== -1) {
+        defaultActive = "4"
+        return
+    }
+    if (val.search('archive') !== -1) {
+        defaultActive = "5"
+        return
+    }
+    if (val.search('overdue') !== -1) {
+        defaultActive = "6"
+        return
+    }
+
+}, {
+    deep: true,
+    immediate: true
+})
 </script>
 <style scoped>
 #layout-main :deep(> div:nth-child(2) > div > section > aside > ul) {

@@ -198,14 +198,10 @@
                 <div v-if="targetDialog === 1" class="w-full h-full">
                     <ScannerGun @change="getScannerCode" />
                     <div class="flex">
-                        <!-- <div>
-                            <ElButton @click="falseScanner">假装扫描</ElButton>
-                        </div> -->
                         <div class="flex-grow">
-
                         </div>
                         <div>
-                            <ElButton @click="openProgress">鉴定进度({{ isCheck }}/{{ total2 }})</ElButton>
+                            <ElButton @click="openProgress">鉴定进度({{ identified_quantity }}/{{ total2 }})</ElButton>
                         </div>
                     </div>
                     <div style="height: 450px;" v-if="scannerTable1.length > 0" class="px-36 pt-10">
@@ -224,7 +220,6 @@
                         </div>
                         <div class="flex px-36">
                             <div class="flex-grow">
-
                             </div>
                             <div class="pr-12">
                                 <ElButton @click="setIsSample(scannerTable1[0].id, true)">正品</ElButton>
@@ -233,18 +228,20 @@
                                 <ElButton @click="setIsSample(scannerTable1[0].id, false)">赝品</ElButton>
                             </div>
                             <div class="flex-grow">
-
                             </div>
                         </div>
                     </div>
                     <div style="height: 450px;" v-else>
-                        <div style="height: 500px;">
-                            图片
+                        <div style="height: 500px;" class="flex">
+                            <div class="flex-grow">
+                            </div>
+                            <img :src="EmptySvg" width="400" alt="" srcset="">
+                            <div class="flex-grow">
+                            </div>
                         </div>
                     </div>
-                    <div class="flex">
+                    <div class="flex mt-5 mr-2">
                         <div class="flex-grow">
-
                         </div>
                         <div>
                             <ElButton size="large" @click="goNext(2)">下一步</ElButton>
@@ -302,68 +299,61 @@
                 </div>
 
                 <!-- three -->
-                <div v-if="targetDialog === 3">
-                    <div>
+                <div v-if="targetDialog === 3" class="h-full flex-col flex">
+                    <div style="height: calc(100% - 80px);">
                         <el-row>
                             <el-col :span="24">
                                 <el-row>
                                     <el-col :span="24">
-                                        <h1 style="font-size:20px;font-weight: 700;">上传图片</h1>
-                                        <div style="height:200px" class="mt-5" id="upload-file">
+                                        <h1 style="font-size:20px;font-weight: 700;">上传头图</h1>
+                                        <div id="upload-file">
+                                            <!-- :on-exceed="handleExceed"  beforeAvatarUpload-->
+                                            <!-- :before-upload="beforeAvatarUpload" -->
+                                            <el-upload :on-remove="handleRemove" v-model:file-list="fileList1"
+                                                :on-exceed="handleExceed" :before-upload="beforeAvatarUpload"
+                                                :on-change="imgFileChange" ref="uploadRef2" style="height: 100%;"
+                                                size="large" class="upload-demo"
+                                                action="http://192.168.0.81:8081/api/admin/law_case/identify" :limit="1"
+                                                :auto-upload="false" multiple>
+                                                <el-button type="primary">上传头图</el-button>
+                                            </el-upload>
+                                        </div>
+                                    </el-col>
+                                </el-row>
+                                <el-row>
+                                    <el-col :span="24">
+                                        <h1 style="font-size:20px;font-weight: 700;">上传文件</h1>
+                                        <div id="upload-file">
                                             <el-upload v-model:file-list="fileList" :on-change="fileChange" :headers="{
                                                 'Authorization': 'Bearer ' + '12345678abc'
-                                            }" ref="upload" style="height: 100%;" size="large" class="upload-demo" drag
+                                            }" ref="upload" style="height: 100%;" size="large" class="upload-demo"
                                                 action="http://192.168.0.81:8081/api/admin/law_case/identify" multiple
                                                 :auto-upload="false" :data="{
                                                     'law_case_id': law_case_id,
                                                     'remark': saveCaseForm.remark,
                                                     'report_code': saveCaseForm.report_code
                                                 }">
-                                                <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-                                                <div class="el-upload__text">
-                                                    点击或拖动文件进行上传
-                                                </div>
-                                                <template #tip>
-                                                    <div class="flex mt-4">
-                                                        <div class="flex-grow">
+                                                <el-button type="primary">上传文件</el-button>
 
-                                                        </div>
-                                                        <div>
-                                                            jpg/png files with a size less than 500kb
-                                                        </div>
-                                                        <div class="flex-grow">
-
-                                                        </div>
-                                                    </div>
-                                                </template>
-                                            </el-upload>
-                                        </div>
-                                    </el-col>
-                                </el-row>
-                                <el-row>
-                                    <el-col :span="24">
-                                        <h1 style="font-size:20px;font-weight: 700;">上传图片</h1>
-                                        <div style="height:200px" class="mt-5" id="upload-file">
-                                            <el-upload v-model:file-list="fileList" :before-upload="beforeAvatarUpload"
-                                                :on-change="imgFileChange" ref="uploadRef2" style="height: 100%;"
-                                                size="large" class="upload-demo" drag
-                                                action="http://192.168.0.81:8081/api/admin/law_case/identify" :limit="1"
-                                                :on-exceed="handleExceed" :auto-upload="false" :show-file-list="false">
-                                                <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-                                                <el-icon v-else class="avatar-uploader-icon">
-                                                    <Plus />
-                                                </el-icon>
                                             </el-upload>
                                         </div>
                                     </el-col>
                                 </el-row>
 
-                                <ElForm :model="saveCaseForm" label-width="100" style="width: 50%;">
+
+                                <ElForm ref="saveFormRef" :model="saveCaseForm" label-width="100" style="width: 50%;">
                                     <ElFormItem prop="remark" label="备注">
                                         <ElInput v-model="saveCaseForm.remark" />
                                     </ElFormItem>
-                                    <ElFormItem prop="report_code" label="报告编号">
+                                    <ElFormItem
+                                        :rules="[{ required: true, message: '请填写报告编号', trigger: ['blur', 'change'], },]"
+                                        prop="report_code" label="报告编号">
                                         <ElInput v-model="saveCaseForm.report_code" />
+                                    </ElFormItem>
+                                    <ElFormItem
+                                        :rules="[{ required: true, message: '请填写鉴定人', trigger: ['blur', 'change'], },]"
+                                        prop="identifier" label="鉴定人">
+                                        <ElInput v-model="saveCaseForm.identifier" />
                                     </ElFormItem>
                                 </ElForm>
                             </el-col>
@@ -371,7 +361,7 @@
                         </el-row>
 
                     </div>
-                    <div v-if="targetDialog === 3" class="flex mt-12">
+                    <div style="height: 80px;" v-if="targetDialog === 3" class="flex mt-12">
                         <div class="flex-grow">
 
                         </div>
@@ -398,7 +388,7 @@
                         </div>
                         <div style="width: 250px;" v-if="tabsValue4 === '2'">
                             <ElButton type="primary" @click="setAllCaseStatus(true)" :loading="loading2">均为正品</ElButton>
-                            <ElButton type="danger" @click="setAllCaseStatus(true)">均为赝品</ElButton>
+                            <ElButton type="danger" @click="setAllCaseStatus(false)">均为赝品</ElButton>
                         </div>
                     </div>
                     <div>
@@ -430,11 +420,15 @@
 </template>
 <script lang="ts" setup>
 import { getCaseApi, getCaseListApi, saveCaseApi } from '@/api/case';
-import { getSampleListApi, getSampleByCodeApi, sampleIdentifyApi, setSampleStatusApi } from '@/api/sample';
+import { getSampleListApi, getSampleByCodeApi, sampleIdentifyApi, setSampleStatusApi, getSampleResultApi } from '@/api/sample';
 import { formatDate } from "@/utils"
 import { ElMessage, genFileId } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue'
-import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
+import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
+import EmptySvg from '@/assets/empty.svg'
+import { ElLoading } from 'element-plus'
+
+const saveFormRef = ref()
 
 const imageUrl = ref('')
 function beforeAvatarUpload(rawFile) {
@@ -479,12 +473,17 @@ let law_case_id = $ref(0)
 let drawer1 = $ref(false)
 let upload = $ref()
 let fileList = $ref([])
+let fileList1 = $ref()
 const uploadRef2 = ref()
 const handleExceed = (files) => {
     uploadRef2.value!.clearFiles()
     const filea = files[0]
     filea.uid = genFileId()
     uploadRef2.value!.handleStart(filea)
+}
+const handleRemove = (uploadFile, uploadFiles) => {
+    uploadRef2.value!.clearFiles()
+    imgFile = null
 }
 const datePickerShortcuts = ref([
     {
@@ -552,12 +551,21 @@ const handleRowDrawer = (row: any, _column: any, _event: any) => {
     taskInfo = row
     console.log('roqwww', row)
 
-    getCaseApi(law_case_id).then(res => {
-        isCheck = res.data.identify_result.identified_quantity
-        unidentified_quantity = res.data.identify_result.unidentified_quantity
-        fake_quantity = res.data.identify_result.fake_quantity
-        real_quantity = res.data.identify_result.real_quantity
+    // getCaseApi(law_case_id).then(res => {
+    //     identified_quantity = res.data.identify_result.identified_quantity
+    //     unidentified_quantity = res.data.identify_result.unidentified_quantity
+    //     fake_quantity = res.data.identify_result.fake_quantity
+    //     real_quantity = res.data.identify_result.real_quantity
+    // })
+    getSampleResultApi({
+        law_case_id
+    }).then(resa => {
+        identified_quantity = resa.data.identified_quantity
+        unidentified_quantity = resa.data.unidentified_quantity
+        fake_quantity = resa.data.fake_quantity
+        real_quantity = resa.data.real_quantity
     })
+
     getSampleList()
 }
 
@@ -607,6 +615,13 @@ function changeTabs(val) {
 }
 
 function goNext(val) {
+    if (identified_quantity < total2) {
+        ElMessage({
+            type: 'error',
+            message: '请先鉴定完所有样本'
+        })
+        return
+    }
     targetDialog = val
     getCheckSampleLisk()
 }
@@ -622,14 +637,19 @@ function getScannerCode(val) {
     // console.log(val)
     if (route.path.search("indenti") !== -1) return
     const parts = val.split("/")
+    console.log('law_case_id', law_case_id)
     if (parts.length >= 5) {
         const content = parts[4];
         getSampleByCodeApi({
             code: content,
             law_case_id
         }).then(res => {
-            scannerTable1 = []
-            scannerTable1.push(res.data)
+            // scannerTable1.push(res.data)
+            scannerTable1 = res.data
+            ElMessage({
+                type: 'success',
+                message: '扫码成功'
+            })
         }).catch(err => {
             ElMessage({
                 type: 'error',
@@ -654,23 +674,32 @@ function openProgress() {
     getStatusSampleList()
 }
 
-let isCheck = $ref(0)
+let identified_quantity = $ref(0)
 let real_quantity = $ref(0)
 let fake_quantity = $ref(0)
 let unidentified_quantity = $ref(0)
 let saveCaseForm = $ref({
     remark: '',
-    report_code: ''
+    report_code: '',
+    identifier: ''
 })
 function setIsSample(id: any, val: boolean) {
     sampleIdentifyApi({
         id,
         is_real: val
     }).then(res => {
-        isCheck = res.data.law_case.identify_result.identified_quantity
-        real_quantity = res.data.law_case.identify_result.real_quantity
-        fake_quantity = res.data.law_case.identify_result.fake_quantity
-        unidentified_quantity = res.data.law_case.identify_result.unidentified_quantity
+        scannerTable1 = []
+
+        getSampleResultApi({
+            law_case_id
+        }).then(resa => {
+
+            identified_quantity = resa.data.identified_quantity
+            unidentified_quantity = resa.data.unidentified_quantity
+            fake_quantity = resa.data.fake_quantity
+            real_quantity = resa.data.real_quantity
+        })
+
         ElMessage({
             type: 'success',
             message: res.msg
@@ -698,6 +727,7 @@ function closedDrawer1() {
     // unidentified_quantity = 0
     saveCaseForm.remark = ''
     saveCaseForm.report_code = ''
+    saveCaseForm.identifier = ''
     fileList = []
     files = []
 }
@@ -712,33 +742,60 @@ const fileChange = (uploadFile, uploadFiles) => {
 }
 
 const imgFileChange = (uploadFile, uploadFiles) => {
-
-    imgFile = uploadFile
+    console.log(uploadFile, uploadFiles)
+    imgFile = uploadFile.raw
 }
 
 
 function submitSavaCase() {
     // upload.submit()
-    const formData = new FormData()
-    files.forEach(item => {
-        formData.append('files', item.raw)
-    })
-    formData.append('cover_file', imgFile.raw)
-    formData.append('law_case_id', String(law_case_id))
-    formData.append('remark', saveCaseForm.remark)
-    formData.append('report_code', saveCaseForm.report_code)
-    saveCaseApi(formData).then(res => {
-        ElMessage({
-            type: 'success',
-            message: res.msg
-        })
-        drawer1 = false
-    }).catch(err => {
+    console.log('imgFileimgFile', imgFile)
+    if (imgFile === undefined || imgFile === null) {
         ElMessage({
             type: 'error',
-            message: err.msg
+            message: '请上传封面'
         })
+        return
+    }
+    saveFormRef.value.validate((valid) => {
+        if (valid) {
+            const loadingInstance = ElLoading.service({
+                lock: true,
+                text: '正在上传中',
+                spinner: 'el-icon-loading',
+                background: 'rgba(0, 0, 0, 0.7)'
+            })
+            const formData = new FormData()
+            files.forEach(item => {
+                formData.append('files', item.raw)
+            })
+            formData.append('cover_file', imgFile)
+            formData.append('law_case_id', String(law_case_id))
+            formData.append('remark', saveCaseForm.remark)
+            formData.append('report_code', saveCaseForm.report_code)
+            formData.append('identifier', saveCaseForm.identifier)
+            saveCaseApi(formData).then(res => {
+                ElMessage({
+                    type: 'success',
+                    message: res.msg
+                })
+                loadingInstance.close()
+                drawer1 = false
+            }).catch(err => {
+                ElMessage({
+                    type: 'error',
+                    message: err.msg
+                })
+                loadingInstance.close()
+            })
+        } else {
+            ElMessage({
+                type: 'error',
+                message: '请填写完整信息'
+            })
+        }
     })
+
 }
 
 
@@ -751,28 +808,39 @@ function handeleSize4(val) {
 }
 
 let loading2 = $ref(false)
+let loading3 = $ref(false)
 function setAllCaseStatus(val: boolean) {
-    loading2 = true
+    if (val) {
+        loading2 = true
+    } else {
+        loading3 = false
+    }
     setSampleStatusApi({
         law_case_id,
         is_real: val
     }).then(res => {
-        isCheck = res.data.identify_result.identified_quantity
-        real_quantity = res.data.identify_result.real_quantity
-        fake_quantity = res.data.identify_result.fake_quantity
-        unidentified_quantity = res.data.identify_result.unidentified_quantity
+        getSampleResultApi({
+            law_case_id
+        }).then(resa => {
+            identified_quantity = resa.data.identified_quantity
+            unidentified_quantity = resa.data.unidentified_quantity
+            fake_quantity = resa.data.fake_quantity
+            real_quantity = resa.data.real_quantity
+        })
+        getStatusSampleList()
         ElMessage({
             type: 'success',
             message: res.msg
         })
         loading2 = false
+        loading3 = false
     }).catch(err => {
         ElMessage({
             type: 'error',
             message: err.msg
         })
         loading2 = false
-
+        loading3 = false
     })
 }
 

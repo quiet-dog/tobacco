@@ -5,7 +5,7 @@ import '@coreui/coreui/dist/css/coreui.min.css'
 
 import App from './App.vue'
 import router from "@/router/index";
-import { createPinia } from 'pinia'
+import { createPinia } from 'pinia';
 
 
 const pinia = createPinia()

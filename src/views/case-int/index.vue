@@ -153,20 +153,21 @@
                             <div>
                                 <el-table :data="tableData2" :default-sort="{ prop: 'date', order: 'descending' }"
                                     :header-cell-style="{ background: '#FAFAFA' }" width="100%">
-                                    <el-table-column prop="code" label="编号" width="150"
-                                        show-overflow-tooltip></el-table-column>
+                                    <el-table-column prop="code" label="编号" width="150"></el-table-column>
 
                                     <el-table-column prop="name" label="样品名称" width="150" show-overflow-tooltip>
                                     </el-table-column>
-                                    <el-table-column prop="manufacturer" label="厂商" show-overflow-tooltip>
+                                    <el-table-column prop="manufacturer" label="厂商">
                                     </el-table-column>
-                                    <el-table-column prop="packing_spec" label="包装形式" width="100" show-overflow-tooltip>
+                                    <el-table-column prop="packing_spec" label="包装形式" width="100">
                                     </el-table-column>
-                                    <el-table-column prop="packing_spec" label="包装形式" width="100" show-overflow-tooltip>
+                                    <el-table-column prop="is_real" label="鉴定结果" width="100">
+                                        <template #default="scope">
+                                            <el-tag :type="scope.row.is_real ? 'primay' : 'danger'">{{ scope.row.is_real ?
+                                                '真烟' : '假烟' }}</el-tag>
+                                        </template>
                                     </el-table-column>
-                                    <el-table-column prop="packing_spec" label="鉴定结果" width="100" show-overflow-tooltip>
-                                    </el-table-column>
-                                    <el-table-column prop="packing_spec" label="鉴定人" width="100" show-overflow-tooltip>
+                                    <el-table-column prop="identifier" label="鉴定人" width="100">
                                     </el-table-column>
                                     <!-- <el-table-column prop="name" label="操作">
                                         <template #default="scope">

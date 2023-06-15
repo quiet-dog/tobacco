@@ -386,7 +386,7 @@ function submitShelves() {
 }
 
 function editShelf(data: any) {
-    shelfForm = data
+    shelfForm = JSON.parse(JSON.stringify(data))
     openSheveDialog()
 }
 

@@ -50,7 +50,7 @@
             <template #table>
                 <ElTable max-height="100%" height="100%" @row-click="handleRowDrawer" :data="tableData"
                     :header-cell-style="{ background: '#FAFAFA' }">
-                    <el-table-column prop="report_code" label="流水号" show-overflow-tooltip />
+                    <el-table-column prop="id" label="流水号" show-overflow-tooltip />
                     <el-table-column prop="name" label="案件名称" show-overflow-tooltip />
                     <el-table-column prop="seized_site" label="查扣地点" show-overflow-tooltip />
                     <el-table-column prop="party" label="当事人" show-overflow-tooltip />
@@ -104,7 +104,8 @@
                                 <el-descriptions-item label-align="right" label="查扣原因">
                                     <el-tag>{{ taskInfo.reason }}</el-tag>
                                 </el-descriptions-item>
-                                <el-descriptions-item label-align="left" label="抽样时间">{{ taskInfo.sampling_time
+                                <el-descriptions-item label-align="left" label="抽样时间">{{ taskInfo.sampling_time ?
+                                    formatDate(taskInfo.sampling_time) : "-"
                                 }}</el-descriptions-item>
                                 <el-descriptions-item label-align="right" label="查扣地点">{{ taskInfo.delivery_location
                                 }}</el-descriptions-item>
@@ -161,11 +162,13 @@
                                     </el-table-column>
                                     <el-table-column prop="packing_spec" label="包装形式" width="100">
                                     </el-table-column>
-                                    <el-table-column prop="packing_spec" label="包装形式" width="100">
+                                    <el-table-column prop="is_real" label="鉴定结果" width="100">
+                                        <template #default="scope">
+                                            <el-tag :type="scope.row.is_real ? 'primay' : 'danger'">{{ scope.row.is_real ?
+                                                '真烟' : '假烟' }}</el-tag>
+                                        </template>
                                     </el-table-column>
-                                    <el-table-column prop="packing_spec" label="鉴定结果" width="100">
-                                    </el-table-column>
-                                    <el-table-column prop="packing_spec" label="鉴定人" width="100">
+                                    <el-table-column prop="identifier" label="鉴定人" width="100">
                                     </el-table-column>
                                     <!-- <el-table-column prop="name" label="操作">
                                         <template #default="scope">
@@ -201,25 +204,149 @@
                 </div>
             </template>
         </ElDrawer>
-        <ElDialog v-model="drawer1">
-            <!-- <ElTable>
-                <ElTableColumn />
-                <ElTableColumn />
-                <ElTableColumn />
-            </ElTable> -->
-            <CListGroup>
-                <CListGroupItem v-for="item in fileTable">{{ item.name }}</CListGroupItem>
-            </CListGroup>
+        <ElDialog v-model="drawer1" title="文件列表" @opened="prewview" @closed="closedDrawer2">
+            <ul style="display: none;" id="images">
+                <li v-for="item in fileTable">
+                    <img v-if="item.mime_type.search('image') !== -1"
+                        :src="`http://192.168.0.81:8081/api/admin/file/${item.path}`" alt="" srcset="">
+                </li>
+            </ul>
+            <ElTable :data="fileTable">
+                <ElTableColumn prop="name" label="文件名" />
+                <ElTableColumn prop="created_at" label="创建时间" />
+                <ElTableColumn prop="type" label="鉴定类型" />
+                <!--  -->
+                <ElTableColumn prop="mime_type" label="文件类型 " />
+                <ElTableColumn width="100">
+                    <template #default="scope">
+                        <!-- <el-link type="primary" target="_blank"
+                            :href="`http://192.168.0.81:8081/api/admin/file/${scope.row.path}`">查看</el-link> -->
+                        <ElButton v-if="scope.row.mime_type.search('image') !== -1" @click="previewImgs(scope.row.id)">查看
+                        </ElButton>
+                        <ElButton v-if="scope.row.mime_type.search('video') !== -1" @click="previewTv(scope.row)">查看
+                        </ElButton>
+                        <ElButton v-if="scope.row.mime_type.search('zip') !== -1 && scope.row.name.search('docx') !== -1"
+                            @click="previewDocx(scope.row)">
+                            查看
+                        </ElButton>
+                        <ElButton v-if="scope.row.mime_type.search('pdf') !== -1 && scope.row.name.search('pdf') !== -1"
+                            @click="previewPdf(scope.row)">
+                            查看
+                        </ElButton>
+                        <ElButton v-if="scope.row.mime_type.search('zip') !== -1 && scope.row.name.search('xlsx') !== -1"
+                            @click="previewXlsx(scope.row)">
+                            查看
+                        </ElButton>
+                    </template>
+                </ElTableColumn>
+            </ElTable>
+            <TvVideo :video="videoObj" v-if="videoPlayer" @close="closeTv" />
+            <DocPreview :src="docSrc" v-if="docPreview" @close="closeTv" />
+            <PdfPreview :src="pdfSrc" v-if="pdfPreview" @close="closeTv" />
+            <XlsxPreview :src="xlsxSrc" v-if="xlsxPreview" @close="closeTv" />
         </ElDialog>
     </div>
 </template>
 <script setup lang="ts">
+import "viewerjs/dist/viewer.css";
 import { getCaseListApi } from '@/api/case';
 import { getSampleListApi, } from '@/api/sample';
 import { formatDate } from "@/utils"
 import { ElMessage } from 'element-plus';
-import { CListGroup, CListGroupItem } from '@coreui/vue';
 import { getFileListApi } from '@/api/file';
+import Viewer from 'viewerjs';
+
+
+let docSrc = $ref('')
+let docPreview = $ref(false)
+let pdfPreview = $ref(false)
+let videoPlayer = $ref(false)
+let xlsxPreview = $ref(false)
+let xlsxSrc = $ref('')
+let pdfSrc = $ref('')
+let videoObj = $ref({
+    path: '',
+    mime_type: ''
+})
+function closeTv() {
+    videoPlayer = false
+    docPreview = false
+    pdfPreview = false
+    xlsxPreview = false
+}
+
+function previewTv(row) {
+    videoPlayer = true
+    videoObj.path = "http://192.168.0.81:8081/api/admin/file/" + row.path
+    videoObj.mime_type = row.mime_type
+}
+
+function previewDocx(row) {
+    docPreview = true
+    docSrc = "http://192.168.0.81:8081/api/admin/file/" + row.path
+}
+
+function previewPdf(row) {
+    pdfPreview = true
+    pdfSrc = "http://192.168.0.81:8081/api/admin/file/" + row.path
+}
+
+function previewXlsx(row) {
+    xlsxPreview = true
+    xlsxSrc = "http://192.168.0.81:8081/api/admin/file/" + row.path
+}
+
+let drawer2 = $ref(false)
+let gallery = $ref<Viewer>()
+let fileIndex = $computed(() => {
+    let result = []
+
+    if (fileTable.length === 0) return result
+    let index = -1
+    for (let i = 0; i < fileTable.length; i++) {
+        if (fileTable[i].mime_type.search('image') !== -1) {
+            index++
+            result.push({
+                index: index,
+                id: fileTable[i].id
+            })
+        }
+    }
+    return result
+})
+
+function getImageIndex(id: number) {
+    console.log('dassdad', id, fileIndex)
+    if (fileIndex.length === 0) return -1
+    for (let i = 0; i < fileIndex.length; i++) {
+        if (fileIndex[i].id === id) return fileIndex[i].index
+    }
+}
+
+function previewImgs(id: number) {
+    console.log("iddasdasd", id)
+    let index = getImageIndex(id)
+    if (index === -1) {
+        ElMessage.error('该文件不是图片')
+        return
+    }
+    console.log("index.as", index)
+    gallery.view(index)
+}
+
+function closedDrawer2() {
+    gallery.destroy()
+}
+
+function prewview() {
+    gallery = new Viewer(document.getElementById('images'), {
+        inline: false,
+        viewed() {
+            gallery.zoomTo(1);
+        },
+        zIndex: 100000,
+    });
+}
 
 
 const status = $ref("待入库")
@@ -373,6 +500,13 @@ function getSampleList() {
 
 
 onMounted(() => {
+    // gallery = new Viewer(document.getElementById('images'), {
+    //     inline: false,
+    //     viewed() {
+    //         gallery.zoomTo(1);
+    //     },
+    //     zIndex: 100000,
+    // });
     getCaseList()
 })
 </script>

@@ -86,8 +86,10 @@
                     <div class="flex-grow"></div>
                     <div class="w-2/3">
                         <ElFormItem label="包装规格">
+                            <!-- <ElInput v-model="tobaccoForm.tobaccoType" /> -->
                             <ElSelect v-model="tobaccoForm.tobaccoType">
-                                <ElOption>13123</ElOption>
+                                <ElOption label="条" :value="'条'" />
+                                <ElOption label="盒" :value="'盒'" />
                             </ElSelect>
                         </ElFormItem>
                     </div>
@@ -236,8 +238,8 @@ function getScangerCode(code: any) {
     getTobaccoListApi(code).then(res => {
         tobaccoForm.tobaccoCode = res.result.barcode
         tobaccoForm.tobaccoName = res.result.name
-        tobaccoForm.tobaccoFactory = res.result.company
-        tobaccoForm.tobaccoType = res.result.type
+        tobaccoForm.tobaccoFactory = res.result.supplier
+        tobaccoForm.tobaccoType = res.result.uint
         tobaccoForm.code = ""
         tobaccoForm.tobaccoNum = ""
         tobaccoForm.quantity = ""

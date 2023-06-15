@@ -14,7 +14,6 @@
 </template>
 <script setup lang="ts">
 import { disAutoConnect, hiprint } from 'vue-plugin-hiprint'
-// import $ from 'jquery'
 import template from './template'
 
 let aaa = $ref(template)
@@ -26,15 +25,6 @@ let hiprintTemplate = new hiprint.PrintTemplate({
 
 });
 
-
-// 设置连接的地址
-
-
-// function test() {
-//     hiprint.PrintTemplate({
-//         test.panels[0]
-//     })
-// }
 function test22() {
     let data = {
         sample_name: "黄金叶红旗渠烟红旗渠烟",

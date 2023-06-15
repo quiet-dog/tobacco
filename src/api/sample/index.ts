@@ -34,3 +34,12 @@ export function setSampleStatusApi(data: any) {
         data
     })
 }
+
+// 获取鉴定结果
+export function getSampleResultApi(data: any) {
+    return myRequest({
+        url: '/api/admin/law_case/identify_result',
+        method: 'POST',
+        data: data
+    })
+}

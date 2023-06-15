@@ -5,12 +5,12 @@
                 <MenuHeader />
             </el-header>
             <el-container style="height: calc(100% - 60px);">
-                <el-aside width="200px" class="h-full " id="aside-menu">
+                <el-aside width="200px" id="aside-menu">
                     <AsideMenu />
                 </el-aside>
                 <el-main id="layout-main" class="h-full" style="overflow-y: hidden;">
                     <div>
-                        <el-tabs id="my-tabs" v-model="editableTabsValue" type="card" editable class="demo-tabs"
+                        <el-tabs id="my-tabs" v-model="editableTabsValue" :addable="false" type="card" class="demo-tabs"
                             @edit="handleTabsEdit" @tab-click="clickTab">
                             <el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title"
                                 :name="item.name">
@@ -40,9 +40,7 @@ const editableTabs = ref([
         content: '/home/case/identification',
     },
 ])
-
 let include = $ref(['case'])
-
 const handleTabsEdit = (
     targetName: any,
     action: 'remove' | 'add'
@@ -57,6 +55,8 @@ const handleTabsEdit = (
     //     editableTabsValue.value = newTabName
     // } else 
     if (action === 'remove') {
+        // console.log(targetName)
+        if (targetName.search('case') !== -1) return
         const tabs = editableTabs.value
         let activeName = editableTabsValue.value
         if (activeName === targetName) {
@@ -69,7 +69,6 @@ const handleTabsEdit = (
                 }
             })
         }
-
         include = include.filter(item => item !== targetName)
         editableTabsValue.value = activeName
         editableTabs.value = tabs.filter((tab) => tab.name !== targetName)
@@ -80,7 +79,6 @@ const handleTabsEdit = (
         })
     }
 }
-
 function clickTab(pane: any, ev: Event) {
     // console.log(pane)
     editableTabs.value.forEach(item => {
@@ -89,7 +87,6 @@ function clickTab(pane: any, ev: Event) {
         }
     })
 }
-
 watch(() => route.path, (a, old) => {
     // 获取/home/后面的内容
     const val = a.split("/")[2]
@@ -124,17 +121,17 @@ watch(() => route.path, (a, old) => {
         editableTabsValue.value = route.name as string
         return
     }
-
-
 }, {
-    deep: true
+    deep: true,
+    immediate: true
 })
-
 </script>
 <style scoped>
 #layout-main :deep(> div.el-page-header.el-page-header--has-breadcrumb > div.el-page-header__header) {
     display: none;
 }
+
+#aside :deep() {}
 
 div.aside-menu-my:deep(>div>ul) {
     border-right: 0 !important;
@@ -142,6 +139,11 @@ div.aside-menu-my:deep(>div>ul) {
 
 #aside-menu :deep(> div > ul) {
     border-right: 0;
+    overflow-y: hidden;
+}
+
+#aside-menu :deep() {
+    background-color: #393D4E;
 }
 
 #my-tabs:deep(> div.el-tabs__header.is-top) {
