@@ -10,6 +10,7 @@
 
         </div>
         <ElButton @click="test22">proasdasd</ElButton>
+
     </div>
 </template>
 <script setup lang="ts">
@@ -42,7 +43,7 @@ function test22() {
     hiprintTemplate.getHtml(data);
 
     hiprintTemplate.print2(data, {
-        printer: list[4].name,
+        printer: list[2].name,
     });
 
 }

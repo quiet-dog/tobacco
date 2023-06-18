@@ -64,6 +64,7 @@ declare module '@vue/runtime-core' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScannerGun: typeof import('./src/components/ScannerGun/index.vue')['default']
+    TestScan: typeof import('./src/components/TestScan/index.vue')['default']
     TvVideo: typeof import('./src/components/TvVideo/index.vue')['default']
     XlsxPreview: typeof import('./src/components/XlsxPreview/index.vue')['default']
   }

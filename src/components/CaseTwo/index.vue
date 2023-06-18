@@ -49,7 +49,7 @@
                     <div class="pt-4" style="width: 400px;">
                         <el-row :gutter="10">
                             <el-col :span="18">
-                                <ElFormItem label="生成数量">
+                                <ElFormItem label="打印数量">
                                     <ElInput v-model="tobaccoForm.tobaccoNum" />
                                 </ElFormItem>
                             </el-col>
@@ -143,7 +143,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { getTobaccoListApi } from '@/api/tobacco';
+import { createTiaoMa, getTobaccoListApi } from '@/api/tobacco';
 import { uuid } from '@/utils';
 import { ElMessage, dayjs } from 'element-plus';
 import { codeStore } from '@/store/code'
@@ -235,21 +235,33 @@ const handeleSize = (val: number) => {
 function getScangerCode(code: any) {
     console.log('12312312312')
     if (route.path.search("create") === -1) return
+    tobaccoForm.tobaccoCode = code
+    if (tobaccoForm.tobaccoCode.length !== 13) {
+        ElMessage({
+            type: "error",
+            message: "条码长度不正确,请重新扫描核对!"
+        })
+        return
+    }
     getTobaccoListApi(code).then(res => {
         tobaccoForm.tobaccoCode = res.result.barcode
         tobaccoForm.tobaccoName = res.result.name
         tobaccoForm.tobaccoFactory = res.result.supplier
-        tobaccoForm.tobaccoType = res.result.uint
+        // tobaccoForm.tobaccoType = res.result.uint
         tobaccoForm.code = ""
         tobaccoForm.tobaccoNum = ""
         tobaccoForm.quantity = ""
-        console.log("getTobaccoListApi", res)
+        // console.log("getTobaccoListApi", res)
+        ElMessage({
+            type: "success",
+            message: "获取成功"
+        })
     }).catch(err => {
-        tobaccoForm.tobaccoCode = ""
+        // tobaccoForm.tobaccoCode = code
+        // tobaccoForm.tobaccoCode = "" 
         tobaccoForm.tobaccoName = ""
         tobaccoForm.tobaccoFactory = ""
         tobaccoForm.tobaccoType = ""
-        tobaccoForm.code = ""
         tobaccoForm.tobaccoNum = ""
         tobaccoForm.quantity = ""
         ElMessage({
@@ -292,16 +304,37 @@ function createTobaccoDetail() {
         })
         return
     }
-    for (let i = 0; i < Number(tobaccoForm.tobaccoNum); i++) {
-        samples.push({
-            name: tobaccoForm.tobaccoName,
-            code: tobaccoForm.code,
-            manufacturer: tobaccoForm.tobaccoFactory,
-            quantity: tobaccoForm.quantity,
-            add_time: new Date().getTime(),
-            good_code: tobaccoForm.tobaccoCode,
+    // for (let i = 0; i < Number(tobaccoForm.tobaccoNum); i++) {
+    samples.push({
+        name: tobaccoForm.tobaccoName,
+        code: tobaccoForm.code,
+        manufacturer: tobaccoForm.tobaccoFactory,
+        quantity: tobaccoForm.quantity,
+        add_time: new Date().getTime(),
+        good_code: tobaccoForm.tobaccoCode,
+    })
+    /**
+     *     "barcode": "98",
+    "name": "表按上青单",
+    "spec": "mollit elit cillum do",
+    "uint": "Ut",
+    "price": "92",
+    "brand": "mollit consequat ut amet",
+    "supplier": "do esse ullamco et consectetur",
+    "made_in": "aliquip laboris velit elit sunt"
+     */
+    createTiaoMa({
+        barcode: tobaccoForm.tobaccoCode,
+        name: tobaccoForm.tobaccoName,
+        supplier: tobaccoForm.tobaccoFactory
+    }).then(res => {
+    }).catch(err => {
+        ElMessage({
+            type: "error",
+            message: err.msg
         })
-    }
+    })
+    // }
     let printData = []
     for (let i = 0; i < Number(tobaccoForm.tobaccoNum); i++) {
         printData.push({
@@ -324,10 +357,17 @@ function createTobaccoDetail() {
         return
     }
 
-    hiprintTemplate.getHtml(printData);
+    // hiprintTemplate.getHtml(printData);
     hiprintTemplate.print2(printData, {
         printer: selectPrint,
     });
+    tobaccoForm.code = ''
+    tobaccoForm.quantity = ''
+    tobaccoForm.tobaccoCode = ''
+    tobaccoForm.tobaccoFactory = ''
+    tobaccoForm.tobaccoName = ''
+    tobaccoForm.tobaccoNum = ''
+    tobaccoForm.tobaccoType = ''
 }
 
 function goNext(val: number) {

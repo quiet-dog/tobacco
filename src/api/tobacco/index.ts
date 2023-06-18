@@ -13,3 +13,11 @@ export function getTobaccoListApi(code: number) {
     })
 }
 
+export function createTiaoMa(data) {
+    return myRequest({
+        url: '/api/admin/barcode',
+        method: 'post',
+        data
+    })
+}
+

@@ -19,14 +19,17 @@ function getScannerCode(e: KeyboardEvent) {
         lastTime = new Date().getTime();
         return;
     }
-    nextCode = String(e.key);
+    if (String(e.key) !== 'Shift' && String(e.key) !== 'Alt' && String(e.key) !== 'Control') {
+        nextCode = String(e.key);
+
+    } else {
+        nextCode = ""
+    }
     nextTime = new Date().getTime();
     if (lastCode != undefined && lastTime != null && nextTime - lastTime <= 30) {
         // 扫码枪输入
         if (nextCode === "Enter") {
-            console.log("jinru ")
             code += lastCode
-            console.log("codeS.code", code)
 
             emit("change", code)
             code = ""
