@@ -39,3 +39,12 @@ export function saveCaseApi(data: any) {
         }
     })
 }
+
+export function importFileExeclApi(data: any) {
+    return myRequest({
+        url: '/api/admin/law_case/exportlist',
+        method: 'post',
+        data,
+        responseType: 'blob'
+    })
+}

@@ -50,7 +50,7 @@ function test22() {
 onMounted(() => {
     // hiprint.init()
     // window.hiwebSocket.stop()
-    window.hiwebSocket.setHost('192.168.0.64:17521')
+    window.hiwebSocket.setHost('192.168.0.54:17521')
     // window.hiwebSocket.start()
     hiprintTemplate.design("#hiprint-printTemplate");
 

@@ -26,7 +26,7 @@
                             <ElTableColumn prop="name" label="库区名称"></ElTableColumn>
                             <ElTableColumn prop="code" label="库区编号"></ElTableColumn>
                             <ElTableColumn prop="info" label="备注"></ElTableColumn>
-                            <ElTableColumn label="操作">
+                            <ElTableColumn>
                                 <template #default="scope">
                                     <ElButton text @click="openAreaDialog">编辑</ElButton>
                                     <ElButton text @click="deleteArea(scope.row.id)">删除</ElButton>
@@ -59,7 +59,7 @@
                                 </template>
                             </ElTableColumn>
                             <ElTableColumn prop="info" label="备注"></ElTableColumn>
-                            <ElTableColumn label="操作">
+                            <ElTableColumn>
                                 <template #default="scope">
                                     <ElButton text @click="editShelf(scope.row)">编辑</ElButton>
                                     <ElButton text @click="deleteShelf(scope.row.id)">删除</ElButton>
@@ -107,29 +107,29 @@
             </template>
         </ElDialog>
 
-        <ElDialog v-model="dialogSheve" title="新增架提" width="500" @closed="cancelShelves">
+        <ElDialog v-model="dialogSheve" title="新增架体" width="500" @closed="cancelShelves">
             <ElForm>
                 <ElFormItem label="架体名称">
                     <ElInput v-model="shelfForm.name" />
                 </ElFormItem>
-                <ElFormItem label="架提编号">
+                <ElFormItem label="架体编号">
                     <ElInput v-model="shelfForm.code" />
                 </ElFormItem>
-                <ElFormItem label="架提位置">
+                <ElFormItem label="架体位置">
                     <ElSelect v-model="shelfForm.area_id" :key="shelfSelectRefresh">
                         <ElOption v-for="item in areaShelvesOptions" :key="item" :label="item.name" :value="item.id" />
                     </ElSelect>
                 </ElFormItem>
-                <ElFormItem label="架提节数">
-                    <el-input-number v-model="shelfForm.max_column" :min="1" :max="10" />
+                <ElFormItem label="架体节数">
+                    <el-input-number v-model="shelfForm.max_column" :min="1" />
                 </ElFormItem>
-                <ElFormItem label="架提层数">
-                    <el-input-number v-model="shelfForm.max_row" :min="1" :max="10" />
+                <ElFormItem label="架体层数">
+                    <el-input-number v-model="shelfForm.max_row" :min="1" />
                 </ElFormItem>
-                <ElFormItem prop="type" label="架提类型">
+                <ElFormItem prop="type" label="架体类型">
                     <el-radio-group v-model="shelfForm.type" class="ml-4">
-                        <el-radio label="mobile" size="large">移动列</el-radio>
-                        <el-radio label="fixed" size="large">固定列</el-radio>
+                        <el-radio label="mobile">移动列</el-radio>
+                        <el-radio label="fixed">固定列</el-radio>
                     </el-radio-group>
                 </ElFormItem>
                 <ElFormItem label="备注">

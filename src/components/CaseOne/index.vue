@@ -1,21 +1,21 @@
 <template>
     <div>
-        <div class="pt-24 flex">
+        <div class="pt-6 flex">
             <div class="flex-grow">
 
             </div>
             <div>
                 <ElForm ref="formRef" :model="form" label-position="right" label-width="100">
                     <ElFormItem :rules="[{ required: true, message: '请填写案件名称', trigger: ['blur', 'change'] }]" prop="name"
-                        label="案件名称" class="w-72">
+                        label="案件名称" style="width: 300px;">
                         <ElInput v-model="form.name" placeholder="请输入案件名称"></ElInput>
                     </ElFormItem>
                     <ElFormItem :rules="[{ required: true, message: '请填写当事人', trigger: ['blur', 'change'], }]" prop="party"
-                        label="当事人" class="w-72">
+                        label="当事人" style="width: 300px;">
                         <ElInput v-model="form.party" placeholder="请输入当事人姓名"></ElInput>
                     </ElFormItem>
                     <ElFormItem :rules="[{ required: true, message: '请填写委托单位', trigger: ['blur', 'change'], }]"
-                        prop="entrust_unit" label="委托单位" class="w-72">
+                        prop="entrust_unit" label="委托单位" style="width: 300px;">
                         <el-select v-model="form.entrust_unit" filterable placeholder="请选择">
                             <!-- <el-option label="Zone one" value="shanghai" />
                             <el-option label="Zone two" value="beijing" /> -->
@@ -23,29 +23,29 @@
                         </el-select>
                     </ElFormItem>
                     <ElFormItem :rules="[{ required: true, message: '请填写查扣原因', trigger: ['blur', 'change'], }]"
-                        prop="reason" label="查扣原因" class="w-72">
+                        prop="reason" label="查扣原因" style="width: 300px;">
                         <el-select v-model="form.reason" placeholder="请选择">
                             <el-option label="刑事案件" value="刑事案件" />
                             <el-option label="民事案件" value="民事案件" />
                         </el-select>
                     </ElFormItem>
                     <ElFormItem :rules="[{ required: true, message: '请填写案值（元）', trigger: ['blur', 'change'], }]"
-                        prop="value" label="案值（元）" class="w-72">
+                        prop="value" label="案值（元）" style="width: 300px;">
                         <ElInput v-model="form.value" placeholder="请输入案值"></ElInput>
                     </ElFormItem>
-                    <ElFormItem prop="value" label="快递公司" class="w-72">
+                    <ElFormItem prop="express_company" label="快递公司" style="width: 300px;">
                         <!-- <ElInput v-model="form.express_company" placeholder="请输入快递公司"></ElInput> -->
                         <ElSelect v-model="form.express_company" filterable>
                             <ElOption v-for="item in expressCompanies" :label="item" :value="item" />
                         </ElSelect>
                     </ElFormItem>
-                    <ElFormItem prop="value" label="快递单号" class="w-72">
+                    <ElFormItem prop="express_number" label="快递单号" style="width: 300px;">
                         <ElInput v-model="form.express_number" placeholder="请输入快递单号"></ElInput>
                     </ElFormItem>
-                    <ElFormItem prop="delivery_location" label="发货地点">
+                    <ElFormItem prop="delivery_location" label="发货地点" style="width: 500px;">
                         <el-row>
                             <el-col :span="12">
-                                <el-cascader :key="reload" filterable placeholder="请选择地区" size="large" :options="regionData"
+                                <el-cascader :key="reload" filterable placeholder="请选择地区" :options="regionData"
                                     @change="handleDeliveryChange">
                                 </el-cascader>
                             </el-col>
@@ -55,11 +55,12 @@
                             </el-col>
                         </el-row>
                     </ElFormItem>
-                    <ElFormItem :rules="[{ required: true, message: '请填写查扣地址', trigger: ['blur', 'change'], }]"
-                        prop="seized_site" label="查扣地址">
+                    <ElFormItem style="width: 500px;"
+                        :rules="[{ required: true, message: '请填写查扣地址', trigger: ['blur', 'change'], }]" prop="seized_site"
+                        label="查扣地址">
                         <el-row>
                             <el-col :span="12">
-                                <el-cascader :key="reload" filterable placeholder="请选择地区" size="large" :options="regionData"
+                                <el-cascader :key="reload" filterable placeholder="请选择地区" :options="regionData"
                                     @change="handleSeizedChange">
                                 </el-cascader>
                             </el-col>
@@ -68,11 +69,12 @@
                             </el-col>
                         </el-row>
                     </ElFormItem>
-                    <ElFormItem :rules="[{ required: true, message: '请填写抽样地址', trigger: ['blur', 'change'], }]"
-                        prop="sampling_site" label="抽样地址">
+                    <ElFormItem style="width: 500px;"
+                        :rules="[{ required: true, message: '请填写抽样地址', trigger: ['blur', 'change'], }]" prop="sampling_site"
+                        label="抽样地址">
                         <el-row>
                             <el-col :span="12">
-                                <el-cascader :key="reload" filterable placeholder="请选择地区" size="large" :options="regionData"
+                                <el-cascader :key="reload" filterable placeholder="请选择地区" :options="regionData"
                                     @change="handleSamplingChange">
                                 </el-cascader>
                             </el-col>
@@ -82,13 +84,14 @@
                             </el-col>
                         </el-row>
                     </ElFormItem>
-                    <ElFormItem :rules="[{ required: true, message: '请填写抽样人', trigger: ['blur', 'change'], }]"
-                        prop="sampler" label="抽样人" class="w-72">
+                    <ElFormItem style="width: 300px;"
+                        :rules="[{ required: true, message: '请填写抽样人', trigger: ['blur', 'change'], }]" prop="sampler"
+                        label="抽样人">
                         <ElInput v-model="form.sampler" placeholder="请输入姓名"></ElInput>
                     </ElFormItem>
-                    <ElFormItem prop="sampling_time" label="抽样时间" class="w-72">
+                    <ElFormItem style="width: 300px;" prop="sampling_time" label="抽样时间">
                         <el-date-picker type="date" v-model="sampling_time" placeholder="Pick a day"
-                            :disabled-date="disabledDate" :shortcuts="shortcuts" :size="'large'" @change="changeDatePicker"
+                            :disabled-date="disabledDate" :shortcuts="shortcuts" @change="changeDatePicker"
                             value-format="" />
                     </ElFormItem>
                 </ElForm>
@@ -98,14 +101,11 @@
         <div class="mt-24 flex">
             <div class="flex-grow"></div>
             <div class="pr-12">
-                <a-row :gutter="200">
-                    <a-col :span="12">
-                        <ElButton>取消</ElButton>
-                    </a-col>
-                    <a-col :span="12">
-                        <ElButton @click="goNext(2)">下一步</ElButton>
-                    </a-col>
-                </a-row>
+
+                <ElButton>&nbsp;&nbsp;取消&nbsp;&nbsp;</ElButton>
+
+                <ElButton type="primary" @click="goNext(1)">下一步</ElButton>
+
             </div>
         </div>
     </div>
@@ -286,7 +286,6 @@ function changeDatePicker(val) {
 }
 
 function goNext(val: number) {
-    console.log("222", formRef)
     if (!formRef) return
     formRef.value.validate((valid) => {
         if (valid) {

@@ -2,6 +2,10 @@
     <div class="h-full">
         <el-container class="h-full">
             <el-aside width="250px" class="border-right-my">
+                <div>
+                    <h3 class="pl-5 py-3" style="margin-bottom: 0;font-size: 22px;font-weight: 500;color: #000000;">案件中心
+                    </h3>
+                </div>
                 <el-menu :default-active="defaultActive">
                     <ElMenuItem index="1" @click="goRouter('/home/case/identification')">
                         <svg class="icon" aria-hidden="true" style="width: 20px;fill: #3BC4CF;height: 20px;">
@@ -51,7 +55,7 @@
                     </ElMenuItem>
                 </el-menu>
             </el-aside>
-            <el-main class="h-full">
+            <el-main class="h-full" style="padding-left: 0;">
 
                 <RouterView v-slot="{ Component }">
                     <component :is="Component" />
@@ -100,6 +104,17 @@ watch(() => router.currentRoute.value.path, (val, old) => {
 </script>
 <style scoped>
 #layout-main :deep(> div:nth-child(2) > div > section > aside > ul) {
+    border-right: 0 !important;
+}
+
+.border-right-my :deep(> ul > li.el-menu-item.is-active) {
+    /* background-color: blue !important; */
+    background-color: var(--el-menu-hover-bg-color);
+    /* 右边框 */
+    border-right: 3px solid var(--el-menu-active-color) !important;
+}
+
+.border-right-my :deep(> ul) {
     border-right: 0 !important;
 }
 </style>

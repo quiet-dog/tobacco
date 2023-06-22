@@ -3,9 +3,9 @@
         <!-- header -->
         <MyTable>
             <template #header>
-                <div class="flex bg-white space-x-5">
+                <div class="flex bg-white space-x-5 py-1">
                     <div>
-                        <el-button type="primary" size="large" @click="goCreatTask('/home/create')">新建案件</el-button>
+                        <el-button type="primary" @click="goCreatTask('/home/create')">新建案件</el-button>
                     </div>
 
                     <div>
@@ -16,56 +16,105 @@
                     <div class="flex">
 
                         <div class="pr-4">
-                            <ElInput size="large" v-model="searchValue" placeholder="输入标签进行过滤" />
+                            <ElInput @change="changeSearchValue" v-model="searchValue" placeholder="可搜索表格内任意信息">
+                                <template #append>
+                                    <el-button :icon="Search" />
+                                </template>
+                            </ElInput>
                         </div>
 
                         <div style="width: 120px">
-                            <el-select v-model="timeValue" @change="changeSelect" placeholder="时间筛选条件" size="large">
+                            <el-select v-model="timeValue" @change="changeSelect" placeholder="时间筛选条件">
                                 <el-option v-for="item in timeOption" :key="item.value" :label="item.label"
                                     :value="item.value" />
                             </el-select>
                         </div>
                         <div class="pr-2">
-                            <el-date-picker value-format="x" style="width: 250px;" size="large" v-model="datePickerValue"
+                            <el-date-picker value-format="x" style="width: 250px;" v-model="datePickerValue"
                                 type="daterange" :shortcuts="timeValue === '1' ? datePickerShortcuts : datePickerShortcuts"
                                 range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
                                 @change="changePickerTime" />
                         </div>
-
-                        <!-- <div>
-                            <el-dropdown size="large" split-button type="primary">
-                                批量操作
+                        <div>
+                            <el-dropdown split-button type="primary">
+                                <span @click="importFile(1)">导出所选</span>
                                 <template #dropdown>
                                     <el-dropdown-menu>
-                                        <el-dropdown-item>选择1</el-dropdown-item>
-                                        <el-dropdown-item>Action 2</el-dropdown-item>
-                                        <el-dropdown-item>Action 3</el-dropdown-item>
-                                        <el-dropdown-item>Action 4</el-dropdown-item>
+                                        <el-dropdown-item @click="importFile(2)">导出全部</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
-                        </div> -->
+                        </div>
                     </div>
                 </div>
             </template>
             <template #table>
-                <ElTable max-height="100%" height="100%" @row-click="handleRowDrawer" :data="tableData"
+                <ElTable @filter-change="fileterChange" @selection-change="handleSelectionChange" size="large"
+                    max-height="100%" style="width: 100%" height="100%" @row-click="handleRowDrawer" :data="tableData"
                     :header-cell-style="{ background: '#FAFAFA' }">
-                    <el-table-column prop="id" label="流水号" show-overflow-tooltip />
-                    <el-table-column prop="name" label="案件名称" show-overflow-tooltip />
-                    <el-table-column prop="seized_site" label="查扣地点" show-overflow-tooltip />
-                    <el-table-column prop="party" label="当事人" show-overflow-tooltip />
-                    <el-table-column prop="value" label="案值（元）" show-overflow-tooltip />
-                    <el-table-column prop="reason" label="查扣原因" show-overflow-tooltip />
-                    <el-table-column prop="sampling_time" label="抽样时间" show-overflow-tooltip>
+                    <el-table-column fixed type="selection" width="55" />
+                    <el-table-column fixed width="100" prop="id" label="流水号" show-overflow-tooltip>
+                        <template #default="scope">
+                            <span v-html="highText(scope.row.id, searchValue)"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column fixed width="200" prop="name" label="案件名称" show-overflow-tooltip>
+                        <template #default="scope">
+                            <span v-html="highText(scope.row.name, searchValue)"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column width="200" prop="seized_site" label="查扣地点" show-overflow-tooltip>
+                        <template #default="scope">
+                            <span v-html="highText(scope.row.seized_site, searchValue)"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="party" label="当事人" show-overflow-tooltip>
+                        <template #default="scope">
+                            <span v-html="highText(scope.row.party, searchValue)"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="value" width="120" label="案值（元）" show-overflow-tooltip>
+                        <template #default="scope">
+                            <span v-html="highText(scope.row.value, searchValue)"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column :column-key="'reason'" width="150" :filters="reasonList" prop="reason" label="查扣原因"
+                        show-overflow-tooltip>
+                        <template #default="scope">
+                            <el-tag v-if="scope.row.reason === '民事案件'" type="primary">{{ scope.row.reason }}</el-tag>
+                            <el-tag v-else>{{ scope.row.reason }}</el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column width="200" prop="sampling_time" label="抽样时间" show-overflow-tooltip>
                         <template #default="scope">
                             <span>{{ scope.row.sampling_time ? formatDate(scope.row.sampling_time) : "-" }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="sampler" label="抽样人" show-overflow-tooltip />
-                    <el-table-column prop="delivery_location" label="抽样地点" show-overflow-tooltip />
-                    <el-table-column prop="entrust_unit" label="委托单位" show-overflow-tooltip />
-                    <el-table-column width="150" show-overflow-tooltip>
+                    <el-table-column prop="sampler" label="抽样人" show-overflow-tooltip>
+                        <template #default="scope">
+                            <span v-html="highText(scope.row.sampler, searchValue)"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column width="200" prop="sampling_site" label="抽样地点" show-overflow-tooltip>
+                        <template #default="scope">
+                            <span v-html="highText(scope.row.sampling_site, searchValue)"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column :column-key="'entrust_unit'" width="120" :filters="positionList" prop="entrust_unit"
+                        label="委托单位" show-overflow-tooltip />
+                    <el-table-column prop="express_company" width="120" :column-key="'express_company_filter'"
+                        :filters="expressCompanies" label="快递公司" show-overflow-tooltip />
+                    <el-table-column width="200" prop="express_number" label="快递单号" show-overflow-tooltip>
+                        <template #default="scope">
+                            <span v-html="highText(scope.row.express_number, searchValue)"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column width="200" prop="delivery_location" label="发货地点" show-overflow-tooltip>
+                        <template #default="scope">
+                            <span v-html="highText(scope.row.delivery_location, searchValue)"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column width="70" label="操作" show-overflow-tooltip>
                         <template #default="scope">
                             <!-- <ElButton text style="padding: 0px;" type="primary"> 编辑</ElButton> -->
                             <ElButton text style="padding: 0px;" type="danger"> 取消</ElButton>
@@ -82,58 +131,76 @@
                 </div>
             </template>
         </MyTable>
-        <ElDrawer v-model="drawer" title="案件概述" @closed="closedDrawer">
+        <ElDrawer size="30%" class="my-drawer" v-model="drawer" title="案件概述" @closed="closedDrawer">
             <div>
                 <el-card shadow="hover" class="title-card-my">
                     <template #header>
                         <div class="flex">
-                            <div class="border-l-4 border-blue-400 pl-2 text-2xl">概述</div>
+                            <div class="border-solid border-l-4 border-blue-400 pl-4 text-1xl">概述</div>
                             <div class="flex-grow">
                             </div>
                         </div>
 
                     </template>
-                    <div class="flex-col px-5">
-                        <div class="grid grid-cols-14 gap-10">
-                            <el-descriptions title="" :column="2">
-                                <el-descriptions-item label-align="left" label="名称">{{ taskInfo.name
-                                }}</el-descriptions-item>
-                                <el-descriptions-item label-align="right" label="委托单位">{{ taskInfo.entrust_unit
-                                }}</el-descriptions-item>
-                                <el-descriptions-item label-align="left" label="当事人">{{ taskInfo.party
-                                }}</el-descriptions-item>
-                                <el-descriptions-item label-align="right" label="查扣原因">
-                                    <el-tag>{{ taskInfo.reason }}</el-tag>
-                                </el-descriptions-item>
-                                <el-descriptions-item label-align="left" label="抽样时间">{{ formatDate(taskInfo.sampling_time)
-                                }}</el-descriptions-item>
-                                <el-descriptions-item label-align="right" label="查扣地点">{{ taskInfo.delivery_location
-                                }}</el-descriptions-item>
-                            </el-descriptions>
-                            <div class="mt-12 ">
-                                <el-steps :active="setActive" :process-status="3 === 3 ? 'error' : 'finish'"
-                                    :finish-status="3 === 3 ? 'error' : 'finish'" align-center>
+                    <div class="flex-col">
+                        <div class="grid grid-cols-14">
+                            <div class="ml-1 pl-4">
+                                <el-descriptions title="" :column="2">
+                                    <el-descriptions-item label-align="left" label="名称:">{{ taskInfo.name
+                                    }}</el-descriptions-item>
+                                    <el-descriptions-item label-align="right" label="委托单位:">{{ taskInfo.entrust_unit
+                                    }}</el-descriptions-item>
+                                    <el-descriptions-item label-align="left" label="当事人:">{{ taskInfo.party
+                                    }}</el-descriptions-item>
+                                    <el-descriptions-item label-align="right" label="查扣原因:">
+                                        <el-tag>{{ taskInfo.reason }}</el-tag>
+                                    </el-descriptions-item>
+                                    <el-descriptions-item label-align="left" label="抽样时间:">{{
+                                        formatDate(taskInfo.sampling_time)
+                                    }}</el-descriptions-item>
+                                    <el-descriptions-item label-align="right" label="查扣地点:">{{ taskInfo.delivery_location
+                                    }}</el-descriptions-item>
+                                </el-descriptions>
+                            </div>
+                            <div class="mt-12">
+                                <el-steps class="my-step" :active="setActive" finish-status="success" align-center>
                                     <el-step>
                                         <template #title>
                                             <div class="">
                                                 案件建立<br>
-                                                2022-12-17
+                                                {{ taskInfo.created_at ? formatDate(taskInfo.created_at) : "-" }}
                                             </div>
                                         </template>
                                     </el-step>
                                     <el-step>
                                         <template #title>
                                             <div class="">
-                                                鉴定完成<br>
-                                                2022-12-17
+                                                案件鉴定<br>
+                                                {{ taskInfo.identify_time ? formatDate2(taskInfo.identify_time) : '-' }}
                                             </div>
                                         </template>
                                     </el-step>
                                     <el-step>
                                         <template #title>
                                             <div class="">
-                                                入库完成<br>
-                                                2022-12-17
+                                                案件入库<br>
+                                                {{ taskInfo.storage_time ? formatDate2(taskInfo.storage_time) : '-' }}
+                                            </div>
+                                        </template>
+                                    </el-step>
+                                    <el-step>
+                                        <template #title>
+                                            <div class="">
+                                                案件到期<br>
+                                                {{ taskInfo.expire_time ? formatDate2(taskInfo.expire_time) : '-' }}
+                                            </div>
+                                        </template>
+                                    </el-step>
+                                    <el-step>
+                                        <template #title>
+                                            <div class="">
+                                                案件出库<br>
+                                                {{ taskInfo.archived_time ? formatDate2(taskInfo.archived_time) : '-' }}
                                             </div>
                                         </template>
                                     </el-step>
@@ -146,31 +213,31 @@
                     <el-card shadow="hover" class="title-card-my">
                         <template #header>
                             <div class="flex">
-                                <div class="border-l-4 border-blue-400 pl-2 text-2xl">待检列表</div>
+                                <div class="border-solid border-l-4 border-blue-400 pl-4 text-1xl">待检列表</div>
                                 <div class="flex-grow"></div>
                             </div>
                         </template>
                         <div>
-                            <div>
-                                <el-table :data="tableData2" :default-sort="{ prop: 'date', order: 'descending' }"
+                            <div style="height: 450px;">
+                                <el-table max-height="100%" height="100%" :data="tableData2"
+                                    :default-sort="{ prop: 'date', order: 'descending' }"
                                     :header-cell-style="{ background: '#FAFAFA' }" width="100%">
-                                    <el-table-column prop="code" label="编号" width="150"
-                                        show-overflow-tooltip></el-table-column>
+                                    <el-table-column prop="code" label="编号" show-overflow-tooltip></el-table-column>
 
-                                    <el-table-column prop="name" label="样品名称" width="150" show-overflow-tooltip>
+                                    <el-table-column prop="name" label="样品名称" show-overflow-tooltip>
                                     </el-table-column>
                                     <el-table-column prop="manufacturer" label="厂商" show-overflow-tooltip>
                                     </el-table-column>
-                                    <el-table-column prop="packing_spec" label="包装形式" width="100" show-overflow-tooltip>
+                                    <el-table-column width="80" prop="packing_spec" label="包装形式" show-overflow-tooltip>
                                     </el-table-column>
-                                    <el-table-column prop="name" label="操作">
+                                    <!-- <el-table-column prop="name" label="操作">
                                         <template #default="scope">
                                             <div>
                                                 <el-button text type="danger" @click="" :style="{ 'padding-left': '0px' }">
                                                     移除</el-button>
                                             </div>
                                         </template>
-                                    </el-table-column>
+                                    </el-table-column> -->
                                 </el-table>
                             </div>
                             <div class="flex mt-3" v-if="total2 > 5">
@@ -187,7 +254,7 @@
                 </div>
             </div>
             <template #footer>
-                <ElButton style="width: 100%;" type="primary" @click="openDialog">开始鉴定</ElButton>
+                <ElButton style="width: 100%;height: 34px;" type="primary" @click="openDialog">开始鉴定</ElButton>
             </template>
         </ElDrawer>
 
@@ -235,16 +302,24 @@
                         <div style="height: 500px;" class="flex">
                             <div class="flex-grow">
                             </div>
-                            <img :src="EmptySvg" width="400" alt="" srcset="">
+                            <div>
+                                <img :src="EmptySvg" width="400" alt="" srcset="" />
+                                <div class="flex">
+                                    <div class="flex-grow"></div>
+                                    <h1 style="font-size: 16px;">请扫描二维码</h1>
+                                    <div class="flex-grow"></div>
+                                </div>
+                            </div>
+
                             <div class="flex-grow">
                             </div>
                         </div>
                     </div>
-                    <div class="flex mt-5 mr-2">
+                    <div class="flex mt-9 pt-12">
                         <div class="flex-grow">
                         </div>
                         <div>
-                            <ElButton size="large" @click="goNext(2)">下一步</ElButton>
+                            <ElButton type="primary" @click="goNext(2)">下一步</ElButton>
                         </div>
                     </div>
                 </div>
@@ -253,28 +328,33 @@
                 <div v-if="targetDialog === 2" class="w-full h-full">
                     <div>
                         <el-tabs v-model="tabsValue" @tab-change="changeTabs">
-                            <el-tab-pane name="0" label="正品"></el-tab-pane>
-                            <el-tab-pane name="1" label="赝品"></el-tab-pane>
+                            <el-tab-pane name="0" :label="`正品&nbsp;${real_quantity}`"></el-tab-pane>
+                            <el-tab-pane name="1" :label="`赝品&nbsp;${fake_quantity}`"></el-tab-pane>
                         </el-tabs>
                     </div>
                     <div style="height: 450px;">
-                        <ElTable height="100%" :data="scannerTableT_table">
+                        <ElTable :header-cell-style="{ background: '#FAFAFA' }" height="100%" :data="scannerTableT_table">
                             <ElTableColumn prop="code" label="编号"></ElTableColumn>
                             <ElTableColumn prop="name" label="样品名称"></ElTableColumn>
                             <ElTableColumn prop="manufacturer" label="厂商"></ElTableColumn>
-                            <ElTableColumn prop="packing_spec" label="包装形式"></ElTableColumn>
+                            <ElTableColumn prop="packing_spec" align="center" label="包装形式"></ElTableColumn>
                             <ElTableColumn prop="is_real" label="鉴定结果">
                                 <template #default="scope">
-                                    <span>{{ scope.row.is_real ? '真品' : '赝品' }}</span>
+                                    <el-tag v-if="scope.row.is_real" type="success">正品</el-tag>
+                                    <el-tag v-else type="danger">赝品</el-tag>
                                 </template>
                             </ElTableColumn>
                             <ElTableColumn prop="operator.username" label="鉴定人"></ElTableColumn>
-                            <ElTableColumn prop="identify_time" label="鉴定时间"></ElTableColumn>
+                            <ElTableColumn width="150" prop="identify_time" label="鉴定时间">
+                                <template #default="scope">
+                                    {{ scope.row.identify_time ? formatDate(scope.row.identify_time) : '-' }}
+                                </template>
+                            </ElTableColumn>
                             <!-- <ElTableColumn label="操作"></ElTableColumn> -->
                         </ElTable>
                     </div>
-                    <div class="flex">
-                        <div>
+                    <div class="flex mt-3">
+                        <div class="pt-2">
                             共{{ total3 }}条
                         </div>
                         <div class="flex-grow">
@@ -290,61 +370,68 @@
 
                         </div>
                         <div>
-                            <ElButton @click="drawer1 = false">取消</ElButton>
+                            <ElButton @click="targetDialog = 1">上一步</ElButton>
                         </div>
                         <div class="ml-5">
-                            <ElButton size="large" @click="goNext(3)">下一步</ElButton>
+                            <ElButton type="primary" @click="goNext(3)">下一步</ElButton>
                         </div>
                     </div>
                 </div>
 
                 <!-- three -->
                 <div v-if="targetDialog === 3" class="h-full flex-col flex">
-                    <div style="height: calc(100% - 80px);">
+                    <div style="height: calc(100% - 80px);" class="mt-8">
                         <el-row>
                             <el-col :span="24">
-                                <el-row>
-                                    <el-col :span="24">
-                                        <h1 style="font-size:20px;font-weight: 700;">上传头图</h1>
-                                        <div id="upload-file">
-                                            <!-- :on-exceed="handleExceed"  beforeAvatarUpload-->
-                                            <!-- :before-upload="beforeAvatarUpload" -->
-                                            <el-upload :on-remove="handleRemove" v-model:file-list="fileList1"
-                                                :on-exceed="handleExceed" :before-upload="beforeAvatarUpload"
-                                                :on-change="imgFileChange" ref="uploadRef2" style="height: 100%;"
-                                                size="large" class="upload-demo"
-                                                action="http://192.168.0.81:8081/api/admin/law_case/identify" :limit="1"
-                                                :auto-upload="false" multiple>
-                                                <el-button type="primary">上传头图</el-button>
-                                            </el-upload>
-                                        </div>
-                                    </el-col>
-                                </el-row>
-                                <el-row>
-                                    <el-col :span="24">
-                                        <h1 style="font-size:20px;font-weight: 700;">上传文件</h1>
-                                        <div id="upload-file">
-                                            <el-upload v-model:file-list="fileList" :on-change="fileChange" :headers="{
-                                                'Authorization': 'Bearer ' + '12345678abc'
-                                            }" ref="upload" style="height: 100%;" size="large" class="upload-demo"
-                                                action="http://192.168.0.81:8081/api/admin/law_case/identify" multiple
-                                                :auto-upload="false" :data="{
-                                                    'law_case_id': law_case_id,
-                                                    'remark': saveCaseForm.remark,
-                                                    'report_code': saveCaseForm.report_code
-                                                }">
-                                                <el-button type="primary">上传文件</el-button>
+                                <!-- <div class="ml-8">
+                                    <el-row>
+                                        <el-col :span="24">
+                                            <el-form>
+                                                <el-form-item label="上传头图">
+                                                    <div id="upload-file">
 
-                                            </el-upload>
-                                        </div>
-                                    </el-col>
-                                </el-row>
+                                                        <el-upload :on-remove="handleRemove" v-model:file-list="fileList1"
+                                                            :on-exceed="handleExceed" :before-upload="beforeAvatarUpload"
+                                                            :on-change="imgFileChange" ref="uploadRef2"
+                                                            style="height: 100%;" class="upload-demo"
+                                                            action="http://192.168.0.81:8081/api/admin/law_case/identify"
+                                                            :limit="1" :auto-upload="false" multiple>
+                                                            <el-button type="primary">上传头图</el-button>
+                                                        </el-upload>
+                                                    </div>
+                                                </el-form-item>
+                                            </el-form>
+
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="24">
+                                            <el-form>
+                                                <el-form-item label="上传文件">
+                                                    <div id="upload-file">
+                                                        <el-upload v-model:file-list="fileList" :on-change="fileChange"
+                                                            :headers="{
+                                                                'Authorization': 'Bearer ' + '12345678abc'
+                                                            }" ref="upload" style="height: 100%;" class="upload-demo"
+                                                            action="http://192.168.0.81:8081/api/admin/law_case/identify"
+                                                            multiple :auto-upload="false" :data="{
+                                                                'law_case_id': law_case_id,
+                                                                'remark': saveCaseForm.remark,
+                                                                'report_code': saveCaseForm.report_code
+                                                            }">
+                                                            <el-button type="primary">上传文件</el-button>
+
+                                                        </el-upload>
+                                                    </div>
+                                                </el-form-item>
+                                            </el-form>
+
+                                        </el-col>
+                                    </el-row>
+                                </div> -->
 
 
                                 <ElForm ref="saveFormRef" :model="saveCaseForm" label-width="100" style="width: 50%;">
-                                    <ElFormItem prop="remark" label="备注">
-                                        <ElInput v-model="saveCaseForm.remark" />
-                                    </ElFormItem>
                                     <ElFormItem
                                         :rules="[{ required: true, message: '请填写报告编号', trigger: ['blur', 'change'], },]"
                                         prop="report_code" label="报告编号">
@@ -355,54 +442,96 @@
                                         prop="identifier" label="鉴定人">
                                         <ElInput v-model="saveCaseForm.identifier" />
                                     </ElFormItem>
+                                    <el-form-item label="案件头图"
+                                        :rules="[{ message: '请上传案件头图', required: true, trigger: ['blur', 'change'], }]">
+                                        <div id="upload-file">
+                                            <!-- :on-exceed="handleExceed"  beforeAvatarUpload-->
+                                            <!-- :before-upload="beforeAvatarUpload"  :on-exceed="handleExceed" :before-upload="beforeAvatarUpload"-->
+                                            <el-upload :on-remove="handleRemove" :before-upload="beforeAvatarUpload"
+                                                :on-exceed="handleExceed" :on-change="imgFileChange" ref="uploadRef2"
+                                                style="height: 100%;" class="upload-demo"
+                                                action="http://192.168.0.81:8081/api/admin/law_case/identify" :limit="1"
+                                                :auto-upload="false">
+                                                <template #trigger>
+                                                    <el-button type="primary">上传头图</el-button>
+                                                </template>
+                                            </el-upload>
+                                        </div>
+                                    </el-form-item>
+
+                                    <el-form-item label="鉴定文件">
+                                        <div id="upload-file">
+                                            <el-upload v-model:file-list="fileList" :on-change="fileChange" :headers="{
+                                                'Authorization': 'Bearer ' + '12345678abc'
+                                            }" ref="upload" style="height: 100%;" class="upload-demo"
+                                                action="http://192.168.0.81:8081/api/admin/law_case/identify" multiple
+                                                :auto-upload="false" :data="{
+                                                    'law_case_id': law_case_id,
+                                                    'remark': saveCaseForm.remark,
+                                                    'report_code': saveCaseForm.report_code
+                                                }">
+                                                <el-button type="primary">上传文件</el-button>
+
+                                            </el-upload>
+                                        </div>
+                                    </el-form-item>
+                                    <ElFormItem prop="remark" label="备注">
+                                        <ElInput v-model="saveCaseForm.remark" />
+                                    </ElFormItem>
+
                                 </ElForm>
                             </el-col>
 
                         </el-row>
 
                     </div>
-                    <div style="height: 80px;" v-if="targetDialog === 3" class="flex mt-12">
+                    <div style="height: 80px;" v-if="targetDialog === 3" class="flex mt-12 pt-12">
                         <div class="flex-grow">
 
                         </div>
-                        <div>
-                            <ElButton @click="drawer1 = false">取消</ElButton>
+                        <div class="mr-2">
+                            <ElButton @click="targetDialog = 2">上一步</ElButton>
                         </div>
-                        <div>
-                            <ElButton size="large" @click="submitSavaCase">完成</ElButton>
+                        <div class="ml-2">
+                            <ElButton type="primary" @click="submitSavaCase">完成</ElButton>
                         </div>
                     </div>
                 </div>
 
             </div>
 
-            <ElDialog v-model="drawer2" title="鉴定进度" @closed="closedDialog2">
+            <ElDialog class="my-dialog-2" v-model="drawer2" title="鉴定进度" @closed="closedDialog2">
                 <div>
                     <div class="flex">
-                        <div :style="{ width: tabsValue4 === '2' ? 'calc(100% - 250px)' : '100%' }">
+                        <div :style="{ width: tabsValue4 === '2' ? 'calc(100% - 190px)' : '100%' }">
                             <el-tabs v-model="tabsValue4" @tab-change="changeTabs4">
-                                <el-tab-pane name="0" :label="`正品(${real_quantity})`"></el-tab-pane>
-                                <el-tab-pane name="1" :label="`赝品${fake_quantity}`"></el-tab-pane>
-                                <el-tab-pane name="2" :label="`未鉴定${unidentified_quantity}`"></el-tab-pane>
+                                <el-tab-pane name="0" :label="`正品&nbsp;${real_quantity}`"></el-tab-pane>
+                                <el-tab-pane name="1" :label="`赝品&nbsp;${fake_quantity}`"></el-tab-pane>
+                                <el-tab-pane name="2" :label="`未鉴定&nbsp;${unidentified_quantity}`"></el-tab-pane>
                             </el-tabs>
                         </div>
-                        <div style="width: 250px;" v-if="tabsValue4 === '2'">
+                        <div class="flex-grow"></div>
+                        <div style="width: 190px;height: 34px;margin-top: 8px;" v-if="tabsValue4 === '2'">
                             <ElButton type="primary" @click="setAllCaseStatus(true)" :loading="loading2">均为正品</ElButton>
                             <ElButton type="danger" @click="setAllCaseStatus(false)">均为赝品</ElButton>
                         </div>
                     </div>
                     <div>
-                        <ElTable :data="statusTableData" height="100%" :header-cell-style="{ background: '#FAFAFA' }">
+                        <ElTable :header-cell-style="{ background: '#FAFAFA' }" :data="statusTableData" height="100%">
                             <ElTableColumn prop="name" label="编号"></ElTableColumn>
                             <ElTableColumn label="厂商"></ElTableColumn>
                             <ElTableColumn label="包装形式"></ElTableColumn>
                             <ElTableColumn label="鉴定结果"></ElTableColumn>
                             <ElTableColumn label="鉴定人"></ElTableColumn>
-                            <ElTableColumn label="鉴定时间"></ElTableColumn>
+                            <ElTableColumn label="鉴定时间">
+                                <template #default="scope">
+                                    {{ }}
+                                </template>
+                            </ElTableColumn>
                         </ElTable>
                     </div>
-                    <div class="flex">
-                        <div>
+                    <div class="flex py-3">
+                        <div class="pt-1">
                             共{{ total4 }}条
                         </div>
                         <div class="flex-grow">
@@ -419,26 +548,105 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { getCaseApi, getCaseListApi, saveCaseApi } from '@/api/case';
+import { getCaseApi, getCaseListApi, saveCaseApi, importFileExeclApi } from '@/api/case';
 import { getSampleListApi, getSampleByCodeApi, sampleIdentifyApi, setSampleStatusApi, getSampleResultApi } from '@/api/sample';
-import { formatDate } from "@/utils"
+import { formatDate, formatDate2, highText, expressCompanies } from "@/utils"
 import { ElMessage, genFileId } from 'element-plus';
-import { Plus } from '@element-plus/icons-vue'
 import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import EmptySvg from '@/assets/empty.svg'
 import { ElLoading } from 'element-plus'
+import { Search } from '@element-plus/icons-vue'
+
+
+let multipleIds = $ref([])
+const tableRef = ref()
+function handleSelectionChange(rows) {
+    multipleIds = []
+    if (rows) {
+        rows.forEach(row => {
+            multipleIds.push(row.id)
+        })
+
+    } else {
+        multipleIds = rows
+    }
+    // exportExecel()
+}
+let exportType = $ref(1)
+function importFile(val) {
+    if (val === 1) {
+        exportType = 1
+    } else {
+        exportType = 2
+    }
+    exportExecel()
+}
+
+const positionList = [
+    { text: "秦都区局", value: "秦都区局" },
+    { text: "渭城区局", value: "渭城区局" },
+    { text: "兴平市局", value: "兴平市局" },
+    { text: "泾阳县局", value: "泾阳县局" },
+    { text: "武功县局", value: "武功县局" },
+    { text: "三原县局", value: "三原县局" },
+    { text: "乾县局", value: "乾县局" },
+    { text: "礼泉县局", value: "礼泉县局" },
+    { text: "淳化县局", value: "淳化县局" },
+    { text: "旬邑县局", value: "旬邑县局" },
+    { text: "永寿县局", value: "永寿县局" },
+    { text: "彬州市局", value: "彬州市局" },
+    { text: "长武县局", value: "长武县局" },
+];
+let entrust_unit = $ref([])
+let reason_filter = $ref([])
+let express_company_filter = $ref([])
+function fileterChange(val) {
+    console.log('val', val)
+    if (val['entrust_unit']) {
+        if (val['entrust_unit'].length > 0) {
+            entrust_unit = val['entrust_unit']
+        } else {
+            entrust_unit = []
+        }
+    }
+    if (val['reason']) {
+        if (val['reason'].length > 0) {
+            reason_filter = val['reason']
+        } else {
+            reason_filter = []
+        }
+    }
+    if (val['express_company_filter']) {
+        if (val['express_company_filter'].length > 0) {
+            express_company_filter = val['express_company_filter']
+        } else {
+            express_company_filter = []
+        }
+    }
+    getCaseList()
+}
+
+let reasonList = [
+    { text: '刑事案件', value: '刑事案件' },
+    { text: '民事案件', value: '民事案件' },
+]
+
+
+
+// =====================================================
+
 
 const saveFormRef = ref()
 
 const imageUrl = ref('')
 function beforeAvatarUpload(rawFile) {
-    if (rawFile.type !== 'image/jpeg') {
-        ElMessage.error('Avatar picture must be JPG format!')
-        return false
-    } else if (rawFile.size / 1024 / 1024 > 2) {
-        ElMessage.error('Avatar picture size can not exceed 2MB!')
+    if (rawFile.type !== 'image/jpeg' || rawFile.type !== 'image/png' || rawFile.type !== 'image/jpg') {
+        ElMessage.error('请上传jpeg,png,jpg图片')
         return false
     }
+    console.log('rawFile', rawFile)
+    rawFile.name = "案件头图-" + rawFile.name
+    rawFile.name.raw = "案件头图-" + rawFile.name.raw
     imageUrl.value = URL.createObjectURL(rawFile)
     return true
 }
@@ -454,10 +662,10 @@ let timeOption = [
         value: '1',
         label: '抽样时间',
     },
-    {
-        value: '2',
-        label: '入库时间',
-    }
+    // {
+    //     value: '2',
+    //     label: '入库时间',
+    // }
 ]
 let tableData = $ref([])
 let tableData2 = $ref([])
@@ -483,7 +691,7 @@ const handleExceed = (files) => {
 }
 const handleRemove = (uploadFile, uploadFiles) => {
     uploadRef2.value!.clearFiles()
-    imgFile = null
+    saveCaseForm.imgFile = null
 }
 const datePickerShortcuts = ref([
     {
@@ -545,10 +753,29 @@ let taskInfo = $ref({
     sampling_time: "",
     delivery_location: ""
 })
+
+function getCurActive(row: any) {
+    if (row.created_at) {
+        setActive = 1
+    }
+    if (row.identify_time !== null) {
+        setActive = 2
+    }
+    if (row.storage_time !== null) {
+        setActive = 3
+    }
+    if (row.expire_time !== null && (new Date().getTime() - row.expire_time) > 0) {
+        setActive = 4
+    }
+    if (row.archived_time !== null) {
+        setActive = 5
+    }
+}
 const handleRowDrawer = (row: any, _column: any, _event: any) => {
     drawer = true
     law_case_id = row.id
     taskInfo = row
+    getCurActive(row)
     console.log('roqwww', row)
 
     // getCaseApi(law_case_id).then(res => {
@@ -681,7 +908,9 @@ let unidentified_quantity = $ref(0)
 let saveCaseForm = $ref({
     remark: '',
     report_code: '',
-    identifier: ''
+    identifier: '',
+    files: null,
+    imgFile: null,
 })
 function setIsSample(id: any, val: boolean) {
     sampleIdentifyApi({
@@ -728,8 +957,8 @@ function closedDrawer1() {
     saveCaseForm.remark = ''
     saveCaseForm.report_code = ''
     saveCaseForm.identifier = ''
-    fileList = []
-    files = []
+    saveCaseForm.imgFile = []
+    saveCaseForm.files = []
 }
 
 let files = $ref([])
@@ -738,19 +967,26 @@ const fileChange = (uploadFile, uploadFiles) => {
     // fileList = fileList.slice(-3)
     // console.log(uploadFile, uploadFiles)
     // fileList = uploadFiles
-    files = uploadFiles
+    console.log("uploadFiles", uploadFiles)
+    uploadFiles.forEach(item => {
+        item.name = "鉴定文件" + "-" + item.name
+    })
+    saveCaseForm.files = uploadFiles
 }
 
 const imgFileChange = (uploadFile, uploadFiles) => {
-    console.log(uploadFile, uploadFiles)
-    imgFile = uploadFile.raw
+
+    // 创建文件
+    uploadFile.name = "案件头图-" + uploadFile.name
+    const file = new File([uploadFile.raw], "案件头图-" + uploadFile.name, { type: uploadFile.raw.type })
+    saveCaseForm.imgFile = file
 }
 
 
 function submitSavaCase() {
     // upload.submit()
     console.log('imgFileimgFile', imgFile)
-    if (imgFile === undefined || imgFile === null) {
+    if (saveCaseForm.imgFile === undefined || saveCaseForm.imgFile === null) {
         ElMessage({
             type: 'error',
             message: '请上传封面'
@@ -761,15 +997,15 @@ function submitSavaCase() {
         if (valid) {
             const loadingInstance = ElLoading.service({
                 lock: true,
-                text: '正在上传中',
+                text: '文件正在上传中....请稍后',
                 spinner: 'el-icon-loading',
                 background: 'rgba(0, 0, 0, 0.7)'
             })
             const formData = new FormData()
-            files.forEach(item => {
+            saveCaseForm.files.forEach(item => {
                 formData.append('files', item.raw)
             })
-            formData.append('cover_file', imgFile)
+            formData.append('cover_file', saveCaseForm.imgFile)
             formData.append('law_case_id', String(law_case_id))
             formData.append('remark', saveCaseForm.remark)
             formData.append('report_code', saveCaseForm.report_code)
@@ -779,6 +1015,7 @@ function submitSavaCase() {
                     type: 'success',
                     message: res.msg
                 })
+                getCaseList()
                 loadingInstance.close()
                 drawer1 = false
             }).catch(err => {
@@ -853,7 +1090,11 @@ function getCaseList() {
         storage_time_end: timeValue === '2' ? undefined : datePickerValue === null ? undefined : datePickerValue[1],
         sampling_time_start: timeValue === '1' ? undefined : datePickerValue === null ? undefined : datePickerValue[0],
         sampling_time_end: timeValue === '1' ? undefined : datePickerValue === null ? undefined : datePickerValue[1],
-        status
+        status,
+        entrust_units: entrust_unit,
+        reasons: reason_filter,
+        express_companies: express_company_filter,
+        keyword: searchValue
     }).then(res => {
         total1 = res.data.total
         tableData = res.data.list
@@ -902,6 +1143,47 @@ function getCheckSampleLisk() {
         total3 = res.data.total
     })
 }
+
+function exportExecel() {
+    importFileExeclApi({
+        page_index: page1,
+        page_size: pageSize1,
+        storage_time_start: timeValue === '2' ? undefined : datePickerValue === null ? undefined : datePickerValue[0],
+        storage_time_end: timeValue === '2' ? undefined : datePickerValue === null ? undefined : datePickerValue[1],
+        sampling_time_start: timeValue === '1' ? undefined : datePickerValue === null ? undefined : datePickerValue[0],
+        sampling_time_end: timeValue === '1' ? undefined : datePickerValue === null ? undefined : datePickerValue[1],
+        status,
+        entrust_units: entrust_unit,
+        reasons: reason_filter,
+        express_companies: express_company_filter,
+        ids: exportType !== 1 ? [] : multipleIds,
+        keyword: searchValue
+    }).then(res => {
+        // 文件下载
+        // let fileName = decodeURI(res.headers['content-disposition'].split('=')[1]);
+        console.log('res.data', res)
+        let blob = new Blob([res]);
+        const link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = window.URL.createObjectURL(blob)
+        link.setAttribute('download', '案件列表.xlsx')
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href); // 释放URL 对象
+        document.body.removeChild(link)
+    }).catch(err => {
+        console.log('123123')
+
+        ElMessage({
+            type: 'error',
+            message: err.msg
+        })
+    })
+}
+
+function changeSearchValue(val) {
+    getCaseList()
+}
 onMounted(() => {
     getCaseList()
 })
@@ -916,6 +1198,15 @@ div.title-card-my :deep(>div.el-card__header) {
 }
 </style>
 <style>
+#drawer-drawer>div>div:nth-child(2)>div>div>div {
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+#drawer-drawer>div {
+    padding-top: 0 !important;
+}
+
 /* #drawer-drawer>div.el-dialog__body {
     padding: 0 0;
 } */

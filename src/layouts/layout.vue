@@ -9,15 +9,15 @@
                     <AsideMenu />
                 </el-aside>
                 <el-main id="layout-main" class="h-full" style="overflow-y: hidden;">
-                    <div>
+                    <!-- <div>
                         <el-tabs id="my-tabs" v-model="editableTabsValue" :addable="false" type="card" class="demo-tabs"
                             @edit="handleTabsEdit" @tab-click="clickTab">
                             <el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title"
                                 :name="item.name">
                             </el-tab-pane>
                         </el-tabs>
-                    </div>
-                    <div style="height: calc(100% - 30px);">
+                    </div> -->
+                    <div style="height: calc(100%);">
                         <RouterView v-slot="{ Component }">
                             <KeepAlive>
                                 <component :is="Component"></component>
@@ -143,7 +143,7 @@ div.aside-menu-my:deep(>div>ul) {
 }
 
 #aside-menu :deep() {
-    background-color: #393D4E;
+    /* background-color: white; */
 }
 
 #my-tabs:deep(> div.el-tabs__header.is-top) {
@@ -151,6 +151,14 @@ div.aside-menu-my:deep(>div>ul) {
 }
 
 #my-tabs:deep(> div.el-tabs__header.is-top) {
-    border-bottom: 5px solid whitesmoke;
+    border-bottom: 10px solid whitesmoke;
+}
+
+#layout-main {
+    padding-left: 0 !important;
+    border-left: 5px solid whitesmoke;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
 }
 </style>

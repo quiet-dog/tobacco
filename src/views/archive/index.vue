@@ -15,24 +15,23 @@
                     <div>
                         <div class="flex">
                             <div style="width: 120px">
-                                <el-select v-model="timeValue" placeholder="时间筛选条件" size="large">
+                                <el-select v-model="timeValue" placeholder="时间筛选条件">
                                     <el-option v-for="item in timeOption" :key="item.value" :label="item.label"
                                         :value="item.value" />
                                 </el-select>
                             </div>
                             <div class="pr-2">
-                                <el-date-picker style="width: 250px;" size="large" v-model="datePickerValue"
-                                    type="daterange"
+                                <el-date-picker style="width: 250px;" v-model="datePickerValue" type="daterange"
                                     :shortcuts="timeValue === '1' ? datePickerShortcuts : datePickerShortcuts"
                                     range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
                                     @change="changePickerTime" />
                             </div>
                             <div class="flex-grow"></div>
                             <div class="pr-4" style="width: 300px;">
-                                <ElInput class="w-full" size="large" />
+                                <ElInput class="w-full" />
                             </div>
                             <div>
-                                <el-dropdown size="large" split-button type="primary">
+                                <el-dropdown split-button type="primary">
                                     批量操作
                                     <template #dropdown>
                                         <el-dropdown-menu>
@@ -65,7 +64,7 @@
                             <ElTableColumn label="入库人"></ElTableColumn>
                             <ElTableColumn label="入库时间"></ElTableColumn>
                             <ElTableColumn label="期满倒计时"></ElTableColumn>
-                            <ElTableColumn label="操作">
+                            <ElTableColumn>
                                 <template #default="scope">
                                     <ElButton text>编辑</ElButton>
                                 </template>

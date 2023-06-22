@@ -1,7 +1,7 @@
 <template>
     <div class="h-full">
         <ScannerGun />
-        <el-config-provider :locale="locale" :size="'large'">
+        <el-config-provider :locale="locale" :size="'smaill'">
             <RouterView v-slot="{ Component }">
                 <component :is="Component"></component>
             </RouterView>

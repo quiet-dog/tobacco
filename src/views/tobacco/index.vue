@@ -3,8 +3,10 @@
         <el-container class="h-full">
             <el-aside width="250px" class="border-right-my">
                 <el-scrollbar height="100%">
-                    <el-menu default-active="0">
-                        <ElMenuItem @click="selectId(0)" :index="'0'">xxxxdgayudgasid</ElMenuItem>
+                    <el-menu class="border-right-my-test " default-active="0">
+                        <ElMenuItem class="my-main border-b-2" @click="selectId(0)" :index="'0'">
+                            <span class="text-2xl pt-2">咸阳市烟草局</span>
+                        </ElMenuItem>
                         <template v-for="item in treeMenu">
                             <ElSubMenu :index="String(item.id)" v-if="item.shelves.length > 0" :key="item">
                                 <template #title>
@@ -24,30 +26,31 @@
                     </el-menu>
                 </el-scrollbar>
             </el-aside>
-            <el-main class="h-full">
-                <div style="height: 120px;">
-                    <div class="flex">
-                        <ElButton size="large">新建案件</ElButton>
-                    </div>
-                    <div class="flex pt-4">
+            <el-main class="h-full" style="padding-left: 0;padding-right: 0;">
+                <div class="px-3" style="height: 60px; border-bottom: 5px whitesmoke solid;">
+                    <div class="flex pt-1">
+                        <div class="flex">
+                            <ElButton type="primary">新建案件</ElButton>
+                        </div>
+
+                        <div class="flex-grow"></div>
+                        <div class="pr-6">
+                            <ElInput placeholder="请输入搜索内容" />
+                        </div>
                         <div style="width: 120px">
-                            <el-select @change="changeTimeValue" v-model="timeValue" placeholder="时间筛选条件" size="large">
+                            <el-select @change="changeTimeValue" v-model="timeValue" placeholder="时间筛选条件">
                                 <el-option v-for="item in timeOption" :key="item.value" :label="item.label"
                                     :value="item.value" />
                             </el-select>
                         </div>
-                        <div class="pr-2">
-                            <el-date-picker value-format="x" style="width: 250px;" size="large" v-model="datePickerValue"
+                        <div>
+                            <el-date-picker value-format="x" style="width: 250px;" v-model="datePickerValue"
                                 type="daterange" :shortcuts="timeValue === '1' ? datePickerShortcuts : datePickerShortcuts"
                                 range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
                                 @change="changePickerTime" />
                         </div>
-                        <div class="flex-grow"></div>
-                        <div class="pr-5">
-                            <ElInput size="large" placeholder="请输入搜索内容" />
-                        </div>
-                        <div>
-                            <el-dropdown size="large" split-button type="primary">
+                        <!-- <div>
+                            <el-dropdown split-button type="primary">
                                 批量操作
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -58,36 +61,36 @@
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
-                <div style="height: calc(100% - 120px);">
+                <div class="px-3 pt-4" style="height: calc(100% - 60px);">
                     <div style="height: calc(100% - 60px);">
-                        <ElTable max-height="100%" @row-click="rowClickTableData" :data="tableData"
-                            :header-cell-style="{ background: '#FAFAFA' }">
-                            <ElTableColumn prop="name" label="样品名称"></ElTableColumn>
-                            <ElTableColumn prop="code" label="样品编号"></ElTableColumn>
-                            <ElTableColumn prop="code" label="存放位置"></ElTableColumn>
-                            <ElTableColumn prop="code" label="案件名称"></ElTableColumn>
-                            <ElTableColumn prop="code" label="抽样时间"></ElTableColumn>
-                            <ElTableColumn prop="code" label="鉴定结果">
+                        <ElTable size="large" max-height="100%" height="100%" @row-click="rowClickTableData"
+                            :data="tableData" :header-cell-style="{ background: '#FAFAFA' }">
+                            <ElTableColumn prop="name" label="样品名称" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="code" label="样品编号" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="code" label="存放位置" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="code" label="案件名称" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="code" label="抽样时间" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="code" label="鉴定结果" show-overflow-tooltip>
                                 <template #default="scope">
                                     <el-tag v-if="scope.row.is_real" type="success">真烟</el-tag>
                                     <el-tag v-else type="danger">假烟</el-tag>
                                 </template>
                             </ElTableColumn>
-                            <ElTableColumn prop="code" label="库存状态"></ElTableColumn>
-                            <ElTableColumn prop="code" label="入库人"></ElTableColumn>
-                            <ElTableColumn prop="info" label="入库时间"></ElTableColumn>
-                            <ElTableColumn prop="info" label="期满倒计时"></ElTableColumn>
-                            <ElTableColumn label="操作">
+                            <ElTableColumn prop="code" label="库存状态" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="code" label="入库人" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="info" label="入库时间" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="info" label="期满倒计时" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn width="90" label="&nbsp;&nbsp;&nbsp;&nbsp;操作">
                                 <template #default="scope">
-                                    <ElButton text @click="">编辑</ElButton>
+                                    <ElButton type="primary" text @click="">编辑</ElButton>
                                 </template>
                             </ElTableColumn>
                         </ElTable>
                     </div>
-                    <div style="height: 60px;" class="flex">
+                    <div style="height: 60px;" class="flex py-4">
                         <div class="pt-1/2">总共{{ total }}</div>
                         <div class="flex-grow"></div>
                         <div>
@@ -175,7 +178,7 @@
                                     </el-table-column>
                                     <el-table-column prop="stock_status" label="包装形式" width="100">
                                     </el-table-column>
-                                    <el-table-column prop="name" label="操作">
+                                    <el-table-column prop="name">
                                         <template #default="scope">
                                             <div>
                                                 <el-button text type="danger" @click="" :style="{ 'padding-left': '0px' }">
@@ -364,6 +367,24 @@ div.title-card-my :deep(>div.el-card__header) {
 }
 
 #layout-main>div:nth-child(2)>div>section>aside>div>div.el-scrollbar__wrap.el-scrollbar__wrap--hidden-default>div>ul {
+    border-right: 0 !important;
+}
+
+
+.border-right-my-test {
+    border-right: 0;
+}
+
+.border-right-my-test :deep(li.el-menu-item.is-active) {
+    /* background-color: blue !important; */
+    background-color: var(--el-menu-hover-bg-color);
+    /* 右边框 */
+    border-right: 3px solid var(--el-menu-active-color);
+}
+
+.border-right-my-test :deep(li.my-main) {
+    /* background-color: blue !important; */
+    /* 右边框 */
     border-right: 0 !important;
 }
 </style>

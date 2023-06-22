@@ -3,8 +3,10 @@
         <el-container class="h-full">
             <el-aside width="250px" class="border-right-my">
                 <el-scrollbar height="100%">
-                    <el-menu default-active="0">
-                        <ElMenuItem @click="selectId(0)" :index="'0'">xxxxdgayudgasid</ElMenuItem>
+                    <el-menu class="border-right-my-test" default-active="0">
+                        <ElMenuItem class="my-main border-b-2" @click="selectId(0)" :index="'0'">
+                            <span class="text-2xl pt-2">咸阳市烟草局</span>
+                        </ElMenuItem>
                         <template v-for="item in treeMenu">
                             <ElSubMenu :index="String(item.id)" v-if="item.shelves.length > 0" :key="item">
                                 <template #title>
@@ -25,34 +27,35 @@
                 </el-scrollbar>
             </el-aside>
             <el-main class="h-full">
-                <div style="height: 120px;">
+                <div style="height: 110px;">
                     <div>
                         <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
                             <el-tab-pane label="库区管理" name="first">
-                                <ElButton @click="openAreaDialog">新建</ElButton>
+                                <ElButton type="primary" @click="openAreaDialog">新建</ElButton>
                             </el-tab-pane>
                             <el-tab-pane label="架体管理" name="second">
-                                <ElButton @click="openSheveDialog">新建</ElButton>
+                                <ElButton type="primary" @click="openSheveDialog">新建</ElButton>
                             </el-tab-pane>
                         </el-tabs>
                     </div>
                 </div>
-                <div v-if="activeName === 'first'" style="height: calc(100% - 120px);">
+                <div v-if="activeName === 'first'" style="height: calc(100% - 110px);">
                     <div style="height: calc(100% - 60px);">
-                        <ElTable max-height="100%" :data="tableData" :header-cell-style="{ background: '#FAFAFA' }"
-                            @row-click="handleRowAreaDrawer">
+                        <ElTable height="100%" max-height="100%" :data="tableData"
+                            :header-cell-style="{ background: '#FAFAFA' }" @row-click="handleRowAreaDrawer">
                             <ElTableColumn prop="name" label="库区名称"></ElTableColumn>
                             <ElTableColumn prop="code" label="库区编号"></ElTableColumn>
                             <ElTableColumn prop="info" label="备注"></ElTableColumn>
-                            <ElTableColumn label="操作">
+                            <ElTableColumn width="130" label="&nbsp;&nbsp;&nbsp;&nbsp;操作">
                                 <template #default="scope">
-                                    <ElButton text @click="openAreaDialog">编辑</ElButton>
-                                    <ElButton text @click="deleteArea(scope.row.id)">删除</ElButton>
+                                    <ElButton type="primary" class="button-pr" text @click="openAreaDialog">编辑</ElButton>
+                                    <ElButton type="danger" class="button-pl" text @click="deleteArea(scope.row.id)">删除
+                                    </ElButton>
                                 </template>
                             </ElTableColumn>
                         </ElTable>
                     </div>
-                    <div style="height: 60px;" class="flex">
+                    <div style="height: 60px;" class="flex pt-8">
                         <div class="pt-1/2">总共{{ total }}</div>
                         <div class="flex-grow"></div>
                         <div>
@@ -63,9 +66,10 @@
                     </div>
                 </div>
 
-                <div v-else style="height: calc(100% - 120px);">
+                <div v-else style="height: calc(100% - 110px);">
                     <div style="height: calc(100% - 60px);">
-                        <ElTable max-height="100%" :data="tableShelf" :header-cell-style="{ background: '#FAFAFA' }">
+                        <ElTable height="100%" max-height="100%" :data="tableShelf"
+                            :header-cell-style="{ background: '#FAFAFA' }">
                             <ElTableColumn prop="code" label="列号"></ElTableColumn>
                             <ElTableColumn prop="name" label="架体名称"></ElTableColumn>
                             <ElTableColumn prop="area.name" label="所在库区"></ElTableColumn>
@@ -77,15 +81,17 @@
                                 </template>
                             </ElTableColumn>
                             <ElTableColumn prop="info" label="备注"></ElTableColumn>
-                            <ElTableColumn label="操作">
+                            <ElTableColumn width="130" label="&nbsp;&nbsp;&nbsp;&nbsp;操作">
                                 <template #default="scope">
-                                    <ElButton text @click="editShelf(scope.row)">编辑</ElButton>
-                                    <ElButton text @click="deleteShelf(scope.row.id)">删除</ElButton>
+                                    <ElButton type="primary" class="button-pr" text @click="editShelf(scope.row)">编辑
+                                    </ElButton>
+                                    <ElButton type="danger" class="button-pl" text @click="deleteShelf(scope.row.id)">删除
+                                    </ElButton>
                                 </template>
                             </ElTableColumn>
                         </ElTable>
                     </div>
-                    <div style="height: 60px;" class="flex">
+                    <div style="height: 60px;" class="flex pt-8">
                         <div class="pt-1/2">总共{{ totalShelf }}</div>
                         <div class="flex-grow"></div>
                         <div>
@@ -98,18 +104,30 @@
             </el-main>
         </el-container>
 
-        <ElDialog v-model="dialogArea" title="新增库区" width="500" @closed="cancelArea">
-            <ElForm :model="areaForm" label-width="100px">
-                <ElFormItem prop="name" label="库区名称">
-                    <ElInput v-model="areaForm.name" />
-                </ElFormItem>
-                <ElFormItem prop="info" label="备注">
-                    <ElInput v-model="areaForm.info" />
-                </ElFormItem>
-                <ElFormItem prop="code" label="编号">
-                    <ElInput v-model="areaForm.code" />
-                </ElFormItem>
-            </ElForm>
+        <ElDialog v-model="dialogArea" title="新增库区" width="450" @closed="cancelArea">
+            <div class="flex">
+                <div class="flex-grow">
+
+                </div>
+                <div>
+                    <ElForm ref="formAreaRef" :model="areaForm" label-position="right" label-width="80px">
+                        <ElFormItem :rules="[{ message: '请填写库区名称', required: true, trigger: ['blur', 'change'], }]"
+                            prop="name" label="库区名称" style="width: 300px;">
+                            <ElInput v-model="areaForm.name" />
+                        </ElFormItem>
+                        <ElFormItem prop="info" label="备注" style="width: 300px;">
+                            <ElInput v-model="areaForm.info" />
+                        </ElFormItem>
+                        <ElFormItem :rules="[{ message: '请填写库区编号', required: true, trigger: ['blur', 'change'], }]"
+                            prop="code" label="编号" style="width: 300px;">
+                            <ElInput v-model="areaForm.code" />
+                        </ElFormItem>
+                    </ElForm>
+                </div>
+                <div class="flex-grow">
+
+                </div>
+            </div>
             <template #footer>
                 <div class="flex">
                     <div class="flex-grow"></div>
@@ -118,42 +136,57 @@
                             <ElButton @click="cancelArea">取消</ElButton>
                         </div>
                         <div>
-                            <ElButton @click="submitArea">确定</ElButton>
+                            <ElButton type="primary" @click="submitArea">确定</ElButton>
                         </div>
                     </div>
                 </div>
             </template>
         </ElDialog>
 
-        <ElDialog v-model="dialogSheve" title="新增架提" width="500" @closed="cancelShelves">
-            <ElForm>
-                <ElFormItem label="架体名称">
-                    <ElInput v-model="shelfForm.name" />
-                </ElFormItem>
-                <ElFormItem label="架提编号">
-                    <ElInput v-model="shelfForm.code" />
-                </ElFormItem>
-                <ElFormItem label="架提位置">
-                    <ElSelect v-model="shelfForm.area_id" :key="shelfSelectRefresh">
-                        <ElOption v-for="item in areaShelvesOptions" :key="item" :label="item.name" :value="item.id" />
-                    </ElSelect>
-                </ElFormItem>
-                <ElFormItem label="架提节数">
-                    <el-input-number v-model="shelfForm.max_column" :min="1" :max="10" />
-                </ElFormItem>
-                <ElFormItem label="架提层数">
-                    <el-input-number v-model="shelfForm.max_row" :min="1" :max="10" />
-                </ElFormItem>
-                <ElFormItem prop="type" label="架提类型">
-                    <el-radio-group v-model="shelfForm.type" class="ml-4">
-                        <el-radio label="mobile" size="large">移动列</el-radio>
-                        <el-radio label="fixed" size="large">固定列</el-radio>
-                    </el-radio-group>
-                </ElFormItem>
-                <ElFormItem label="备注">
-                    <ElInput v-model="shelfForm.info" />
-                </ElFormItem>
-            </ElForm>
+        <ElDialog v-model="dialogSheve" title="新增架体" width="450" @closed="cancelShelves">
+            <div class="flex">
+                <div class="flex-grow">
+
+                </div>
+                <div>
+                    <ElForm label-position="right" label-width="80px" ref="formShelfRef" :model="shelfForm">
+                        <ElFormItem :rules="[{ message: '请填写架体名称', required: true, trigger: ['blur', 'change'], }]"
+                            prop="name" label="架体名称" style="width: 300px;">
+                            <ElInput v-model="shelfForm.name" />
+                        </ElFormItem>
+                        <ElFormItem :rules="[{ message: '请填写架体编号', required: true, trigger: ['blur', 'change'], }]"
+                            prop="code" label="架体编号" style="width: 300px;">
+                            <ElInput v-model="shelfForm.code" />
+                        </ElFormItem>
+                        <ElFormItem :rules="[{ message: '请填写架体位置', required: true, trigger: ['blur', 'change'], }]"
+                            prop="area_id" label="架体位置" style="width: 300px;">
+                            <ElSelect v-model="shelfForm.area_id" :key="shelfSelectRefresh">
+                                <ElOption v-for="item in areaShelvesOptions" :key="item" :label="item.name"
+                                    :value="item.id" />
+                            </ElSelect>
+                        </ElFormItem>
+                        <ElFormItem :rules="[{ message: '请填写架体节数', required: true, trigger: ['blur', 'change'], }]"
+                            prop="max_column" label="架体节数" style="width: 300px;">
+                            <el-input-number v-model="shelfForm.max_column" :min="1" />
+                        </ElFormItem>
+                        <ElFormItem :rules="[{ message: '请填写架体层数', required: true, trigger: ['blur', 'change'], }]"
+                            prop="max_row" label="架体层数" style="width: 300px;">
+                            <el-input-number v-model="shelfForm.max_row" :min="1" />
+                        </ElFormItem>
+                        <ElFormItem :rules="[{ message: '请填写架体类型', required: true, trigger: ['blur', 'change'], }]"
+                            prop="type" label="架体类型" style="width: 300px;">
+                            <el-radio-group v-model="shelfForm.type" class="ml-4">
+                                <el-radio label="mobile">移动列</el-radio>
+                                <el-radio label="fixed">固定列</el-radio>
+                            </el-radio-group>
+                        </ElFormItem>
+                        <ElFormItem label="备注" style="width: 300px;">
+                            <ElInput v-model="shelfForm.info" />
+                        </ElFormItem>
+                    </ElForm>
+                </div>
+                <div class="flex-grow"></div>
+            </div>
             <template #footer>
                 <div class="flex">
                     <div class="flex-grow"></div>
@@ -162,7 +195,7 @@
                             <ElButton @click="cancelShelves">取消</ElButton>
                         </div>
                         <div>
-                            <ElButton @click="submitShelves">确定</ElButton>
+                            <ElButton type="primary" @click="submitShelves">确定</ElButton>
                         </div>
                     </div>
                 </div>
@@ -232,45 +265,64 @@ function cancelArea() {
     areaForm.name = ""
     areaForm.info = ""
     areaForm.code = ""
+    formAreaRef.value.resetField()
 }
 
 function submitArea() {
     if (areaForm.id === 0) {
-        createAreaApi(areaForm).then(res => {
-            dialogArea = false
-            getAreaList()
-            getAreaMenuList()
-            ElMessage({
-                message: '创建成功',
-                type: 'success'
-            })
-        }).catch(err => {
-            ElMessage({
-                message: err.msg,
-                type: 'error'
-            })
+        formAreaRef.value.validate((valid) => {
+            if (valid) {
+                createAreaApi(areaForm).then(res => {
+                    dialogArea = false
+                    getAreaList()
+                    getAreaMenuList()
+                    ElMessage({
+                        message: '创建成功',
+                        type: 'success'
+                    })
+                }).catch(err => {
+                    ElMessage({
+                        message: err.msg,
+                        type: 'error'
+                    })
+                })
+            } else {
+                return false
+            }
         })
+
+
     } else {
-        editAreaApi(areaForm).then(res => {
-            dialogArea = false
-            getAreaList()
-            ElMessage({
-                message: res.msg,
-                type: 'success'
-            })
-        }).catch(err => {
-            ElMessage({
-                message: err.msg,
-                type: 'error'
+        formAreaRef.value.validate((valid) => {
+            editAreaApi(areaForm).then(res => {
+                dialogArea = false
+                getAreaList()
+                ElMessage({
+                    message: res.msg,
+                    type: 'success'
+                })
+            }).catch(err => {
+                ElMessage({
+                    message: err.msg,
+                    type: 'error'
+                })
             })
         })
+
     }
 }
 
 function deleteArea(id) {
-    ElMessageBox.alert("确认是否删除", "提醒", {
-        confirmButtonText: '确定',
-        callback: (action: Action) => {
+    ElMessageBox.confirm(
+        '确认是否删除',
+        '提醒',
+        {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+        }
+    )
+        .then(() => {
             deleteAreaApi(id).then(res => {
                 getAreaList()
                 ElMessage({
@@ -283,8 +335,30 @@ function deleteArea(id) {
                     type: 'success'
                 })
             })
-        },
-    })
+        })
+        .catch(() => {
+            //   ElMessage({
+            //     type: 'info',
+            //     message: 'Delete canceled',
+            //   })
+        })
+    // ElMessageBox.alert("确认是否删除", "提醒!", {
+    //     confirmButtonText: '确定',
+    //     callback: (action: Action) => {
+    //         deleteAreaApi(id).then(res => {
+    //             getAreaList()
+    //             ElMessage({
+    //                 message: res.msg,
+    //                 type: 'success'
+    //             })
+    //         }).catch(err => {
+    //             ElMessage({
+    //                 message: err.msg,
+    //                 type: 'success'
+    //             })
+    //         })
+    //     },
+    // })
 }
 function handleRowAreaDrawer(data) {
     areaForm.id = data.id
@@ -350,38 +424,55 @@ function cancelShelves() {
     shelfForm.max_row = 1
     shelfForm.type = 'mobile'
     shelfForm.area_id = 0
+    formShelfRef.value.resetField()
 }
 
+let formShelfRef = ref()
+let formAreaRef = ref()
 function submitShelves() {
     if (shelfForm.id === 0) {
-        createShelveApi(shelfForm).then(res => {
-            cancelShelves()
-            getShelfList()
-            getAreaMenuList()
-            ElMessage({
-                message: res.msg,
-                type: 'success'
-            })
-        }).catch(err => {
-            ElMessage({
-                message: err.msg,
-                type: 'error'
-            })
+        formShelfRef.value.validate((valid) => {
+            if (valid) {
+                createShelveApi(shelfForm).then(res => {
+                    cancelShelves()
+                    getShelfList()
+                    getAreaMenuList()
+                    ElMessage({
+                        message: res.msg,
+                        type: 'success'
+                    })
+                }).catch(err => {
+                    ElMessage({
+                        message: err.msg,
+                        type: 'error'
+                    })
+                })
+            } else {
+                return false
+            }
         })
+
     } else {
-        editShelveApi(shelfForm).then(res => {
-            cancelShelves()
-            getShelfList()
-            ElMessage({
-                message: res.msg,
-                type: 'success'
-            })
-        }).catch(err => {
-            ElMessage({
-                message: err.msg,
-                type: 'error'
-            })
+        formShelfRef.value.validate((valid) => {
+            if (valid) {
+                editShelveApi(shelfForm).then(res => {
+                    cancelShelves()
+                    getShelfList()
+                    ElMessage({
+                        message: res.msg,
+                        type: 'success'
+                    })
+                }).catch(err => {
+                    ElMessage({
+                        message: err.msg,
+                        type: 'error'
+                    })
+                })
+            } else {
+                return false
+            }
         })
+
     }
 }
 
@@ -391,9 +482,17 @@ function editShelf(data: any) {
 }
 
 function deleteShelf(id: number) {
-    ElMessageBox.alert("确认是否删除", "提醒", {
-        confirmButtonText: '确定',
-        callback: (action: Action) => {
+
+    ElMessageBox.confirm(
+        '确认是否删除',
+        '提醒',
+        {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+        }
+    )
+        .then(() => {
             deleteShelveApi(id).then(res => {
                 getShelfList()
                 ElMessage({
@@ -406,8 +505,14 @@ function deleteShelf(id: number) {
                     type: 'error'
                 })
             })
-        },
-    })
+        })
+        .catch(() => {
+            //   ElMessage({
+            //     type: 'info',
+            //     message: 'Delete canceled',
+            //   })
+        })
+
 
 }
 
@@ -445,5 +550,32 @@ onActivated(() => {
 <style scoped>
 #layout-main>div:nth-child(2)>div>section>aside>div>div.el-scrollbar__wrap.el-scrollbar__wrap--hidden-default>div>ul {
     border-right: 0 !important;
+}
+
+.border-right-my-test {
+    border-right: 0;
+}
+
+.border-right-my-test :deep(li.el-menu-item.is-active) {
+    /* background-color: blue !important; */
+    background-color: var(--el-menu-hover-bg-color);
+    /* 右边框 */
+    border-right: 3px solid var(--el-menu-active-color);
+}
+
+.border-right-my-test :deep(li.my-main) {
+    /* background-color: blue !important; */
+    /* 右边框 */
+    border-right: 0 !important;
+}
+
+:deep(#tab-first) {
+    font-size: 18px;
+    padding-bottom: 10px;
+}
+
+:deep(#tab-second) {
+    font-size: 18px;
+    padding-bottom: 10px;
 }
 </style>

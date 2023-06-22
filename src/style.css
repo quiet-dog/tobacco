@@ -2,8 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+:root{
+    /* --el-color-primary:#016955 !important; */
+}
+
 html{
     height: 100vh;
+    /* font-size: 62.5%; */
+
 }
 #app,body {
     height: 100%;
@@ -23,7 +29,7 @@ div.all-page-header>div>div.el-page-header__left>div.el-divider--vertical {
 
 .border-right-my{
     border-right: 5px solid whitesmoke !important;
-    border-left: 5px solid whitesmoke !important;
+    /* border-left: 5px solid whitesmoke !important; */
 }
 div.aside-menu-my>div>ul {
     border-right: 0 !important;
@@ -31,4 +37,33 @@ div.aside-menu-my>div>ul {
 
 .el-main-my{
     padding-top: 0;
+}
+
+
+.my-drawer>header{
+    padding-top: 10px;
+    margin-bottom: 0;
+}
+.my-drawer>header>span {
+    font-size: 20px !important;
+    font-weight: 500;
+    color: black;
+}
+
+
+.button-pl{
+    padding-left: 0 !important;
+}
+.button-pr{
+    padding-right: 0 !important;
+}
+
+
+.my-step div.is-process {
+    color: var(--el-color-primary);
+}
+
+.my-step div.is-process>div.el-step__icon {
+    /* background:var() */
+    border-color: var(--el-color-primary);
 }

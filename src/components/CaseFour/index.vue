@@ -49,7 +49,7 @@ function goCreate() {
 
     }
     form
-    activeStep.setActiveStep(1)
+    activeStep.setActiveStep(0)
 }
 const router = useRouter()
 function goCase() {
@@ -67,7 +67,7 @@ function goCase() {
             </div>
 
             <div>
-                <img width="100" :src="SuccessSvg" alt="" srcset="">
+                <img width="60" :src="SuccessSvg" alt="" srcset="">
             </div>
             <div class="flex-grow">
             </div>
@@ -75,7 +75,7 @@ function goCase() {
         <div class="flex pt-4">
             <div class="flex-grow">
             </div>
-            <h1>案件创建成功 </h1>
+            <h1 style="font-size: 26px;">案件创建成功 </h1>
             <div class="flex-grow">
             </div>
         </div>
@@ -89,7 +89,7 @@ function goCase() {
                     <ElButton @click="goCreate">再建一个</ElButton>
                 </div>
                 <div class="pl-4">
-                    <ElButton @click="goCase">查看案件</ElButton>
+                    <ElButton type="primary" @click="goCase">查看案件</ElButton>
                 </div>
             </div>
             <div class="flex-grow">

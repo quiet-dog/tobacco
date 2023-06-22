@@ -1,7 +1,5 @@
 <template>
-    <el-menu mode="vertical" :default-active="defaultActive" class="el-menu-vertical-demo "
-        style="height: calc(100% - 20px);" background-color="#00000000" text-color="#ffffff" active-text-color="#ffffff"
-        active-background-color="#ffffff">
+    <el-menu mode="vertical" :default-active="defaultActive" class="el-menu-vertical-demo border-right-my-test">
         <!-- <el-menu-item index="1" @click="goRouter('/home/screen')">
       <template #title>
         <el-icon>
@@ -10,7 +8,7 @@
         <span>数据大屏</span>
       </template>
     </el-menu-item> -->
-        <el-menu-item index="1" @click="goRouter('/home/case')">
+        <el-menu-item index="1" @click="goRouter('/home/case/identification')">
             <template #title>
                 <el-icon>
                     <Management />
@@ -94,22 +92,46 @@ watch(() => router.currentRoute.value.path, (val, old) => {
 })
 </script>
 <style scoped lang="scss">
-.el-menu-item {
-    background-color: #393D4E;
-    margin: 10px 5px;
+// .el-menu-item {
+//     // background-color: #393D4E;
+//     margin: 10px 5px;
+//     border-right: 0;
+//     transition: background-color 0.3s, border-radius 0.3s;
+// }
+
+// .el-menu-item:hover {
+//     // color: #016955 !important;
+//     text-decoration: underline;
+// }
+
+// .el-menu-item.is-active {
+//     color: #ffffff;
+//     // background-color: #016955 !important;
+//     border-radius: 10px;
+//     margin: 10px 5px;
+// }
+
+#aside-menu>ul {
     border-right: 0;
-    transition: background-color 0.3s, border-radius 0.3s;
 }
 
-.el-menu-item:hover {
-    // color: #016955 !important;
-    text-decoration: underline;
+
+
+.border-right-my-test {
+    border-right: 0;
 }
 
-.el-menu-item.is-active {
-    color: #ffffff;
-    background-color: #016955 !important;
-    border-radius: 10px;
-    margin: 10px 5px;
+.border-right-my-test :deep(li.el-menu-item.is-active) {
+    /* background-color: blue !important; */
+    background-color: var(--el-menu-hover-bg-color);
+    /* 右边框 */
+    border-right: 3px solid var(--el-menu-active-color);
+}
+
+.border-right-my-test :deep(li.my-main) {
+    /* background-color: blue !important; */
+    /* 右边框 */
+    border-right: 0 !important;
 }
 </style>
+<style></style>
