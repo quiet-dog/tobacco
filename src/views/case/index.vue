@@ -142,6 +142,12 @@ onMounted(() => {
         data = res.data
     })
 })
+
+onActivated(() => {
+    getCaseCountApi().then(res => {
+        data = res.data
+    })
+})
 </script>
 <style scoped>
 #layout-main :deep(> div:nth-child(2) > div > section > aside > ul) {

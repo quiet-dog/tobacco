@@ -16,7 +16,7 @@
                     <div class="flex">
 
                         <div class="pr-4">
-                            <ElInput @change="changeSearchValue" v-model="searchValue" placeholder="可搜索表格内任意信息">
+                            <ElInput @input="changeSearchValue" v-model="searchValue" placeholder="可搜索表格内任意信息">
                                 <template #append>
                                     <el-button :icon="Search" />
                                 </template>
@@ -104,21 +104,27 @@
                     <el-table-column :column-key="'entrust_unit'" width="120" :filters="positionList" prop="entrust_unit"
                         label="委托单位" show-overflow-tooltip />
                     <el-table-column prop="express_company" width="120" :column-key="'express_company_filter'"
-                        :filters="expressCompanies" label="快递公司" show-overflow-tooltip />
+                        :filters="expressCompanies" label="快递公司" show-overflow-tooltip>
+                        <template #default="scope">
+                            <span>{{ scope.row.express_company.length > 0 ? scope.row.express_company : "-" }}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column width="200" prop="express_number" label="快递单号" show-overflow-tooltip>
                         <template #default="scope">
-                            <span v-html="highText(scope.row.express_number, searchValue)"></span>
+                            <span
+                                v-html="scope.row.express_number.length > 0 ? highText(scope.row.express_number, searchValue) : '-'"></span>
                         </template>
                     </el-table-column>
                     <el-table-column width="200" prop="delivery_location" label="发货地点" show-overflow-tooltip>
                         <template #default="scope">
-                            <span v-html="highText(scope.row.delivery_location, searchValue)"></span>
+                            <span
+                                v-html="scope.row.delivery_location.length > 0 ? highText(scope.row.delivery_location, searchValue) : '-'"></span>
                         </template>
                     </el-table-column>
                     <el-table-column width="70" label="操作" show-overflow-tooltip>
                         <template #default="scope">
-                            <!-- <ElButton text style="padding: 0px;" type="primary"> 编辑</ElButton> -->
-                            <ElButton text style="padding: 0px;" type="danger"> 取消</ElButton>
+                            <ElButton text style="padding: 0px;" type="danger" @click="deleteCase(scope.row.id)"> 取消
+                            </ElButton>
                         </template>
                     </el-table-column>
                 </ElTable>
@@ -159,7 +165,7 @@
                                     <el-descriptions-item label-align="left" label="抽样时间:">{{
                                         formatDate(taskInfo.sampling_time)
                                     }}</el-descriptions-item>
-                                    <el-descriptions-item label-align="right" label="查扣地点:">{{ taskInfo.delivery_location
+                                    <el-descriptions-item label-align="right" label="查扣地点:">{{ taskInfo.seized_site
                                     }}</el-descriptions-item>
                                 </el-descriptions>
                             </div>
@@ -475,13 +481,18 @@
                     <div>
                         <ElTable :header-cell-style="{ background: '#FAFAFA' }" :data="statusTableData" height="100%">
                             <ElTableColumn prop="name" label="编号"></ElTableColumn>
-                            <ElTableColumn label="厂商"></ElTableColumn>
-                            <ElTableColumn label="包装形式"></ElTableColumn>
-                            <ElTableColumn label="鉴定结果"></ElTableColumn>
-                            <ElTableColumn label="鉴定人"></ElTableColumn>
+                            <ElTableColumn prop="manufacturer" label="厂商"></ElTableColumn>
+                            <ElTableColumn prop="packing_spec" label="包装形式"></ElTableColumn>
+                            <ElTableColumn label="鉴定结果">
+                                <template #default="scope">
+                                    <el-tag v-if="scope.row.is_real" type="success">正品</el-tag>
+                                    <el-tag v-else type="danger">赝品</el-tag>
+                                </template>
+                            </ElTableColumn>
+                            <ElTableColumn prop="operator.username" label="鉴定人"></ElTableColumn>
                             <ElTableColumn label="鉴定时间">
                                 <template #default="scope">
-                                    {{ }}
+                                    {{ scope.row.identify_time ? formatDate(scope.row.identify_time) : '-' }}
                                 </template>
                             </ElTableColumn>
                         </ElTable>
@@ -504,13 +515,13 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { getCaseApi, getCaseListApi, saveCaseApi, importFileExeclApi } from '@/api/case';
+import { getCaseApi, getCaseListApi, saveCaseApi, importFileExeclApi, cancelCaseApi } from '@/api/case';
 import { getSampleListApi, getSampleByCodeApi, sampleIdentifyApi, setSampleStatusApi, getSampleResultApi } from '@/api/sample';
-import { formatDate, formatDate2, highText, expressCompanies } from "@/utils"
+import { formatDate, formatDate2, highText, expressCompanies, baseUrl } from "@/utils"
 import { ElMessage, genFileId } from 'element-plus';
 import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import EmptySvg from '@/assets/empty.svg'
-import { ElLoading } from 'element-plus'
+import { ElLoading, ElMessageBox } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 
 const emit = defineEmits(['update'])
@@ -1151,6 +1162,38 @@ function exportExecel() {
             message: err.msg
         })
     })
+}
+
+
+function deleteCase(id) {
+    ElMessageBox.confirm(
+        '确定要取消该案件吗?',
+        '提醒',
+        {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+        }
+    )
+        .then(() => {
+            cancelCaseApi({
+                id: id
+            }).then(res => {
+                ElMessage({
+                    type: 'success',
+                    message: res.msg,
+                })
+                getCaseList()
+            }).catch(err => {
+                ElMessage({
+                    type: 'error',
+                    message: err.msg,
+                })
+            })
+
+        })
+        .catch(() => {
+        })
 }
 
 function changeSearchValue(val) {

@@ -387,6 +387,14 @@ function createTobaccoDetail() {
         })
         return
     }
+
+    if (formPrint.selectPrint === "") {
+        ElMessage({
+            type: "error",
+            message: "请选择打印机"
+        })
+        return
+    }
     // for (let i = 0; i < Number(tobaccoForm.tobaccoNum); i++) {
     let userInfo = JSON.parse(sessionStorage.getItem("user"))
     console.log("userinfo,", userInfo)
@@ -399,6 +407,11 @@ function createTobaccoDetail() {
         good_code: tobaccoForm.tobaccoCode,
         packing_spec: tobaccoForm.tobaccoType,
         add_person: userInfo.username,
+    })
+    getTobaccoListApi(tobaccoForm.tobaccoCode).then(res => {
+
+    }).catch(err => {
+
     })
     /**
      *     "barcode": "98",
@@ -436,13 +449,6 @@ function createTobaccoDetail() {
         })
     }
 
-    if (formPrint.selectPrint === "") {
-        ElMessage({
-            type: "error",
-            message: "请选择打印机"
-        })
-        return
-    }
 
     // hiprintTemplate.getHtml(printData);
     hiprintTemplate.print2(printData, {

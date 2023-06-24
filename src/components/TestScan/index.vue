@@ -1,9 +1,12 @@
 <script lang='ts' setup>
 let a = $ref('')
+function testInput(e) {
+
+}
 </script>
 
 <template>
-    <div class="parent" contenteditable="true" v-model="a">
+    <div class="parent" contenteditable="true" @input="testInput">
     </div>
 </template>
 

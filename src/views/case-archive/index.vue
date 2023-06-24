@@ -15,7 +15,7 @@
                     <div class="flex">
 
                         <div class="pr-4">
-                            <ElInput @change="changeSearchValue" v-model="searchValue" placeholder="可搜索表格内任意信息">
+                            <ElInput @input="changeSearchValue" v-model="searchValue" placeholder="可搜索表格内任意信息">
                                 <template #append>
                                     <el-button :icon="Search" />
                                 </template>
@@ -66,12 +66,12 @@
                     @filter-change="fileterChange" @selection-change="handleSelectionChange" max-height="100%" height="100%"
                     @row-click="handleRowDrawer" :data="tableData" :header-cell-style="{ background: '#FAFAFA' }">
                     <el-table-column fixed type="selection" width="55" />
-                    <el-table-column fixed width="200" prop="report_code" label="报告编号" show-overflow-tooltip>
+                    <el-table-column fixed width="150" prop="report_code" label="报告编号" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.report_code, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column width="200" prop="name" label="案件名称" show-overflow-tooltip>
+                    <el-table-column fixed width="200" prop="name" label="案件名称" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.name, searchValue)"></span>
                         </template>
@@ -122,16 +122,22 @@
                     </el-table-column>
                     <el-table-column :column-key="'entrust_unit'" :filters="positionList" width="120" prop="entrust_unit"
                         label="委托单位" show-overflow-tooltip />
-                    <el-table-column width="120" prop="express_company" :column-key="'express_company_filter'"
-                        :filters="expressCompanies" label="快递公司" show-overflow-tooltip />
-                    <el-table-column width="200" prop="express_number" label="快递单号" show-overflow-tooltip>
+                    <el-table-column prop="express_company" width="120" :column-key="'express_company_filter'"
+                        :filters="expressCompanies" label="快递公司" show-overflow-tooltip>
                         <template #default="scope">
-                            <span v-html="highText(scope.row.express_number, searchValue)"></span>
+                            <span>{{ scope.row.express_company.length > 0 ? scope.row.express_company : "-" }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column width="200" prop="delivery_location" label="快递地点" show-overflow-tooltip>
+                    <el-table-column width="200" prop="express_number" label="快递单号" show-overflow-tooltip>
                         <template #default="scope">
-                            <span v-html="highText(scope.row.delivery_location, searchValue)"></span>
+                            <span
+                                v-html="scope.row.express_number.length > 0 ? highText(scope.row.express_number, searchValue) : '-'"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column width="200" prop="delivery_location" label="发货地点" show-overflow-tooltip>
+                        <template #default="scope">
+                            <span
+                                v-html="scope.row.delivery_location.length > 0 ? highText(scope.row.delivery_location, searchValue) : '-'"></span>
                         </template>
                     </el-table-column>
                     <!-- <el-table-column width="150">
@@ -163,7 +169,7 @@
 
                     </template>
                     <div class="flex-col px-5">
-                        <div class="grid grid-cols-14 gap-10">
+                        <div class="grid grid-cols-14">
                             <el-descriptions title="" :column="3">
                                 <el-descriptions-item label-align="left" label="名称">{{ taskInfo.name
                                 }}</el-descriptions-item>
@@ -183,16 +189,16 @@
                                 <el-descriptions-item label-align="right" label="查扣原因">
                                     <el-tag>{{ taskInfo.reason }}</el-tag>
                                 </el-descriptions-item>
-                                <el-descriptions-item label-align="right" label="查扣地点">{{ taskInfo.delivery_location
+                                <el-descriptions-item label-align="right" label="查扣地点">{{ taskInfo.seized_site
                                 }}</el-descriptions-item>
                             </el-descriptions>
                             <div class="mt-12 ">
-                                <el-steps :active="setActive" finish-status="success" align-center>
+                                <el-steps class="my-step" :active="setActive" finish-status="success" align-center>
                                     <el-step>
                                         <template #title>
                                             <div class="">
                                                 案件建立<br>
-                                                {{ taskInfo.created_at ? formatDate(taskInfo.created_at) : "-" }}
+                                                {{ taskInfo.created_at ? formatDate2(taskInfo.created_at) : "-" }}
                                             </div>
                                         </template>
                                     </el-step>
@@ -294,7 +300,7 @@
                 </div>
             </div>
             <template #footer>
-                <ElButton style="width: 100%;" type="primary" @click="openDialog">案件时间线</ElButton>
+                <ElButton style="width: 100%;" type="primary" @click="openDialog">归档文件</ElButton>
             </template>
         </ElDrawer>
         <ElDialog v-model="drawer1" title="文件列表" @opened="prewview" @closed="closedDrawer2">
@@ -316,19 +322,21 @@
                             :href="`http://192.168.0.81:8081/api/admin/file/${scope.row.path}`">查看</el-link> -->
                         <ElButton v-if="scope.row.mime_type.search('image') !== -1" @click="previewImgs(scope.row.id)">查看
                         </ElButton>
-                        <ElButton v-if="scope.row.mime_type.search('video') !== -1" @click="previewTv(scope.row)">查看
+                        <ElButton v-else-if="scope.row.mime_type.search('video') !== -1" @click="previewTv(scope.row)">查看
                         </ElButton>
-                        <ElButton v-if="scope.row.mime_type.search('zip') !== -1 && scope.row.name.search('docx') !== -1"
+                        <ElButton v-else-if="scope.row.name.search('docx') !== -1 || scope.row.name.search('doc') !== -1"
                             @click="previewDocx(scope.row)">
                             查看
                         </ElButton>
-                        <ElButton v-if="scope.row.mime_type.search('pdf') !== -1 && scope.row.name.search('pdf') !== -1"
-                            @click="previewPdf(scope.row)">
+                        <ElButton v-else-if="scope.row.name.search('pdf') !== -1" @click="previewPdf(scope.row)">
                             查看
                         </ElButton>
-                        <ElButton v-if="scope.row.mime_type.search('zip') !== -1 && scope.row.name.search('xlsx') !== -1"
-                            @click="previewXlsx(scope.row)">
+                        <ElButton v-else-if="scope.row.name.search('xlsx') !== -1" @click="previewXlsx(scope.row)">
                             查看
+                        </ElButton>
+                        <ElButton v-else>
+                            <ElLink :href="`${baseUrl}/api/admin/file/${scope.row.path}?download=1`" target="_blank">下载
+                            </ElLink>
                         </ElButton>
                     </template>
                 </ElTableColumn>

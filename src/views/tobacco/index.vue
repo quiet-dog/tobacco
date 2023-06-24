@@ -35,7 +35,7 @@
 
                         <div class="flex-grow"></div>
                         <div class="pr-6">
-                            <ElInput v-model="searchValue" @change="changeSearchValue" placeholder="请输入搜索内容">
+                            <ElInput v-model="searchValue" @input="changeSearchValue" placeholder="请输入搜索内容">
                                 <template #append>
                                     <el-button :icon="Search" />
                                 </template>
@@ -80,20 +80,21 @@
                 </div>
                 <div class="px-3 pt-4" style="height: calc(100% - 60px);">
                     <div style="height: calc(100% - 60px);">
-                        <ElTable v-loading="loadingTable" element-loading-text="正在加载中" size="large" max-height="100%"
-                            height="100%" @row-click="rowClickTableData" :data="tableData"
-                            :header-cell-style="{ background: '#FAFAFA' }">
-                            <ElTableColumn prop="name" label="样品名称" show-overflow-tooltip>
+                        <ElTable @selection-change="handleSelectionChange" v-loading="loadingTable"
+                            element-loading-text="正在加载中" size="large" max-height="100%" height="100%"
+                            @row-click="rowClickTableData" :data="tableData" :header-cell-style="{ background: '#FAFAFA' }">
+                            <el-table-column fixed type="selection" width="55" />
+                            <ElTableColumn fixed prop="name" width="150" label="样品名称" show-overflow-tooltip>
                                 <template #default="scope">
                                     <span v-html="highText(scope.row.name, searchValue)"></span>
                                 </template>
                             </ElTableColumn>
-                            <ElTableColumn prop="code" label="样品编号" show-overflow-tooltip>
+                            <ElTableColumn fixed prop="code" width="150" label="样品编号" show-overflow-tooltip>
                                 <template #default="scope">
                                     <span v-html="highText(scope.row.code, searchValue)"></span>
                                 </template>
                             </ElTableColumn>
-                            <ElTableColumn prop="location" label="存放位置" show-overflow-tooltip>
+                            <ElTableColumn width="350" prop="location" label="存放位置" show-overflow-tooltip>
                                 <template #header>
                                     <el-cascader v-if="shelf_id === 0" size="default" v-model="positionFilter"
                                         :options="positionList" :props="props" placeholder="位置" clearable collapse-tags
@@ -107,17 +108,17 @@
                                     <span v-html="highText(scope.row.location, searchValue)"></span>
                                 </template>
                             </ElTableColumn>
-                            <ElTableColumn prop="law_case.name" label="案件名称" show-overflow-tooltip>
+                            <ElTableColumn width="100" prop="law_case.name" label="案件名称" show-overflow-tooltip>
                                 <template #default="scope">
                                     <span v-html="highText(scope.row.law_case.name, searchValue)"></span>
                                 </template>
                             </ElTableColumn>
-                            <ElTableColumn prop="law_case.sampling_time" label="抽样时间" show-overflow-tooltip>
+                            <ElTableColumn width="170" prop="law_case.sampling_time" label="抽样时间" show-overflow-tooltip>
                                 <template #default="scope">
                                     {{ formatDate(scope.row.law_case.sampling_time) }}
                                 </template>
                             </ElTableColumn>
-                            <ElTableColumn prop="is_real" label="鉴定结果" show-overflow-tooltip>
+                            <ElTableColumn width="100" prop="is_real" label="鉴定结果" show-overflow-tooltip>
                                 <template #default="scope">
                                     <el-tag v-if="scope.row.is_real" type="success">真烟</el-tag>
                                     <el-tag v-else type="danger">假烟</el-tag>
@@ -133,12 +134,12 @@
                                     <span v-html="highText(scope.row.law_case.stocker.username, searchValue)"></span>
                                 </template>
                             </ElTableColumn>
-                            <ElTableColumn prop="info" label="入库时间" show-overflow-tooltip>
+                            <ElTableColumn width="150" prop="info" label="入库时间" show-overflow-tooltip>
                                 <template #default="scope">
                                     {{ scope.row.storage_time === null ? "-" : formatDate(scope.row.storage_time) }}
                                 </template>
                             </ElTableColumn>
-                            <ElTableColumn prop="info" label="期满倒计时" show-overflow-tooltip>
+                            <ElTableColumn width="200" prop="info" label="期满倒计时" show-overflow-tooltip>
                                 <template #default="scope">
                                     {{ scope.row.law_case.expire_time === null ? "-" : getExpireTime(scope.row.expire_time)
                                     }}
@@ -156,60 +157,94 @@
                         <div class="flex-grow"></div>
                         <div>
                             <el-pagination v-model:currentPage="page" @current-change="handlePage"
-                                @size-change="handeleSize" v-model:page-size="pageSize" large layout="prev, pager, next"
-                                :total="total" />
+                                @size-change="handeleSize" v-model:page-size="pageSize" large
+                                layout="sizes,prev, pager, next" :total="total" />
                         </div>
                     </div>
                 </div>
             </el-main>
         </el-container>
-        <ElDrawer v-model="drawerVisible" @closed="closeDrawer" title="样品概述" width="50%">
+        <ElDrawer class="my-drawer" v-model="drawerVisible" @closed="closeDrawer" title="样品概述" size="50%">
             <div>
                 <el-card shadow="hover" class="title-card-my">
                     <template #header>
                         <div class="flex">
-                            <div class="border-l-4 border-blue-400 pl-2 text-3xl">样品概述</div>
+                            <div class="border-solid border-l-4 border-blue-400 pl-4 text-1xl">案件概述</div>
                             <div class="flex-grow">
                             </div>
                         </div>
 
                     </template>
                     <div class="flex-col px-5">
-                        <div class="grid grid-cols-14 gap-10">
-                            <el-descriptions title="" :column="3">
-                                <el-descriptions-item label-align="left" label="名称">kooriookami</el-descriptions-item>
-                                <el-descriptions-item label-align="right" label="委托单位">18100000000</el-descriptions-item>
-                                <el-descriptions-item label-align="left" label="当事人">Suzhou</el-descriptions-item>
+                        <div class="grid grid-cols-14 ">
+                            <el-descriptions class="pl-12" title="" :column="3">
+                                <el-descriptions-item label-align="left" label="名称">{{ caseInfo.name
+                                }}</el-descriptions-item>
+                                <el-descriptions-item label-align="right" label="报告编号">{{ caseInfo.law_case.report_code
+                                }}</el-descriptions-item>
+
+                                <el-descriptions-item label-align="right" label="委托单位">{{ caseInfo.law_case.entrust_unit
+                                }}</el-descriptions-item>
+                                <el-descriptions-item label-align="left" label="当事人">{{ caseInfo.law_case.party
+                                }}</el-descriptions-item>
+                                <el-descriptions-item label-align="left" label="抽样人">{{ caseInfo.law_case.sampler
+                                }}</el-descriptions-item>
+                                <el-descriptions-item label-align="left" label="鉴定人">{{ caseInfo.law_case.identifier
+                                }}</el-descriptions-item>
+                                <el-descriptions-item label-align="left" label="抽样时间">{{
+                                    formatDate2(caseInfo.identify_time) }}</el-descriptions-item>
+
                                 <el-descriptions-item label-align="right" label="查看原因">
                                     <el-tag>行政案件</el-tag>
                                 </el-descriptions-item>
-                                <el-descriptions-item label-align="left" label="抽样时间">Suzhou</el-descriptions-item>
-                                <el-descriptions-item label-align="right" label="查扣地点">Suzhou</el-descriptions-item>
+                                <el-descriptions-item label-align="right" label="查扣地点">{{ caseInfo.law_case.seized_site
+                                }}</el-descriptions-item>
                             </el-descriptions>
                             <div class="mt-12 ">
-                                <el-steps :active="setActive" :process-status="3 === 3 ? 'error' : 'finish'"
-                                    :finish-status="3 === 3 ? 'error' : 'finish'" align-center>
+                                <el-steps class="my-step" :active="setActive" finish-status="success" align-center>
                                     <el-step>
                                         <template #title>
                                             <div class="">
                                                 案件建立<br>
-                                                2022-12-17
+                                                {{ caseInfo.law_case.created_at ? formatDate2(caseInfo.law_case.created_at)
+                                                    :
+                                                    "-" }}
                                             </div>
                                         </template>
                                     </el-step>
                                     <el-step>
                                         <template #title>
                                             <div class="">
-                                                鉴定完成<br>
-                                                2022-12-17
+                                                案件鉴定<br>
+                                                {{ caseInfo.law_case.identify_time ?
+                                                    formatDate2(caseInfo.law_case.identify_time) : '-' }}
                                             </div>
                                         </template>
                                     </el-step>
                                     <el-step>
                                         <template #title>
                                             <div class="">
-                                                入库完成<br>
-                                                2022-12-17
+                                                案件入库<br>
+                                                {{ caseInfo.law_case.storage_time ?
+                                                    formatDate2(caseInfo.law_case.storage_time) : '-' }}
+                                            </div>
+                                        </template>
+                                    </el-step>
+                                    <el-step>
+                                        <template #title>
+                                            <div class="">
+                                                案件到期<br>
+                                                {{ caseInfo.law_case.expire_time ?
+                                                    formatDate2(caseInfo.law_case.expire_time) : '-' }}
+                                            </div>
+                                        </template>
+                                    </el-step>
+                                    <el-step>
+                                        <template #title>
+                                            <div class="">
+                                                案件出库<br>
+                                                {{ caseInfo.law_case.archived_time ?
+                                                    formatDate2(caseInfo.law_case.archived_time) : '-' }}
                                             </div>
                                         </template>
                                     </el-step>
@@ -223,28 +258,36 @@
                     <el-card shadow="hover" class="title-card-my">
                         <template #header>
                             <div class="flex">
-                                <div class="border-l-4 border-blue-400 pl-2 text-3xl">待检列表</div>
+                                <div class="border-solid border-l-4 border-blue-400 pl-4 text-1xl">同案件样品列表</div>
                                 <div class="flex-grow"></div>
                             </div>
                         </template>
                         <div>
-                            <div>
-                                <el-table :data="tableData2" :default-sort="{ prop: 'date', order: 'descending' }"
+                            <div style="height: 450px;">
+                                <el-table height="100%" max-height="100%" :data="tableData2"
+                                    :default-sort="{ prop: 'date', order: 'descending' }"
                                     :header-cell-style="{ background: '#FAFAFA' }" width="100%">
-                                    <el-table-column prop="code" label="编号" width="150"></el-table-column>
+                                    <el-table-column prop="code" label="编号"></el-table-column>
 
-                                    <el-table-column prop="name" label="样品名称" width="150" show-overflow-tooltip>
+                                    <el-table-column prop="name" label="样品名称" show-overflow-tooltip>
                                     </el-table-column>
-                                    <el-table-column prop="manufacturer" label="厂商">
+                                    <el-table-column prop="manufacturer" label="厂商" show-overflow-tooltip>
                                     </el-table-column>
-                                    <el-table-column prop="stock_status" label="包装形式" width="100">
+                                    <el-table-column prop="packing_spec" label="包装形式" show-overflow-tooltip>
                                     </el-table-column>
-                                    <el-table-column prop="name">
+                                    <el-table-column prop="is_real" label="鉴定结果" show-overflow-tooltip>
                                         <template #default="scope">
-                                            <div>
-                                                <el-button text type="danger" @click="" :style="{ 'padding-left': '0px' }">
-                                                    移除</el-button>
-                                            </div>
+                                            <el-tag v-if="scope.row.is_real" type="primary">真烟</el-tag>
+                                            <el-tag v-else type="danger">假烟</el-tag>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="law_case.identifier" label="鉴定人" show-overflow-tooltip>
+                                    </el-table-column>
+                                    <el-table-column prop="location" label="存放位置" show-overflow-tooltip>
+                                    </el-table-column>
+                                    <el-table-column prop="storage_time" label="入库时间" show-overflow-tooltip>
+                                        <template #default="scope">
+                                            <div>{{ formatDate2(scope.row.storage_time) }}</div>
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -263,16 +306,17 @@
                 </div>
             </div>
             <template #footer>
-                <ElButton style="width: 100%;" type="primary">开始鉴定</ElButton>
+                <!-- <ElButton style="width: 100%;" type="primary">开始鉴定</ElButton> -->
             </template>
         </ElDrawer>
     </div>
 </template>
 <script setup lang="ts">
 import { getAreaSelectorApi } from '@/api/area';
-import { getSampleListApi } from '@/api/sample';
-import { highText, formatDate, getExpireTime, getAreaOptionsDisableSelect, getShlefOptionSelect } from '@/utils'
+import { getSampleListApi, getSampleInfoApi, exportSampleApi } from '@/api/sample';
+import { highText, formatDate, getExpireTime, getAreaOptionsDisableSelect, getShlefOptionSelect, formatDate2 } from '@/utils'
 import { Search } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus';
 
 const props = $ref(
     { multiple: true, }
@@ -347,9 +391,53 @@ function importFile(val) {
     }
     exportExecel()
 }
+let multipleIds = $ref([])
+const tableRef = ref()
+function handleSelectionChange(rows) {
+    multipleIds = []
+    if (rows) {
+        rows.forEach(row => {
+            multipleIds.push(row.id)
+        })
 
+    } else {
+        multipleIds = rows
+    }
+    // exportExecel()
+}
 function exportExecel() {
-
+    exportSampleApi({
+        page_index: page,
+        page_size: pageSize,
+        shelf_id: shelf_id === 0 ? undefined : shelf_id,
+        storage_time_start: timeValue === '2' ? undefined : datePickerValue === null ? undefined : datePickerValue[0],
+        storage_time_end: timeValue === '2' ? undefined : datePickerValue === null ? undefined : datePickerValue[1],
+        sampling_time_start: timeValue === '1' ? undefined : datePickerValue === null ? undefined : datePickerValue[0],
+        sampling_time_end: timeValue === '1' ? undefined : datePickerValue === null ? undefined : datePickerValue[1],
+        keyword: searchValue,
+        is_in_stock: true,
+        locations_filter: shelf_id === 0 ? (positionFilter.length === 0 ? undefined : positionFilter) : positionFilter2.length === 0 ? undefined : positionFilter2
+    }).then(res => {
+        console.log('res.data', res)
+        let blob = new Blob([res]);
+        const link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = window.URL.createObjectURL(blob)
+        link.setAttribute('download', '样品列表.xlsx')
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href); // 释放URL 对象
+        document.body.removeChild(link)
+        ElMessage({
+            type: 'success',
+            message: '导出成功'
+        })
+    }).catch(err => {
+        ElMessage({
+            type: 'error',
+            message: err.msg
+        })
+    })
 }
 
 
@@ -392,9 +480,50 @@ function selectId(val: number) {
     getSampleList()
 }
 
+let caseInfo = $ref({
+    name: "",
+    law_case: {
+        name: "",
+        entrust_unit: "",
+        report_code: "",
+        party: "",
+        sampler: '',
+        identifier: "",
+        seized_site: "",
+        created_at: "",
+        identify_time: "",
+        storage_time: "",
+        expire_time: "",
+    },
+    identify_time: "",
+})
+
+function getCurActive(row: any) {
+    if (row.created_at) {
+        setActive = 1
+    }
+    if (row.identify_time !== null) {
+        setActive = 2
+    }
+    if (row.storage_time !== null) {
+        setActive = 3
+    }
+    if (row.expire_time !== null && (new Date().getTime() - row.expire_time) > 0) {
+        setActive = 4
+    }
+    if (row.archived_time !== null) {
+        setActive = 5
+    }
+}
 function rowClickTableData(row, column, event) {
     console.log(row)
     law_case_id = row.law_case_id
+    getSampleInfoApi({
+        id: row.id
+    }).then(res => {
+        caseInfo = res.data
+        getCurActive(caseInfo.law_case)
+    }).catch(err => { })
     drawerVisible = true
     getWaitSampleLisst()
 }

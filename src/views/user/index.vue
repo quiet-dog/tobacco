@@ -22,10 +22,13 @@
                             <ElTableColumn prop="role" label="角色" />
                             <ElTableColumn prop="info" label="备注" />
                             <ElTableColumn prop="created_at" label="创建时间" />
-                            <ElTableColumn>
+                            <ElTableColumn width="140" label="操作">
                                 <template #default="scope">
-                                    <ElButton text type="primary" @click="editUser(scope.row)">编辑</ElButton>
-                                    <ElButton text type="danger" @click="deleteUser(scope.row.id)">删除</ElButton>
+                                    <ElButton text type="primary" class="button-pl button-pr" @click="editUser(scope.row)">
+                                        编辑
+                                    </ElButton>
+                                    <ElButton text type="danger" class="button-pl" @click="deleteUser(scope.row.id)">删除
+                                    </ElButton>
                                 </template>
                             </ElTableColumn>
                         </ElTable>
@@ -42,8 +45,8 @@
                 </div>
             </ElMain>
         </ElContainer>
-        <ElDialog title="新建用户" v-model="dialog1" @closed="closed1">
-            <ElForm ref="formRef" :model="form" label-width="120px">
+        <ElDialog width="25%" title=" 新建用户" v-model="dialog1" @closed="closed1">
+            <ElForm class="px-12" ref="formRef" :model="form" label-width="70px">
                 <el-form-item :rules="[{
                     required: true,
                     message: '请填写用户名',
@@ -63,12 +66,12 @@
                     message: '请选择角色',
                     trigger: ['blur', 'change'],
                 }]">
-                    <el-select v-model="form.role" placeholder="请选择角色">
+                    <el-select style="width: 100%;" v-model="form.role" placeholder="请选择角色">
                         <el-option label="管理员" value="admin" />
                         <el-option label="普通用户" value="user" />
                     </el-select>
                 </el-form-item>
-                <ElFormItem>
+                <ElFormItem prop="info" label="备注">
                     <ElInput v-model="form.info" placeholder="请填写备注" />
                 </ElFormItem>
             </ElForm>
@@ -80,15 +83,15 @@
                             <ElButton @click="dialog1 = false">取消</ElButton>
                         </div>
                         <div>
-                            <ElButton @click="submit">确定</ElButton>
+                            <ElButton type="primary" @click="submit">确定</ElButton>
                         </div>
                     </div>
                 </div>
             </template>
         </ElDialog>
 
-        <ElDialog title="编辑用户" v-model="dialog2" @closed="close2">
-            <ElForm ref="formRef2" :model="form2" label-width="120px">
+        <ElDialog width="25%" title="编辑用户" v-model="dialog2" @closed="close2">
+            <ElForm class="px-12" ref="formRef2" :model="form2" label-width="70px">
                 <el-form-item :rules="[{
                     required: true,
                     message: '请填写用户名',
@@ -108,12 +111,12 @@
                     message: '请选择角色',
                     trigger: ['blur', 'change'],
                 }]">
-                    <el-select v-model="form2.role" placeholder="请选择角色">
+                    <el-select style="width: 100%;" v-model="form2.role" placeholder="请选择角色">
                         <el-option label="管理员" value="admin" />
                         <el-option label="普通用户" value="user" />
                     </el-select>
                 </el-form-item>
-                <ElFormItem>
+                <ElFormItem prop="info" label="备注">
                     <ElInput v-model="form2.info" placeholder="请填写备注" />
                 </ElFormItem>
             </ElForm>
@@ -125,7 +128,7 @@
                             <ElButton @click="dialog2 = false">取消</ElButton>
                         </div>
                         <div>
-                            <ElButton @click="submit2">确定</ElButton>
+                            <ElButton type="primary" @click="submit2">确定</ElButton>
                         </div>
                     </div>
                 </div>

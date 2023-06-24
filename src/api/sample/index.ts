@@ -43,3 +43,23 @@ export function getSampleResultApi(data: any) {
         data: data
     })
 }
+
+
+// 获取单个样品信息
+export function getSampleInfoApi(data: any) {
+    return myRequest({
+        url: '/api/admin/sample/get',
+        method: 'POST',
+        data: data
+    })
+}
+
+// 导出excel
+export function exportSampleApi(data: any) {
+    return myRequest({
+        url: '/api/admin/sample/exportlist',
+        method: 'POST',
+        data: data,
+        responseType: 'blob'
+    })
+}

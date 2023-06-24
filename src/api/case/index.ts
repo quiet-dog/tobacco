@@ -71,7 +71,16 @@ export function endCaseApi(data) {
 // 案件出库详情
 export function getCaseOutDetailApi(data) {
     return myRequest({
-        url: '/api/admin/law_case/outdetail',
+        url: '/api/admin/law_case/out_storage_result',
+        method: 'post',
+        data: data,
+    })
+}
+
+// 取消案件
+export function cancelCaseApi(data) {
+    return myRequest({
+        url: '/api/admin/law_case/cancel',
         method: 'post',
         data: data,
     })

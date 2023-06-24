@@ -15,7 +15,7 @@
                     <div class="flex">
 
                         <div class="pr-4">
-                            <ElInput @change="changeSearchValue" v-model="searchValue" placeholder="可搜索表格内任意信息">
+                            <ElInput @input="changeSearchValue" v-model="searchValue" placeholder="可搜索表格内任意信息">
                                 <template #append>
                                     <el-button :icon="Search" />
                                 </template>
@@ -67,54 +67,54 @@
                     height="100%" @row-click="handleRowDrawer" :data="tableData"
                     :header-cell-style="{ background: '#FAFAFA' }">
                     <el-table-column fixed type="selection" width="55" />
-                    <el-table-column prop="report_code" label="报告编号" show-overflow-tooltip>
+                    <el-table-column fixed width="150" prop="report_code" label="报告编号" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.report_code, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="name" label="案件名称" show-overflow-tooltip>
+                    <el-table-column fixed width="200" prop="name" label="案件名称" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.name, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="seized_site" label="查扣地点" show-overflow-tooltip>
+                    <el-table-column width="200" prop="seized_site" label="查扣地点" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.seized_site, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="party" label="当事人" show-overflow-tooltip>
+                    <el-table-column width="120" prop="party" label="当事人" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.party, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="value" label="案值（元）" show-overflow-tooltip>
+                    <el-table-column width="120" prop="value" label="案值（元）" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.value, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column :column-key="'reason'" :filters="reasonList" prop="reason" label="查扣原因"
+                    <el-table-column width="120" :column-key="'reason'" :filters="reasonList" prop="reason" label="查扣原因"
                         show-overflow-tooltip>
                         <template #default="scope">
                             <el-tag v-if="scope.row.reason === '民事案件'" type="primary">{{ scope.row.reason }}</el-tag>
                             <el-tag v-else>{{ scope.row.reason }}</el-tag>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="storage_time" label="入库时间" show-overflow-tooltip>
+                    <el-table-column width="200" prop="storage_time" label="入库时间" show-overflow-tooltip>
                         <template #default="scope">
                             <span>{{ scope.row.storage_time ? formatDate(scope.row.storage_time) : "-" }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="expire_time" label="期满倒计时" show-overflow-tooltip>
+                    <el-table-column width="200" prop="expire_time" label="期满倒计时" show-overflow-tooltip>
                         <template #default="scope">
                             <span>{{ scope.row.expire_time ? getExpireTime(scope.row.storage_time) : "-" }}</span>
                         </template>
                     </el-table-column>
-                    <ElTableColumn prop="stocker.username" label="入库人" show-overflow-tooltip>
+                    <ElTableColumn width="100" prop="stocker.username" label="入库人" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.stocker.username, searchValue)"></span>
                         </template>
                     </ElTableColumn>
-                    <el-table-column prop="sampling_site" label="抽样地点" show-overflow-tooltip>
+                    <el-table-column width="200" prop="sampling_site" label="抽样地点" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.sampling_site, searchValue)"></span>
                         </template>
@@ -156,7 +156,7 @@
 
                     </template>
                     <div class="flex-col px-5">
-                        <div class="grid grid-cols-14 gap-10">
+                        <div class="grid grid-cols-14">
                             <el-descriptions title="" :column="3">
                                 <el-descriptions-item label-align="left" label="名称">{{ taskInfo.name
                                 }}</el-descriptions-item>
@@ -176,16 +176,16 @@
                                 <el-descriptions-item label-align="right" label="查扣原因">
                                     <el-tag>{{ taskInfo.reason }}</el-tag>
                                 </el-descriptions-item>
-                                <el-descriptions-item label-align="right" label="查扣地点">{{ taskInfo.delivery_location
+                                <el-descriptions-item label-align="right" label="查扣地点">{{ taskInfo.seized_site
                                 }}</el-descriptions-item>
                             </el-descriptions>
                             <div class="mt-12 ">
-                                <el-steps :active="setActive" finish-status="success" align-center>
+                                <el-steps class="my-step" :active="setActive" finish-status="success" align-center>
                                     <el-step>
                                         <template #title>
                                             <div class="">
                                                 案件建立<br>
-                                                {{ taskInfo.created_at ? formatDate(taskInfo.created_at) : "-" }}
+                                                {{ taskInfo.created_at ? formatDate2(taskInfo.created_at) : "-" }}
                                             </div>
                                         </template>
                                     </el-step>
@@ -315,19 +315,21 @@
                             :href="`http://192.168.0.81:8081/api/admin/file/${scope.row.path}`">查看</el-link> -->
                         <ElButton v-if="scope.row.mime_type.search('image') !== -1" @click="previewImgs(scope.row.id)">查看
                         </ElButton>
-                        <ElButton v-if="scope.row.mime_type.search('video') !== -1" @click="previewTv(scope.row)">查看
+                        <ElButton v-else-if="scope.row.mime_type.search('video') !== -1" @click="previewTv(scope.row)">查看
                         </ElButton>
-                        <ElButton v-if="scope.row.mime_type.search('zip') !== -1 && scope.row.name.search('docx') !== -1"
+                        <ElButton v-else-if="scope.row.name.search('docx') !== -1 || scope.row.name.search('doc') !== -1"
                             @click="previewDocx(scope.row)">
                             查看
                         </ElButton>
-                        <ElButton v-if="scope.row.mime_type.search('pdf') !== -1 && scope.row.name.search('pdf') !== -1"
-                            @click="previewPdf(scope.row)">
+                        <ElButton v-else-if="scope.row.name.search('pdf') !== -1" @click="previewPdf(scope.row)">
                             查看
                         </ElButton>
-                        <ElButton v-if="scope.row.mime_type.search('zip') !== -1 && scope.row.name.search('xlsx') !== -1"
-                            @click="previewXlsx(scope.row)">
+                        <ElButton v-else-if="scope.row.name.search('xlsx') !== -1" @click="previewXlsx(scope.row)">
                             查看
+                        </ElButton>
+                        <ElButton v-else>
+                            <ElLink :href="`${baseUrl}/api/admin/file/${scope.row.path}?download=1`" target="_blank">下载
+                            </ElLink>
                         </ElButton>
                     </template>
                 </ElTableColumn>
@@ -667,12 +669,15 @@ function exportExecel() {
         keyword: searchValue
     }).then(res => {
         // 文件下载
+        console.log('res.data', res)
+        let blob = new Blob([res]);
         const link = document.createElement('a')
         link.style.display = 'none'
-        link.href = res.data
+        link.href = window.URL.createObjectURL(blob)
         link.setAttribute('download', '案件列表.xlsx')
         document.body.appendChild(link)
         link.click()
+        URL.revokeObjectURL(link.href); // 释放URL 对象
         document.body.removeChild(link)
     }).catch(err => {
         ElMessage({

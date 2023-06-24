@@ -15,7 +15,7 @@
                     <div class="flex">
 
                         <div class="pr-4">
-                            <ElInput @change="changeSearchValue" v-model="searchValue" placeholder="可搜索表格内任意信息">
+                            <ElInput @input="changeSearchValue" v-model="searchValue" placeholder="可搜索表格内任意信息">
                                 <template #append>
                                     <el-button :icon="Search" />
                                 </template>
@@ -67,53 +67,53 @@
                     height="100%" @row-click="handleRowDrawer" :data="tableData"
                     :header-cell-style="{ background: '#FAFAFA' }">
                     <el-table-column fixed type="selection" width="55" />
-                    <el-table-column prop="report_code" label="报告编号" show-overflow-tooltip>
+                    <el-table-column fixed width="150" prop="report_code" label="报告编号" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.report_code, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="name" label="案件名称" show-overflow-tooltip>
+                    <el-table-column fixed width="200" prop="name" label="案件名称" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.name, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="seized_site" label="查扣地点" show-overflow-tooltip>
+                    <el-table-column width="200" prop="seized_site" label="查扣地点" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.seized_site, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="party" label="当事人" show-overflow-tooltip>
+                    <el-table-column width="200" prop="party" label="当事人" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.party, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="value" label="案值（元）" show-overflow-tooltip>
+                    <el-table-column width="120" prop="value" label="案值（元）" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.value, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column :column-key="'reason'" :filters="reasonList" prop="reason" label="查扣原因"
+                    <el-table-column width="120" :column-key="'reason'" :filters="reasonList" prop="reason" label="查扣原因"
                         show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.reason, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="storage_time" label="入库时间" show-overflow-tooltip>
+                    <el-table-column width="150" prop="storage_time" label="入库时间" show-overflow-tooltip>
                         <template #default="scope">
                             <span>{{ scope.row.storage_time ? formatDate(scope.row.storage_time) : "-" }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="expire_time" label="超期时长" show-overflow-tooltip>
+                    <el-table-column width="170" prop="expire_time" label="超期时长" show-overflow-tooltip>
                         <template #default="scope">
                             <span>{{ scope.row.expire_time ? getExpireTime(scope.row.storage_time) : "-" }}</span>
                         </template>
                     </el-table-column>
-                    <ElTableColumn prop="stocker.username" label="入库人" show-overflow-tooltip>
+                    <ElTableColumn width="100" prop="stocker.username" label="入库人" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.stocker.username, searchValue)"></span>
                         </template>
                     </ElTableColumn>
-                    <el-table-column prop="sampling_site" label="抽样地点" show-overflow-tooltip>
+                    <el-table-column width="200" prop="sampling_site" label="抽样地点" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.sampling_site, searchValue)"></span>
                         </template>
@@ -160,7 +160,7 @@
 
                     </template>
                     <div class="flex-col px-5">
-                        <div class="grid grid-cols-14 gap-10">
+                        <div class="grid grid-cols-14">
                             <el-descriptions title="" :column="3">
                                 <el-descriptions-item label-align="left" label="名称">{{ taskInfo.name
                                 }}</el-descriptions-item>
@@ -180,16 +180,16 @@
                                 <el-descriptions-item label-align="right" label="查扣原因">
                                     <el-tag>{{ taskInfo.reason }}</el-tag>
                                 </el-descriptions-item>
-                                <el-descriptions-item label-align="right" label="查扣地点">{{ taskInfo.delivery_location
+                                <el-descriptions-item label-align="right" label="查扣地点">{{ taskInfo.seized_site
                                 }}</el-descriptions-item>
                             </el-descriptions>
                             <div class="mt-12 ">
-                                <el-steps :active="setActive" finish-status="success" align-center>
+                                <el-steps class="my-step" :active="setActive" finish-status="success" align-center>
                                     <el-step>
                                         <template #title>
                                             <div class="">
                                                 案件建立<br>
-                                                {{ taskInfo.created_at ? formatDate(taskInfo.created_at) : "-" }}
+                                                {{ taskInfo.created_at ? formatDate2(taskInfo.created_at) : "-" }}
                                             </div>
                                         </template>
                                     </el-step>
@@ -289,17 +289,59 @@
             <template #footer>
                 <div class="flex">
                     <div class="w-1/2 pr-2">
-                        <ElButton style="width: 100%;" :disabled="btnDisabled" type="primary" @click="endCase">立即结束案件!
+                        <ElButton style="width: 100%;" type="danger" :disabled="btnDisabled" @click="endCase">立即结束案件!
                         </ElButton>
                     </div>
                     <div class="w-1/2 pl-2">
-                        <ElButton style="width: 100%;" type="primary">案件时间线</ElButton>
+                        <ElButton style="width: 100%;" type="primary" @click="openDialog">归档文件</ElButton>
                     </div>
                 </div>
             </template>
         </ElDrawer>
 
-
+        <ElDialog v-model="drawer1" title="文件列表" @opened="prewview" @closed="closedDrawer2">
+            <ul style="display: none;" id="images">
+                <li v-for="item in fileTable">
+                    <img v-if="item.mime_type.search('image') !== -1" :src="`${baseUrl}/api/admin/file/${item.path}`" alt=""
+                        srcset="">
+                </li>
+            </ul>
+            <ElTable :data="fileTable">
+                <ElTableColumn prop="name" label="文件名" />
+                <ElTableColumn prop="created_at" label="创建时间" />
+                <ElTableColumn prop="type" label="鉴定类型" />
+                <!--  -->
+                <ElTableColumn prop="mime_type" label="文件类型 " />
+                <ElTableColumn width="100">
+                    <template #default="scope">
+                        <!-- <el-link type="primary" target="_blank"
+                            :href="`http://192.168.0.81:8081/api/admin/file/${scope.row.path}`">查看</el-link> -->
+                        <ElButton v-if="scope.row.mime_type.search('image') !== -1" @click="previewImgs(scope.row.id)">查看
+                        </ElButton>
+                        <ElButton v-else-if="scope.row.mime_type.search('video') !== -1" @click="previewTv(scope.row)">查看
+                        </ElButton>
+                        <ElButton v-else-if="scope.row.name.search('docx') !== -1 || scope.row.name.search('doc') !== -1"
+                            @click="previewDocx(scope.row)">
+                            查看
+                        </ElButton>
+                        <ElButton v-else-if="scope.row.name.search('pdf') !== -1" @click="previewPdf(scope.row)">
+                            查看
+                        </ElButton>
+                        <ElButton v-else-if="scope.row.name.search('xlsx') !== -1" @click="previewXlsx(scope.row)">
+                            查看
+                        </ElButton>
+                        <ElButton v-else>
+                            <ElLink :href="`${baseUrl}/api/admin/file/${scope.row.path}?download=1`" target="_blank">下载
+                            </ElLink>
+                        </ElButton>
+                    </template>
+                </ElTableColumn>
+            </ElTable>
+            <TvVideo :video="videoObj" v-if="videoPlayer" @close="closeTv" />
+            <DocPreview :src="docSrc" v-if="docPreview" @close="closeTv" />
+            <PdfPreview :src="pdfSrc" v-if="pdfPreview" @close="closeTv" />
+            <XlsxPreview :src="xlsxSrc" v-if="xlsxPreview" @close="closeTv" />
+        </ElDialog>
 
 
         <ElDialog v-model="drawer2" :align-center="true" title="结束案件" width="30%" @closed="closedDrawer3">
@@ -363,6 +405,9 @@ import { getSampleListApi, } from '@/api/sample';
 import { formatDate, getExpireTime, formatDate2, highText, expressCompanies, baseUrl } from "@/utils"
 import { ElMessage } from 'element-plus';
 import { Search } from '@element-plus/icons-vue'
+import { getFileListApi } from '@/api/file';
+import "viewerjs/dist/viewer.css";
+import Viewer from 'viewerjs'
 const emit = defineEmits(["update"])
 let loadingTable = $ref(false)
 
@@ -726,9 +771,117 @@ function endCase() {
 }
 
 let btnDisabled = $ref(true)
+
+
+
+
+let gallery = $ref<Viewer>()
+let drawer1 = $ref(false)
+let fileTable = $ref([])
+let fileTotal = $ref(0)
+function openDialog() {
+    drawer1 = true
+    getFileListApi({
+        law_case_id,
+        page_index: 1,
+        page_size: 10
+    }).then(res => {
+        fileTable = res.data.list
+        fileTotal = res.data.total
+    })
+}
+let fileIndex = $computed(() => {
+    let result = []
+
+    if (fileTable.length === 0) return result
+    let index = -1
+    for (let i = 0; i < fileTable.length; i++) {
+        if (fileTable[i].mime_type.search('image') !== -1) {
+            index++
+            result.push({
+                index: index,
+                id: fileTable[i].id
+            })
+        }
+    }
+    return result
+})
+let docSrc = $ref('')
+let docPreview = $ref(false)
+let pdfPreview = $ref(false)
+let videoPlayer = $ref(false)
+let xlsxPreview = $ref(false)
+let xlsxSrc = $ref('')
+let pdfSrc = $ref('')
+let videoObj = $ref({
+    path: '',
+    mime_type: ''
+})
+function closeTv() {
+    videoPlayer = false
+    docPreview = false
+    pdfPreview = false
+    xlsxPreview = false
+}
+
+function previewTv(row) {
+    videoPlayer = true
+    videoObj.path = baseUrl + "/api/admin/file/" + row.path
+    videoObj.mime_type = row.mime_type
+}
+
+function previewDocx(row) {
+    docPreview = true
+    docSrc = baseUrl + "/api/admin/file/" + row.path
+}
+
+function previewPdf(row) {
+    pdfPreview = true
+    pdfSrc = baseUrl + "/api/admin/file/" + row.path
+}
+
+function previewXlsx(row) {
+    xlsxPreview = true
+    xlsxSrc = baseUrl + "/api/admin/file/" + row.path
+}
+function prewview() {
+    gallery = new Viewer(document.getElementById('images'), {
+        inline: false,
+        viewed() {
+            gallery.zoomTo(1);
+        },
+        zIndex: 100000,
+    });
+}
+
+function closedDrawer2() {
+    gallery.destroy()
+}
+
+function previewImgs(id: number) {
+    console.log("iddasdasd", id)
+    let index = getImageIndex(id)
+    if (index === -1) {
+        ElMessage.error('该文件不是图片')
+        return
+    }
+    console.log("index.as", index)
+    gallery.view(index)
+}
+
+function getImageIndex(id: number) {
+    console.log('dassdad', id, fileIndex)
+    if (fileIndex.length === 0) return -1
+    for (let i = 0; i < fileIndex.length; i++) {
+        if (fileIndex[i].id === id) return fileIndex[i].index
+    }
+}
+
 onMounted(() => {
     getCaseList()
 })
+
+
 </script>
 
 <style scoped>
