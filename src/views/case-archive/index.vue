@@ -62,9 +62,9 @@
                 </div>
             </template>
             <template #table>
-                <ElTable size="large" @filter-change="fileterChange" @selection-change="handleSelectionChange"
-                    max-height="100%" height="100%" @row-click="handleRowDrawer" :data="tableData"
-                    :header-cell-style="{ background: '#FAFAFA' }">
+                <ElTable v-loading="loadingTable" element-loading-text="正在加载中" empty-text="暂无案件" size="large"
+                    @filter-change="fileterChange" @selection-change="handleSelectionChange" max-height="100%" height="100%"
+                    @row-click="handleRowDrawer" :data="tableData" :header-cell-style="{ background: '#FAFAFA' }">
                     <el-table-column fixed type="selection" width="55" />
                     <el-table-column fixed width="200" prop="report_code" label="报告编号" show-overflow-tooltip>
                         <template #default="scope">
@@ -111,7 +111,8 @@
                     </el-table-column>
                     <el-table-column prop="out_stocker.name" label="出库人" show-overflow-tooltip>
                         <template #default="scope">
-                            <span v-html="highText(scope.row.out_stocker.name, searchValue)"></span>
+                            <span
+                                v-html="highText(scope.row.out_stocker ? scope.row.out_stocker.name : '', searchValue)"></span>
                         </template>
                     </el-table-column>
                     <el-table-column width="100" prop="out_stock_reason" label="出库原因" show-overflow-tooltip>
@@ -142,15 +143,15 @@
                 </ElTable>
             </template>
             <template #page>
-                <div class="pt-1/2">总共{{ total1 }}</div>
+                <div class="pt-1/2 text-gray-400">共{{ total1 }}件</div>
                 <div class="flex-grow"></div>
                 <div>
                     <el-pagination v-model:currentPage="page1" @current-change="handlePage1" @size-change="handeleSize1"
-                        v-model:page-size="pageSize1" large layout="prev, pager, next" :total="total1" />
+                        v-model:page-size="pageSize1" large layout="sizes,prev, pager, next" :total="total1" />
                 </div>
             </template>
         </MyTable>
-        <ElDrawer class="my-drawer" v-model="drawer" title="案件概述" @closed="closedDrawer" width="50%">
+        <ElDrawer class="my-drawer" v-model="drawer" title="案件概述" @closed="closedDrawer" size="50%">
             <div>
                 <el-card shadow="hover" class="title-card-my">
                     <template #header>
@@ -241,8 +242,9 @@
                             </div>
                         </template>
                         <div>
-                            <div>
-                                <el-table :data="tableData2" :default-sort="{ prop: 'date', order: 'descending' }"
+                            <div style="height: 450px;">
+                                <el-table max-height="100%" height="100%" :data="tableData2"
+                                    :default-sort="{ prop: 'date', order: 'descending' }"
                                     :header-cell-style="{ background: '#FAFAFA' }" width="100%">
                                     <el-table-column prop="code" label="编号" width="150"
                                         show-overflow-tooltip></el-table-column>
@@ -292,18 +294,64 @@
                 </div>
             </div>
             <template #footer>
-                <ElButton style="width: 100%;" type="primary">案件时间线</ElButton>
+                <ElButton style="width: 100%;" type="primary" @click="openDialog">案件时间线</ElButton>
             </template>
         </ElDrawer>
+        <ElDialog v-model="drawer1" title="文件列表" @opened="prewview" @closed="closedDrawer2">
+            <ul style="display: none;" id="images">
+                <li v-for="item in fileTable">
+                    <img v-if="item.mime_type.search('image') !== -1" :src="`${baseUrl}/api/admin/file/${item.path}`" alt=""
+                        srcset="">
+                </li>
+            </ul>
+            <ElTable :data="fileTable">
+                <ElTableColumn prop="name" label="文件名" />
+                <ElTableColumn prop="created_at" label="创建时间" />
+                <ElTableColumn prop="type" label="鉴定类型" />
+                <!--  -->
+                <ElTableColumn prop="mime_type" label="文件类型 " />
+                <ElTableColumn width="100">
+                    <template #default="scope">
+                        <!-- <el-link type="primary" target="_blank"
+                            :href="`http://192.168.0.81:8081/api/admin/file/${scope.row.path}`">查看</el-link> -->
+                        <ElButton v-if="scope.row.mime_type.search('image') !== -1" @click="previewImgs(scope.row.id)">查看
+                        </ElButton>
+                        <ElButton v-if="scope.row.mime_type.search('video') !== -1" @click="previewTv(scope.row)">查看
+                        </ElButton>
+                        <ElButton v-if="scope.row.mime_type.search('zip') !== -1 && scope.row.name.search('docx') !== -1"
+                            @click="previewDocx(scope.row)">
+                            查看
+                        </ElButton>
+                        <ElButton v-if="scope.row.mime_type.search('pdf') !== -1 && scope.row.name.search('pdf') !== -1"
+                            @click="previewPdf(scope.row)">
+                            查看
+                        </ElButton>
+                        <ElButton v-if="scope.row.mime_type.search('zip') !== -1 && scope.row.name.search('xlsx') !== -1"
+                            @click="previewXlsx(scope.row)">
+                            查看
+                        </ElButton>
+                    </template>
+                </ElTableColumn>
+            </ElTable>
+            <TvVideo :video="videoObj" v-if="videoPlayer" @close="closeTv" />
+            <DocPreview :src="docSrc" v-if="docPreview" @close="closeTv" />
+            <PdfPreview :src="pdfSrc" v-if="pdfPreview" @close="closeTv" />
+            <XlsxPreview :src="xlsxSrc" v-if="xlsxPreview" @close="closeTv" />
+        </ElDialog>
     </div>
 </template>
 <script setup lang="ts">
 import { getCaseListApi, importFileExeclApi } from '@/api/case';
 import { getSampleListApi, } from '@/api/sample';
-import { formatDate, formatDate2, highText, expressCompanies } from "@/utils"
+import { formatDate, formatDate2, highText, expressCompanies, baseUrl } from "@/utils"
 import { ElMessage } from 'element-plus';
 import { Search } from '@element-plus/icons-vue'
+import { getFileListApi } from '@/api/file';
+import "viewerjs/dist/viewer.css";
+import Viewer from 'viewerjs'
 
+
+let loadingTable = $ref(false)
 
 let multipleIds = $ref([])
 const tableRef = ref()
@@ -389,10 +437,10 @@ function goCreatTask(path: string) {
     router.push(path)
 }
 let searchValue = $ref('')
-let timeValue = $ref('1')
+let timeValue = $ref('2')
 let timeOption = [
     {
-        value: '1',
+        value: '2',
         label: '抽样时间',
     },
     {
@@ -403,7 +451,7 @@ let timeOption = [
 let tableData = $ref([])
 let tableData2 = $ref([])
 let total1 = $ref(0)
-let total2 = $ref()
+let total2 = $ref(0)
 let drawer = $ref(false)
 let setActive = $ref(0)
 let page1 = $ref(1)
@@ -511,6 +559,7 @@ function closedDrawer() {
 }
 
 function getCaseList() {
+    loadingTable = true
     getCaseListApi({
         page_index: page1,
         page_size: pageSize1,
@@ -526,6 +575,9 @@ function getCaseList() {
     }).then(res => {
         total1 = res.data.total
         tableData = res.data.list
+        loadingTable = false
+    }).catch(err => {
+        loadingTable = false
     })
 }
 
@@ -579,6 +631,111 @@ function exportExecel() {
 
 function changeSearchValue(val) {
     getCaseList()
+}
+
+
+
+
+let gallery = $ref<Viewer>()
+let drawer1 = $ref(false)
+let fileTable = $ref([])
+let fileTotal = $ref(0)
+function openDialog() {
+    drawer1 = true
+    getFileListApi({
+        law_case_id,
+        page_index: 1,
+        page_size: 10
+    }).then(res => {
+        fileTable = res.data.list
+        fileTotal = res.data.total
+    })
+}
+let fileIndex = $computed(() => {
+    let result = []
+
+    if (fileTable.length === 0) return result
+    let index = -1
+    for (let i = 0; i < fileTable.length; i++) {
+        if (fileTable[i].mime_type.search('image') !== -1) {
+            index++
+            result.push({
+                index: index,
+                id: fileTable[i].id
+            })
+        }
+    }
+    return result
+})
+let docSrc = $ref('')
+let docPreview = $ref(false)
+let pdfPreview = $ref(false)
+let videoPlayer = $ref(false)
+let xlsxPreview = $ref(false)
+let xlsxSrc = $ref('')
+let pdfSrc = $ref('')
+let videoObj = $ref({
+    path: '',
+    mime_type: ''
+})
+function closeTv() {
+    videoPlayer = false
+    docPreview = false
+    pdfPreview = false
+    xlsxPreview = false
+}
+
+function previewTv(row) {
+    videoPlayer = true
+    videoObj.path = baseUrl + "/api/admin/file/" + row.path
+    videoObj.mime_type = row.mime_type
+}
+
+function previewDocx(row) {
+    docPreview = true
+    docSrc = baseUrl + "/api/admin/file/" + row.path
+}
+
+function previewPdf(row) {
+    pdfPreview = true
+    pdfSrc = baseUrl + "/api/admin/file/" + row.path
+}
+
+function previewXlsx(row) {
+    xlsxPreview = true
+    xlsxSrc = baseUrl + "/api/admin/file/" + row.path
+}
+function prewview() {
+    gallery = new Viewer(document.getElementById('images'), {
+        inline: false,
+        viewed() {
+            gallery.zoomTo(1);
+        },
+        zIndex: 100000,
+    });
+}
+
+function closedDrawer2() {
+    gallery.destroy()
+}
+
+function previewImgs(id: number) {
+    console.log("iddasdasd", id)
+    let index = getImageIndex(id)
+    if (index === -1) {
+        ElMessage.error('该文件不是图片')
+        return
+    }
+    console.log("index.as", index)
+    gallery.view(index)
+}
+
+function getImageIndex(id: number) {
+    console.log('dassdad', id, fileIndex)
+    if (fileIndex.length === 0) return -1
+    for (let i = 0; i < fileIndex.length; i++) {
+        if (fileIndex[i].id === id) return fileIndex[i].index
+    }
 }
 onMounted(() => {
     getCaseList()

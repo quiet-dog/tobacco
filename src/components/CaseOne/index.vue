@@ -102,7 +102,7 @@
             <div class="flex-grow"></div>
             <div class="pr-12">
 
-                <ElButton>&nbsp;&nbsp;取消&nbsp;&nbsp;</ElButton>
+                <ElButton @click="$router.back()">&nbsp;&nbsp;取消&nbsp;&nbsp;</ElButton>
 
                 <ElButton type="primary" @click="goNext(1)">下一步</ElButton>
 

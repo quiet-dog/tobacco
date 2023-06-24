@@ -62,7 +62,8 @@
                 </div>
             </template>
             <template #table>
-                <ElTable @filter-change="fileterChange" ref="tableRef" size="large" max-height="100%" height="100%"
+                <ElTable v-loading="loadingTable" element-loading-text="正在加载中" empty-text="暂无案件"
+                    @filter-change="fileterChange" ref="tableRef" size="large" max-height="100%" height="100%"
                     @row-click="handleRowDrawer" :data="tableData" :header-cell-style="{ background: '#FAFAFA' }"
                     @selection-change="handleSelectionChange">
                     <el-table-column fixed type="selection" width="55" />
@@ -132,11 +133,11 @@
                 </ElTable>
             </template>
             <template #page>
-                <div class="pt-1/2">总共{{ total1 }}</div>
+                <div class="pt-1/2 text-gray-400">共{{ total1 }}件</div>
                 <div class="flex-grow"></div>
                 <div>
                     <el-pagination v-model:currentPage="page1" @current-change="handlePage1" @size-change="handeleSize1"
-                        v-model:page-size="pageSize1" large layout="prev, pager, next" :total="total1" />
+                        v-model:page-size="pageSize1" large layout="sizes,prev, pager, next" :total="total1" />
                 </div>
             </template>
         </MyTable>
@@ -231,8 +232,9 @@
                             </div>
                         </template>
                         <div>
-                            <div>
-                                <el-table :data="tableData2" :default-sort="{ prop: 'date', order: 'descending' }"
+                            <div style="height: 450px;">
+                                <el-table max-height="100%" height="100%" :data="tableData2"
+                                    :default-sort="{ prop: 'date', order: 'descending' }"
                                     :header-cell-style="{ background: '#FAFAFA' }" width="100%">
                                     <el-table-column prop="code" label="编号"></el-table-column>
 
@@ -280,11 +282,9 @@
             </div>
             <template #footer>
                 <div class="flex">
-                    <div class="w-1/2 pr-2">
-                        <ElButton style="width: 100%;" type="primary" @click="openDialog">开始鉴定</ElButton>
-                    </div>
-                    <div class="w-1/2 pl-2">
-                        <ElButton style="width: 100%;" type="primary" @click="openDialog">存档照片</ElButton>
+
+                    <div class="w-full">
+                        <ElButton style="width: 100%;" type="primary" @click="openDialog">归档文件</ElButton>
                     </div>
                 </div>
             </template>
@@ -292,8 +292,8 @@
         <ElDialog v-model="drawer1" title="文件列表" @opened="prewview" @closed="closedDrawer2">
             <ul style="display: none;" id="images">
                 <li v-for="item in fileTable">
-                    <img v-if="item.mime_type.search('image') !== -1"
-                        :src="`http://192.168.0.81:8081/api/admin/file/${item.path}`" alt="" srcset="">
+                    <img v-if="item.mime_type.search('image') !== -1" :src="`${baseUrl}/api/admin/file/${item.path}`" alt=""
+                        srcset="">
                 </li>
             </ul>
             <ElTable :data="fileTable">
@@ -334,14 +334,15 @@
 </template>
 <script setup lang="ts">
 import "viewerjs/dist/viewer.css";
-import { getCaseListApi, importFileExeclApi } from '@/api/case';
+import { getCaseListApi, importFileExeclApi, } from '@/api/case';
 import { getSampleListApi, } from '@/api/sample';
-import { formatDate, formatDate2, highText, expressCompanies } from "@/utils"
+import { formatDate, formatDate2, highText, baseUrl } from "@/utils"
 import { ElMessage } from 'element-plus';
 import { getFileListApi } from '@/api/file';
 import Viewer from 'viewerjs';
 import { Search } from '@element-plus/icons-vue'
 
+let loadingTable = $ref(false)
 let multipleIds = $ref([])
 const tableRef = ref()
 function handleSelectionChange(rows) {
@@ -446,23 +447,23 @@ function closeTv() {
 
 function previewTv(row) {
     videoPlayer = true
-    videoObj.path = "http://192.168.0.81:8081/api/admin/file/" + row.path
+    videoObj.path = baseUrl + "/api/admin/file/" + row.path
     videoObj.mime_type = row.mime_type
 }
 
 function previewDocx(row) {
     docPreview = true
-    docSrc = "http://192.168.0.81:8081/api/admin/file/" + row.path
+    docSrc = baseUrl + "/api/admin/file/" + row.path
 }
 
 function previewPdf(row) {
     pdfPreview = true
-    pdfSrc = "http://192.168.0.81:8081/api/admin/file/" + row.path
+    pdfSrc = baseUrl + "/api/admin/file/" + row.path
 }
 
 function previewXlsx(row) {
     xlsxPreview = true
-    xlsxSrc = "http://192.168.0.81:8081/api/admin/file/" + row.path
+    xlsxSrc = baseUrl + "/api/admin/file/" + row.path
 }
 
 let drawer2 = $ref(false)
@@ -524,10 +525,10 @@ function goCreatTask(path: string) {
     router.push(path)
 }
 let searchValue = $ref('')
-let timeValue = $ref('1')
+let timeValue = $ref('2')
 let timeOption = [
     {
-        value: '1',
+        value: '2',
         label: '抽样时间',
     },
     // {
@@ -661,6 +662,7 @@ function openDialog() {
 }
 
 function getCaseList() {
+    loadingTable = true
     getCaseListApi({
         page_index: page1,
         page_size: pageSize1,
@@ -676,12 +678,15 @@ function getCaseList() {
     }).then(res => {
         total1 = res.data.total
         tableData = res.data.list
+        loadingTable = false
         tableData.forEach(item => {
             const result = multipleIds.findIndex((id) => id === item.id)
             if (result !== -1) {
                 tableRef.value.toggleRowSelection(tableData[result], true)
             }
         })
+    }).catch(err => {
+        loadingTable = false
     })
 }
 

@@ -52,6 +52,7 @@ declare module '@vue/runtime-core' {
     ElStep: typeof import('element-plus/es')['ElStep']
     ElSteps: typeof import('element-plus/es')['ElSteps']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
+    ElTab: typeof import('element-plus/es')['ElTab']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTabPane: typeof import('element-plus/es')['ElTabPane']
@@ -68,5 +69,8 @@ declare module '@vue/runtime-core' {
     TestScan: typeof import('./src/components/TestScan/index.vue')['default']
     TvVideo: typeof import('./src/components/TvVideo/index.vue')['default']
     XlsxPreview: typeof import('./src/components/XlsxPreview/index.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

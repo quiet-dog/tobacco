@@ -189,7 +189,7 @@
 </template>
 <script setup lang="ts">
 import { createTiaoMa, getTobaccoListApi } from '@/api/tobacco';
-import { formatDate } from '@/utils';
+import { formatDate, baseUrl } from '@/utils';
 import { ElMessage, dayjs } from 'element-plus';
 import { codeStore } from '@/store/code'
 import { disAutoConnect, hiprint } from 'vue-plugin-hiprint'
@@ -234,6 +234,16 @@ let selectPrint = $ref("")
 
 let formPrint = $ref({
     selectPrint: ""
+})
+
+watch(() => printList.length, (val, old) => {
+    console.log('printList', val)
+    if (old == 0 && (val !== old && val > 0)) {
+        ElMessage({
+            message: '打印机连接成功',
+            type: 'success'
+        })
+    }
 })
 function test22() {
     let data = {
@@ -422,7 +432,7 @@ function createTobaccoDetail() {
             person: formF.reason,
             reason: formF.sampler,
             money: formF.value,
-            link: "http://192.168.0.81:8081/r/" + tobaccoForm.code
+            link: baseUrl + "/r/" + tobaccoForm.code
         })
     }
 
@@ -445,7 +455,7 @@ function createTobaccoDetail() {
     tobaccoForm.tobaccoName = ''
     tobaccoForm.tobaccoNum = ''
     tobaccoForm.tobaccoType = '条'
-    formRef1.value.resetFields()
+    // formRef1.value.resetFields()
     formRef2.value.resetFields()
     formRef3.value.resetFields()
     formRef4.value.resetFields()

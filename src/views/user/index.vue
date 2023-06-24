@@ -1,21 +1,22 @@
 <template>
     <div class="h-full">
         <ElContainer class="h-full">
-            <ElHeader style="height: 50px;" class="mt-6">
+            <ElHeader style="height: 50px;border-bottom: 5px whitesmoke solid;" class="mt-6">
                 <div class="flex">
                     <div>
-                        <ElButton type="primary" @click="dialog1 = true">新建</ElButton>
+                        <ElButton type="primary" @click="dialog1 = true">新建用户</ElButton>
                     </div>
-                    <div class="flex-grow"></div>
+                    <!-- <div class="flex-grow"></div>
                     <div>
                         <ElInput v-model="searchInput" @change="changeSearch" placeholder="输入用户名进行过滤" />
-                    </div>
+                    </div> -->
                 </div>
             </ElHeader>
             <ElMain style="height: calc(100% - 50px);">
                 <div class="h-full">
                     <div style="height: calc(100% - 60px);">
-                        <ElTable :data="tableData">
+                        <ElTable max-height="100%" height="100%" :header-cell-style="{ background: '#FAFAFA' }"
+                            :data="tableData">
                             <ElTableColumn prop="id" label="编号" />
                             <ElTableColumn prop="username" label="用户名" />
                             <ElTableColumn prop="role" label="角色" />
@@ -29,8 +30,8 @@
                             </ElTableColumn>
                         </ElTable>
                     </div>
-                    <div class="flex" style="height: 60px;">
-                        <div>全部{{ total }}</div>
+                    <div class="flex py-4 mt-1" style="height: 60px;">
+                        <div class="text-gray-400">共{{ total }}条</div>
                         <div class="flex-grow"></div>
                         <div>
                             <el-pagination v-model:currentPage="page" v-model:page-size="pageSize"

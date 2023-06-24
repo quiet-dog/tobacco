@@ -31,10 +31,10 @@
                     <div>
                         <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
                             <el-tab-pane label="库区管理" name="first">
-                                <ElButton type="primary" @click="openAreaDialog">新建</ElButton>
+                                <ElButton type="primary" @click="openAreaDialog('新建库区')">新建</ElButton>
                             </el-tab-pane>
                             <el-tab-pane label="架体管理" name="second">
-                                <ElButton type="primary" @click="openSheveDialog">新建</ElButton>
+                                <ElButton type="primary" @click="openSheveDialog('新建架体')">新建</ElButton>
                             </el-tab-pane>
                         </el-tabs>
                     </div>
@@ -44,19 +44,27 @@
                         <ElTable height="100%" max-height="100%" :data="tableData"
                             :header-cell-style="{ background: '#FAFAFA' }" @row-click="handleRowAreaDrawer">
                             <ElTableColumn prop="name" label="库区名称"></ElTableColumn>
-                            <ElTableColumn prop="code" label="库区编号"></ElTableColumn>
-                            <ElTableColumn prop="info" label="备注"></ElTableColumn>
+                            <ElTableColumn prop="code" align="center" label="库区编号"></ElTableColumn>
+                            <ElTableColumn prop="info" label="备注" align="center">
+                                <template #default="scope">
+                                    {{
+                                        scope.row.info ? scope.row.info :
+                                        '&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;'
+                                    }}
+                                </template>
+                            </ElTableColumn>
                             <ElTableColumn width="130" label="&nbsp;&nbsp;&nbsp;&nbsp;操作">
                                 <template #default="scope">
-                                    <ElButton type="primary" class="button-pr" text @click="openAreaDialog">编辑</ElButton>
+                                    <ElButton type="primary" class="button-pr" text @click="editArea('编辑库区', scope.row)">编辑
+                                    </ElButton>
                                     <ElButton type="danger" class="button-pl" text @click="deleteArea(scope.row.id)">删除
                                     </ElButton>
                                 </template>
                             </ElTableColumn>
                         </ElTable>
                     </div>
-                    <div style="height: 60px;" class="flex pt-8">
-                        <div class="pt-1/2">总共{{ total }}</div>
+                    <div style="height: 60px;" class="flex py-4">
+                        <div class="pt-1/2 text-gray-400">共{{ total }}区</div>
                         <div class="flex-grow"></div>
                         <div>
                             <el-pagination v-model:currentPage="page" @current-change="handlePage"
@@ -70,20 +78,50 @@
                     <div style="height: calc(100% - 60px);">
                         <ElTable height="100%" max-height="100%" :data="tableShelf"
                             :header-cell-style="{ background: '#FAFAFA' }">
-                            <ElTableColumn prop="code" label="列号"></ElTableColumn>
-                            <ElTableColumn prop="name" label="架体名称"></ElTableColumn>
-                            <ElTableColumn prop="area.name" label="所在库区"></ElTableColumn>
-                            <ElTableColumn prop="max_column" label="节数"></ElTableColumn>
-                            <ElTableColumn prop="max_row" label="层数"></ElTableColumn>
-                            <ElTableColumn prop="type" label="架体类型">
+                            <ElTableColumn prop="code" label="列号" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="name" label="架体名称" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="area.name" label="所在库区" width="200" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="max_column" label="节数" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="max_row" label="层数" show-overflow-tooltip></ElTableColumn>
+                            <ElTableColumn prop="inter_area_code" align="center" label="协议区号" show-overflow-tooltip>
                                 <template #default="scope">
-                                    <div>{{ scope.row.type === 'mobile' ? '移动列' : '固定列' }}</div>
+                                    {{ scope.row.inter_area_code ? scope.row.inter_area_code :
+                                        '-'
+                                    }}
                                 </template>
                             </ElTableColumn>
-                            <ElTableColumn prop="info" label="备注"></ElTableColumn>
+                            <ElTableColumn prop="inter_shelf_code" label="协议列号" show-overflow-tooltip>
+                                <template #default="scope" align="center">
+                                    {{ scope.row.inter_shelf_code ? scope.row.inter_shelf_code :
+                                        '-'
+                                    }}
+                                </template>
+                            </ElTableColumn>
+                            <ElTableColumn prop="com_address" label="服务地址" show-overflow-tooltip>
+                                <template #default="scope">
+                                    {{
+                                        scope.row.com_address ? scope.row.com_address :
+                                        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+                                    }}
+                                </template>
+                            </ElTableColumn>
+                            <ElTableColumn prop="type" align="center" label="架体类型" show-overflow-tooltip>
+                                <template #default="scope">
+                                    <el-tag v-if="scope.row.type === 'mobile'">移动列</el-tag>
+                                    <el-tag type="success" v-else>固定列</el-tag>
+                                </template>
+                            </ElTableColumn>
+                            <ElTableColumn prop="info" label="备注" show-overflow-tooltip>
+                                <template #default="scope">
+                                    {{
+                                        scope.row.info ? scope.row.info :
+                                        '&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;'
+                                    }}
+                                </template>
+                            </ElTableColumn>
                             <ElTableColumn width="130" label="&nbsp;&nbsp;&nbsp;&nbsp;操作">
                                 <template #default="scope">
-                                    <ElButton type="primary" class="button-pr" text @click="editShelf(scope.row)">编辑
+                                    <ElButton type="primary" class="button-pr" text @click="editShelf('编辑架体', scope.row)">编辑
                                     </ElButton>
                                     <ElButton type="danger" class="button-pl" text @click="deleteShelf(scope.row.id)">删除
                                     </ElButton>
@@ -91,8 +129,8 @@
                             </ElTableColumn>
                         </ElTable>
                     </div>
-                    <div style="height: 60px;" class="flex pt-8">
-                        <div class="pt-1/2">总共{{ totalShelf }}</div>
+                    <div style="height: 60px;" class="flex py-4">
+                        <div class="pt-1/2 text-gray-400">共{{ totalShelf }}列</div>
                         <div class="flex-grow"></div>
                         <div>
                             <el-pagination v-model:currentPage="page_index" @current-change="handelePageShelf"
@@ -104,7 +142,7 @@
             </el-main>
         </el-container>
 
-        <ElDialog v-model="dialogArea" title="新增库区" width="450" @closed="cancelArea">
+        <ElDialog v-model="dialogArea" :title="title1" width="450" @closed="cancelArea" :before-close="closeArea">
             <div class="flex">
                 <div class="flex-grow">
 
@@ -143,7 +181,7 @@
             </template>
         </ElDialog>
 
-        <ElDialog v-model="dialogSheve" title="新增架体" width="450" @closed="cancelShelves">
+        <ElDialog v-model="dialogSheve" :title="title2" width="450" @closed="cancelShelves" :before-close="closeShelf">
             <div class="flex">
                 <div class="flex-grow">
 
@@ -165,6 +203,7 @@
                                     :value="item.id" />
                             </ElSelect>
                         </ElFormItem>
+
                         <ElFormItem :rules="[{ message: '请填写架体节数', required: true, trigger: ['blur', 'change'], }]"
                             prop="max_column" label="架体节数" style="width: 300px;">
                             <el-input-number v-model="shelfForm.max_column" :min="1" />
@@ -179,6 +218,15 @@
                                 <el-radio label="mobile">移动列</el-radio>
                                 <el-radio label="fixed">固定列</el-radio>
                             </el-radio-group>
+                        </ElFormItem>
+                        <ElFormItem prop="com_address" label="服务地址" style="width: 300px;">
+                            <ElInput v-model="shelfForm.com_address" />
+                        </ElFormItem>
+                        <ElFormItem prop="inter_area_code" label="协议区号" style="width: 300px;">
+                            <ElInput v-model="shelfForm.inter_area_code" />
+                        </ElFormItem>
+                        <ElFormItem prop="inter_shelf_code" label="协议列号" style="width: 300px;">
+                            <ElInput v-model="shelfForm.inter_shelf_code" />
                         </ElFormItem>
                         <ElFormItem label="备注" style="width: 300px;">
                             <ElInput v-model="shelfForm.info" />
@@ -248,8 +296,10 @@ function getAreaList() {
 
 // ==========================库区===========================
 let dialogArea = $ref(false)
-function openAreaDialog() {
+let title1 = '新建库区'
+function openAreaDialog(title) {
     dialogArea = true
+    title1 = title1
 }
 
 let areaForm = $ref({
@@ -265,7 +315,7 @@ function cancelArea() {
     areaForm.name = ""
     areaForm.info = ""
     areaForm.code = ""
-    formAreaRef.value.resetField()
+    formAreaRef.value.resetFields()
 }
 
 function submitArea() {
@@ -378,11 +428,15 @@ let shelfForm = $ref({
     max_column: 1,
     max_row: 1,
     type: "mobile",
-    info: ""
+    info: "",
+    com_address: "",
+    inter_area_code: "",
+    inter_shelf_code: ""
 })
 let areaShelvesOptions = $ref([])
 let shelfSelectRefresh = $ref(Math.random())
-function openSheveDialog() {
+let title2 = $ref('新建架体')
+function openSheveDialog(title) {
     dialogSheve = true
     getAreaSelectorApi().then(res => {
         areaShelvesOptions = res.data
@@ -390,6 +444,7 @@ function openSheveDialog() {
             shelfForm.area_id = res.data[0].id
         }
     })
+    title2 = title
 }
 
 let page_index = $ref(1)
@@ -424,7 +479,19 @@ function cancelShelves() {
     shelfForm.max_row = 1
     shelfForm.type = 'mobile'
     shelfForm.area_id = 0
-    formShelfRef.value.resetField()
+    shelfForm.inter_area_code = ""
+    shelfForm.inter_shelf_code = ""
+    shelfForm.com_address = ""
+    formShelfRef.value.resetFields()
+}
+function closeShelf(done: () => void) {
+    // formShelfRef.value.resetFields()
+    done()
+}
+
+function closeArea(done: () => void) {
+    // formAreaRef.value.resetFields()
+    done()
 }
 
 let formShelfRef = ref()
@@ -434,14 +501,16 @@ function submitShelves() {
         formShelfRef.value.validate((valid) => {
             if (valid) {
                 createShelveApi(shelfForm).then(res => {
-                    cancelShelves()
-                    getShelfList()
-                    getAreaMenuList()
+
                     ElMessage({
                         message: res.msg,
                         type: 'success'
                     })
+                    cancelShelves()
+                    getShelfList()
+                    getAreaMenuList()
                 }).catch(err => {
+                    console.log("123123123", err)
                     ElMessage({
                         message: err.msg,
                         type: 'error'
@@ -476,9 +545,15 @@ function submitShelves() {
     }
 }
 
-function editShelf(data: any) {
+function editShelf(title, data: any) {
+    title2 = title
     shelfForm = JSON.parse(JSON.stringify(data))
-    openSheveDialog()
+    openSheveDialog(title2)
+}
+function editArea(title, data: any) {
+    title1 = title
+    areaForm = JSON.parse(JSON.stringify(data))
+    openAreaDialog(title1)
 }
 
 function deleteShelf(id: number) {

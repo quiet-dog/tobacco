@@ -20,13 +20,12 @@ function getScannerCode(e: KeyboardEvent) {
         return;
     }
     if (String(e.key) !== 'Shift' && String(e.key) !== 'Alt' && String(e.key) !== 'Control') {
-        nextCode = String(e.key);
-
+        nextCode = e.key;
     } else {
         nextCode = ""
     }
     nextTime = new Date().getTime();
-    if (lastCode != undefined && lastTime != null && nextTime - lastTime <= 30) {
+    if (lastCode != undefined && lastTime != null && nextTime - lastTime <= 50) {
         // 扫码枪输入
         if (nextCode === "Enter") {
             code += lastCode

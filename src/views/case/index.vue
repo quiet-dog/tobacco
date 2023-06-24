@@ -12,6 +12,8 @@
                             <use xlink:href="#icon-chakan"></use>
                         </svg>
                         <span class="pl-5">待鉴定</span>
+                        <div class="flex-grow"></div>
+                        <span>{{ data.StatusPending }}</span>
                     </ElMenuItem>
                     <ElMenuItem index="2" @click="goRouter('/home/case/enter')">
                         <svg class="icon" aria-hidden="true" style="width: 20px;fill: #A6A6FF;height: 20px;">
@@ -20,6 +22,8 @@
                         <span class="pl-5">
                             待入库
                         </span>
+                        <div class="flex-grow"></div>
+                        <span>{{ data.StatusPendingStorage }}</span>
                     </ElMenuItem>
                     <ElMenuItem index="3" @click="goRouter('/home/case/int')">
                         <svg class="icon" aria-hidden="true" style="width: 20px;fill: #70B603;height: 20px;">
@@ -28,6 +32,8 @@
                         <span class="pl-5">
                             在库案件
                         </span>
+                        <div class="flex-grow"></div>
+                        <span>{{ data.StatusInStorage }}</span>
                     </ElMenuItem>
                     <ElMenuItem index="4" @click="goRouter('/home/case/expires')">
                         <svg class="icon" aria-hidden="true" style="width: 20px;fill: #F9C27B;height: 20px;">
@@ -36,6 +42,8 @@
                         <span class="pl-5">
                             期满案件
                         </span>
+                        <div class="flex-grow"></div>
+                        <span>{{ data.StatusExpired }}</span>
                     </ElMenuItem>
                     <ElMenuItem index="5" @click="goRouter('/home/case/archive')">
                         <svg class="icon" aria-hidden="true" style="width: 20px;fill: #000000;height: 20px;">
@@ -44,6 +52,8 @@
                         <span class="pl-5">
                             归档案件
                         </span>
+                        <div class="flex-grow"></div>
+                        <span>{{ data.StatusArchived }}</span>
                     </ElMenuItem>
                     <ElMenuItem index="6" @click="goRouter('/home/case/overdue')">
                         <svg class="icon" aria-hidden="true" style="width: 20px;fill: #F86F6F;height: 20px;">
@@ -52,19 +62,22 @@
                         <span class="pl-5">
                             超期案件
                         </span>
+                        <div class="flex-grow"></div>
+                        <span>{{ data.StatusOverdue }}</span>
                     </ElMenuItem>
                 </el-menu>
             </el-aside>
             <el-main class="h-full" style="padding-left: 0;">
 
                 <RouterView v-slot="{ Component }">
-                    <component :is="Component" />
+                    <component @update="update" :is="Component" />
                 </RouterView>
             </el-main>
         </el-container>
     </div>
 </template>
 <script lang="ts" setup>
+import { getCaseCountApi } from "@/api/case"
 const router = useRouter()
 let defaultActive = $ref('1')
 function goRouter(path: string) {
@@ -100,6 +113,34 @@ watch(() => router.currentRoute.value.path, (val, old) => {
 }, {
     deep: true,
     immediate: true
+})
+
+function update() {
+    getCaseCountApi().then(res => {
+        data = res.data
+    })
+}
+/**
+ *  "StatusPending": 0,
+        "StatusPendingStorage": 1,
+        "StatusInStorage": 0,
+        "StatusExpired": 0,
+        "StatusOverdue": 0,
+        "StatusArchived": 0
+ */
+
+let data = $ref({
+    StatusPending: 0,
+    StatusPendingStorage: 0,
+    StatusInStorage: 0,
+    StatusExpired: 0,
+    StatusOverdue: 0,
+    StatusArchived: 0
+})
+onMounted(() => {
+    getCaseCountApi().then(res => {
+        data = res.data
+    })
 })
 </script>
 <style scoped>

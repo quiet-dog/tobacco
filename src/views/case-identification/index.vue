@@ -49,8 +49,9 @@
                 </div>
             </template>
             <template #table>
-                <ElTable @filter-change="fileterChange" @selection-change="handleSelectionChange" size="large"
-                    max-height="100%" style="width: 100%" height="100%" @row-click="handleRowDrawer" :data="tableData"
+                <ElTable v-loading="loadingTable" element-loading-text="正在加载中" empty-text="暂无案件"
+                    @filter-change="fileterChange" @selection-change="handleSelectionChange" size="large" max-height="100%"
+                    style="width: 100%" height="100%" @row-click="handleRowDrawer" :data="tableData"
                     :header-cell-style="{ background: '#FAFAFA' }">
                     <el-table-column fixed type="selection" width="55" />
                     <el-table-column fixed width="100" prop="id" label="流水号" show-overflow-tooltip>
@@ -123,11 +124,11 @@
                 </ElTable>
             </template>
             <template #page>
-                <div class="pt-1/2">总共{{ total1 }}</div>
+                <div class="pt-1/2 text-gray-400">共{{ total1 }}件</div>
                 <div class="flex-grow"></div>
                 <div>
                     <el-pagination v-model:currentPage="page1" @current-change="handlePage1" @size-change="handeleSize1"
-                        v-model:page-size="pageSize1" large layout="prev, pager, next" :total="total1" />
+                        v-model:page-size="pageSize1" large layout="sizes,prev, pager, next" :total="total1" />
                 </div>
             </template>
         </MyTable>
@@ -285,14 +286,14 @@
                                 </ElTableColumn>
                             </ElTable>
                         </div>
-                        <div class="flex px-36">
+                        <div class="flex px-36  pt-12">
                             <div class="flex-grow">
                             </div>
                             <div class="pr-12">
-                                <ElButton @click="setIsSample(scannerTable1[0].id, true)">正品</ElButton>
+                                <ElButton type="primary" @click="setIsSample(scannerTable1[0].id, true)">正品</ElButton>
                             </div>
                             <div>
-                                <ElButton @click="setIsSample(scannerTable1[0].id, false)">赝品</ElButton>
+                                <ElButton type="danger" @click="setIsSample(scannerTable1[0].id, false)">赝品</ElButton>
                             </div>
                             <div class="flex-grow">
                             </div>
@@ -383,52 +384,7 @@
                     <div style="height: calc(100% - 80px);" class="mt-8">
                         <el-row>
                             <el-col :span="24">
-                                <!-- <div class="ml-8">
-                                    <el-row>
-                                        <el-col :span="24">
-                                            <el-form>
-                                                <el-form-item label="上传头图">
-                                                    <div id="upload-file">
 
-                                                        <el-upload :on-remove="handleRemove" v-model:file-list="fileList1"
-                                                            :on-exceed="handleExceed" :before-upload="beforeAvatarUpload"
-                                                            :on-change="imgFileChange" ref="uploadRef2"
-                                                            style="height: 100%;" class="upload-demo"
-                                                            action="http://192.168.0.81:8081/api/admin/law_case/identify"
-                                                            :limit="1" :auto-upload="false" multiple>
-                                                            <el-button type="primary">上传头图</el-button>
-                                                        </el-upload>
-                                                    </div>
-                                                </el-form-item>
-                                            </el-form>
-
-                                        </el-col>
-                                    </el-row>
-                                    <el-row>
-                                        <el-col :span="24">
-                                            <el-form>
-                                                <el-form-item label="上传文件">
-                                                    <div id="upload-file">
-                                                        <el-upload v-model:file-list="fileList" :on-change="fileChange"
-                                                            :headers="{
-                                                                'Authorization': 'Bearer ' + '12345678abc'
-                                                            }" ref="upload" style="height: 100%;" class="upload-demo"
-                                                            action="http://192.168.0.81:8081/api/admin/law_case/identify"
-                                                            multiple :auto-upload="false" :data="{
-                                                                'law_case_id': law_case_id,
-                                                                'remark': saveCaseForm.remark,
-                                                                'report_code': saveCaseForm.report_code
-                                                            }">
-                                                            <el-button type="primary">上传文件</el-button>
-
-                                                        </el-upload>
-                                                    </div>
-                                                </el-form-item>
-                                            </el-form>
-
-                                        </el-col>
-                                    </el-row>
-                                </div> -->
 
 
                                 <ElForm ref="saveFormRef" :model="saveCaseForm" label-width="100" style="width: 50%;">
@@ -447,11 +403,11 @@
                                         <div id="upload-file">
                                             <!-- :on-exceed="handleExceed"  beforeAvatarUpload-->
                                             <!-- :before-upload="beforeAvatarUpload"  :on-exceed="handleExceed" :before-upload="beforeAvatarUpload"-->
-                                            <el-upload :on-remove="handleRemove" :before-upload="beforeAvatarUpload"
-                                                :on-exceed="handleExceed" :on-change="imgFileChange" ref="uploadRef2"
-                                                style="height: 100%;" class="upload-demo"
-                                                action="http://192.168.0.81:8081/api/admin/law_case/identify" :limit="1"
-                                                :auto-upload="false">
+                                            <el-upload accept=".jpeg,.png,.jpg,.bmp,.gif" :on-remove="handleRemove"
+                                                :before-upload="beforeAvatarUpload" :on-exceed="handleExceed"
+                                                :on-change="imgFileChange" ref="uploadRef2" style="height: 100%;"
+                                                class="upload-demo" :action="`${baseUrl}/api/admin/law_case/identify`"
+                                                :limit="1" :auto-upload="false">
                                                 <template #trigger>
                                                     <el-button type="primary">上传头图</el-button>
                                                 </template>
@@ -464,7 +420,7 @@
                                             <el-upload v-model:file-list="fileList" :on-change="fileChange" :headers="{
                                                 'Authorization': 'Bearer ' + '12345678abc'
                                             }" ref="upload" style="height: 100%;" class="upload-demo"
-                                                action="http://192.168.0.81:8081/api/admin/law_case/identify" multiple
+                                                :action="`${baseUrl}/api/admin/law_case/identify`" multiple
                                                 :auto-upload="false" :data="{
                                                     'law_case_id': law_case_id,
                                                     'remark': saveCaseForm.remark,
@@ -557,7 +513,9 @@ import EmptySvg from '@/assets/empty.svg'
 import { ElLoading } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 
+const emit = defineEmits(['update'])
 
+let loadingTable = $ref(false)
 let multipleIds = $ref([])
 const tableRef = ref()
 function handleSelectionChange(rows) {
@@ -639,9 +597,17 @@ let reasonList = [
 const saveFormRef = ref()
 
 const imageUrl = ref('')
-function beforeAvatarUpload(rawFile) {
-    if (rawFile.type !== 'image/jpeg' || rawFile.type !== 'image/png' || rawFile.type !== 'image/jpg') {
-        ElMessage.error('请上传jpeg,png,jpg图片')
+const beforeAvatarUpload = (rawFile) => {
+    console.log('rawFilesss', rawFile)
+    const fileName = rawFile.name
+    const fileType = fileName.substring(fileName.lastIndexOf('.'))
+    if (
+        fileType === '.jpg' ||
+        fileType === '.png' ||
+        fileType === '.jpeg' ||
+        fileType === '.bmp' ||
+        fileType === '.gif'
+    ) {
         return false
     }
     console.log('rawFile', rawFile)
@@ -656,10 +622,10 @@ function goCreatTask(path: string) {
     router.push(path)
 }
 let searchValue = $ref('')
-let timeValue = $ref('1')
+let timeValue = $ref('2')
 let timeOption = [
     {
-        value: '1',
+        value: '2',
         label: '抽样时间',
     },
     // {
@@ -864,7 +830,7 @@ function getScannerCode(val) {
     // console.log(val)
     if (route.path.search("indenti") !== -1) return
     const parts = val.split("/")
-    console.log('law_case_id', law_case_id)
+    console.log('law_case_id', val)
     if (parts.length >= 5) {
         const content = parts[4];
         getSampleByCodeApi({
@@ -909,7 +875,7 @@ let saveCaseForm = $ref({
     remark: '',
     report_code: '',
     identifier: '',
-    files: null,
+    files: [],
     imgFile: null,
 })
 function setIsSample(id: any, val: boolean) {
@@ -978,7 +944,7 @@ const imgFileChange = (uploadFile, uploadFiles) => {
 
     // 创建文件
     uploadFile.name = "案件头图-" + uploadFile.name
-    const file = new File([uploadFile.raw], "案件头图-" + uploadFile.name, { type: uploadFile.raw.type })
+    const file = new File([uploadFile.raw], uploadFile.name, { type: uploadFile.raw.type })
     saveCaseForm.imgFile = file
 }
 
@@ -1018,6 +984,8 @@ function submitSavaCase() {
                 getCaseList()
                 loadingInstance.close()
                 drawer1 = false
+
+                emit("update")
             }).catch(err => {
                 ElMessage({
                     type: 'error',
@@ -1083,6 +1051,7 @@ function setAllCaseStatus(val: boolean) {
 
 
 function getCaseList() {
+    loadingTable = true
     getCaseListApi({
         page_index: page1,
         page_size: pageSize1,
@@ -1096,8 +1065,11 @@ function getCaseList() {
         express_companies: express_company_filter,
         keyword: searchValue
     }).then(res => {
+        loadingTable = false
         total1 = res.data.total
         tableData = res.data.list
+    }).catch(err => {
+        loadingTable = false
     })
 }
 

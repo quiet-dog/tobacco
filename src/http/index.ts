@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // const baseURL = import.meta.env.DEV ? "/api" : "http://192.168.0.130:8080";
-const baseURL = "http://192.168.0.81:8081";
+const baseURL = "https://tobacco-bk.singzer.cn";
 const http = axios.create({
     baseURL,
     headers: {
@@ -36,9 +36,9 @@ http.interceptors.request.use(config => {
     }
 )
 http.interceptors.response.use(response => {
-    if (response.headers['content-disposition']) {//此判断主要是要取到content-disposition的值
-        return response
-    }
+    // if (response.headers['content-disposition']) {//此判断主要是要取到content-disposition的值
+    //     return response
+    // }
     return response
 }
     , error => {

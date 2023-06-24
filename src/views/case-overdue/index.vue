@@ -62,8 +62,9 @@
                 </div>
             </template>
             <template #table>
-                <ElTable @filter-change="fileterChange" @selection-change="handleSelectionChange" size="large"
-                    max-height="100%" height="100%" @row-click="handleRowDrawer" :data="tableData"
+                <ElTable v-loading="loadingTable" element-loading-text="正在加载中" empty-text="暂无案件"
+                    @filter-change="fileterChange" @selection-change="handleSelectionChange" size="large" max-height="100%"
+                    height="100%" @row-click="handleRowDrawer" :data="tableData"
                     :header-cell-style="{ background: '#FAFAFA' }">
                     <el-table-column fixed type="selection" width="55" />
                     <el-table-column prop="report_code" label="报告编号" show-overflow-tooltip>
@@ -107,11 +108,11 @@
                             <span>{{ scope.row.expire_time ? getExpireTime(scope.row.storage_time) : "-" }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="stocker.name" label="入库人" show-overflow-tooltip>
+                    <ElTableColumn prop="stocker.username" label="入库人" show-overflow-tooltip>
                         <template #default="scope">
-                            <span v-html="highText(scope.row.stocker.name, searchValue)"></span>
+                            <span v-html="highText(scope.row.stocker.username, searchValue)"></span>
                         </template>
-                    </el-table-column>
+                    </ElTableColumn>
                     <el-table-column prop="sampling_site" label="抽样地点" show-overflow-tooltip>
                         <template #default="scope">
                             <span v-html="highText(scope.row.sampling_site, searchValue)"></span>
@@ -139,11 +140,11 @@
                 </ElTable>
             </template>
             <template #page>
-                <div class="pt-1/2">总共{{ total1 }}</div>
+                <div class="pt-1/2 text-gray-400">共{{ total1 }}件</div>
                 <div class="flex-grow"></div>
                 <div>
                     <el-pagination v-model:currentPage="page1" @current-change="handlePage1" @size-change="handeleSize1"
-                        v-model:page-size="pageSize1" large layout="prev, pager, next" :total="total1" />
+                        v-model:page-size="pageSize1" large layout="sizes,prev, pager, next" :total="total1" />
                 </div>
             </template>
         </MyTable>
@@ -238,8 +239,9 @@
                             </div>
                         </template>
                         <div>
-                            <div>
-                                <el-table :data="tableData2" :default-sort="{ prop: 'date', order: 'descending' }"
+                            <div style="height: 450px;">
+                                <el-table max-height="100%" height="100%" :data="tableData2"
+                                    :default-sort="{ prop: 'date', order: 'descending' }"
                                     :header-cell-style="{ background: '#FAFAFA' }" width="100%">
                                     <el-table-column prop="code" label="编号" show-overflow-tooltip></el-table-column>
 
@@ -257,7 +259,7 @@
                                     </el-table-column>
                                     <el-table-column prop="law_case.identifier" label="鉴定人" show-overflow-tooltip>
                                     </el-table-column>
-                                    <el-table-column prop="" label="存放位置" show-overflow-tooltip>
+                                    <el-table-column prop="location" label="存放位置" show-overflow-tooltip>
                                     </el-table-column>
                                     <el-table-column prop="storage_time" label="入库时间" show-overflow-tooltip>
                                     </el-table-column>
@@ -287,7 +289,8 @@
             <template #footer>
                 <div class="flex">
                     <div class="w-1/2 pr-2">
-                        <ElButton style="width: 100%;" type="primary">立即结束案件!</ElButton>
+                        <ElButton style="width: 100%;" :disabled="btnDisabled" type="primary" @click="endCase">立即结束案件!
+                        </ElButton>
                     </div>
                     <div class="w-1/2 pl-2">
                         <ElButton style="width: 100%;" type="primary">案件时间线</ElButton>
@@ -295,15 +298,73 @@
                 </div>
             </template>
         </ElDrawer>
+
+
+
+
+        <ElDialog v-model="drawer2" :align-center="true" title="结束案件" width="30%" @closed="closedDrawer3">
+            <div id="inner-drawer" style="width: 100%;">
+                <div class="h-full flex-col flex">
+                    <div style="height: calc(100% - 80px);" class="mt-8">
+                        <el-row>
+                            <el-col :span="24">
+
+
+                                <ElForm ref="saveFormRef" class="px-12" :model="saveCaseForm" label-width="100">
+                                    <ElFormItem
+                                        :rules="[{ required: true, message: '请填写归档原因', trigger: ['blur', 'change'], },]"
+                                        prop="out_stock_reason" label="归档原因">
+                                        <ElInput v-model="saveCaseForm.out_stock_reason" />
+                                    </ElFormItem>
+                                    <ElFormItem
+                                        :rules="[{ required: true, message: '请填写归档人', trigger: ['blur', 'change'], },]"
+                                        prop="archiver" label="归档人">
+                                        <ElInput v-model="saveCaseForm.archiver" />
+                                    </ElFormItem>
+
+                                    <el-form-item label="归档文件">
+                                        <div id="upload-file">
+                                            <el-upload v-model:file-list="fileList" :on-change="fileChange" :headers="{
+                                                'Authorization': 'Bearer ' + '12345678abc'
+                                            }" ref="upload" style="height: 100%;" class="upload-demo"
+                                                :action="`${baseUrl}/api/admin/law_case/identify`" multiple
+                                                :auto-upload="false" :data="{
+                                                    'law_case_id': law_case_id,
+                                                    'out_stock_reason': saveCaseForm.out_stock_reason
+                                                }">
+                                                <el-button type="primary">上传文件</el-button>
+
+                                            </el-upload>
+                                        </div>
+                                    </el-form-item>
+
+                                </ElForm>
+                            </el-col>
+
+                        </el-row>
+
+                    </div>
+                    <div style="height: 80px;" class="flex  pt-12">
+                        <div class="flex-grow">
+
+                        </div>
+                        <div class="ml-2">
+                            <ElButton type="primary" @click="submitSavaCase">完成</ElButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ElDialog>
     </div>
 </template>
 <script setup lang="ts">
-import { getCaseListApi, importFileExeclApi } from '@/api/case';
+import { getCaseListApi, importFileExeclApi, endCaseApi, getCaseOutDetailApi } from '@/api/case';
 import { getSampleListApi, } from '@/api/sample';
-import { formatDate, getExpireTime, formatDate2, highText, expressCompanies } from "@/utils"
+import { formatDate, getExpireTime, formatDate2, highText, expressCompanies, baseUrl } from "@/utils"
 import { ElMessage } from 'element-plus';
 import { Search } from '@element-plus/icons-vue'
-
+const emit = defineEmits(["update"])
+let loadingTable = $ref(false)
 
 let multipleIds = $ref([])
 const tableRef = ref()
@@ -387,14 +448,14 @@ function goCreatTask(path: string) {
     router.push(path)
 }
 let searchValue = $ref('')
-let timeValue = $ref('1')
+let timeValue = $ref('2')
 let timeOption = [
     {
-        value: '1',
+        value: '2',
         label: '抽样时间',
     },
     {
-        value: '2',
+        value: '1',
         label: '入库时间',
     }
 ]
@@ -496,6 +557,14 @@ const handleRowDrawer = (row: any, _column: any, _event: any) => {
     getCurActive(row)
     getSampleList()
     console.log(row)
+    getCaseOutDetailApi({
+        law_case_id
+    }).then(res => {
+        if (res.data.not_out_storage_quantity === 0) {
+            btnDisabled = false
+
+        }
+    })
 }
 
 function changeSelect(val) {
@@ -510,6 +579,7 @@ function closedDrawer() {
 }
 
 function getCaseList() {
+    loadingTable = true
     getCaseListApi({
         page_index: page1,
         page_size: pageSize1,
@@ -525,6 +595,9 @@ function getCaseList() {
     }).then(res => {
         total1 = res.data.total
         tableData = res.data.list
+        loadingTable = false
+    }).catch(err => {
+        loadingTable = false
     })
 }
 
@@ -583,6 +656,76 @@ function changeSearchValue(val) {
 }
 
 
+
+let saveCaseForm = $ref({
+    out_stock_reason: '',
+    archiver: '',
+    files: [],
+})
+let fileList = $ref([])
+function submitSavaCase() {
+    saveFormRef.value.validate((valid) => {
+        if (valid) {
+            const loadingInstance = ElLoading.service({
+                lock: true,
+                text: '文件正在上传中....请稍后',
+                spinner: 'el-icon-loading',
+                background: 'rgba(0, 0, 0, 0.7)'
+            })
+            const formData = new FormData()
+            saveCaseForm.files.forEach(item => {
+                formData.append('files', item.raw)
+            })
+            formData.append('out_stock_reason', saveCaseForm.out_stock_reason)
+            formData.append('archiver', saveCaseForm.archiver)
+            formData.append('law_case_id', String(law_case_id))
+            endCaseApi(formData).then(res => {
+                loadingInstance.close()
+                ElMessage({
+                    type: 'success',
+                    message: res.msg
+                })
+                getCaseList()
+                drawer2 = false
+                emit('update')
+            }).catch(err => {
+                loadingInstance.close()
+                ElMessage({
+                    type: 'error',
+                    message: err.msg
+                })
+            }).catch(err => {
+
+            })
+        } else { }
+    })
+}
+const saveFormRef = ref()
+let drawer2 = $ref(false)
+const fileChange = (uploadFile, uploadFiles) => {
+    // fileList = fileList.slice(-3)
+    // console.log(uploadFile, uploadFiles)
+    // fileList = uploadFiles
+    console.log("uploadFiles", uploadFiles)
+    uploadFiles.forEach(item => {
+        item.name = "归档文件" + "-" + item.name
+    })
+    saveCaseForm.files = uploadFiles
+}
+function closedDrawer3() {
+    saveCaseForm = {
+        out_stock_reason: '',
+        archiver: '',
+        files: []
+    }
+    saveFormRef.value.resetFields()
+}
+
+function endCase() {
+    drawer2 = true
+}
+
+let btnDisabled = $ref(true)
 onMounted(() => {
     getCaseList()
 })

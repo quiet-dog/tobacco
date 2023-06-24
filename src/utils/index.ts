@@ -1,4 +1,6 @@
 import { dayjs } from "element-plus";
+import duration from "dayjs/plugin/duration";
+dayjs.extend(duration);
 
 // 生成uuid
 export function uuid(len: number, radix: number) {
@@ -39,9 +41,22 @@ export function formatDate2(date: number) {
 }
 
 // 过期时间
-export function getExpireTime(time: number) {
-    // time是预计过期时间,返回的是还剩余几天几小时几分几秒
-    return dayjs(dayjs()).diff(time, 'day') + '天' + dayjs(dayjs()).diff(time, 'hour') % 24 + '小时' + dayjs(dayjs()).diff(time, 'minute') % 60 + '分' + dayjs(dayjs()).diff(time, 'second') % 60 + '秒'
+export function getExpireTime(expire_time: number) {
+    // 使用dayjs time减去当前时间转换成DD HH:mm:ss
+    const currentTimestamp = dayjs().valueOf();
+    const time = dayjs(currentTimestamp).diff(dayjs(expire_time));
+    const diffInMilliseconds = dayjs.duration(time);
+    const countdown =
+        diffInMilliseconds.$d.days +
+        "天" +
+        diffInMilliseconds.$d.hours +
+        "小时" +
+        diffInMilliseconds.$d.minutes +
+        "分钟" +
+        diffInMilliseconds.$d.seconds +
+        "秒";
+    const countdownWithoutDash = countdown.replace(/-/g, "");
+    return countdownWithoutDash;
 }
 
 
@@ -50,6 +65,15 @@ export function highText(
     high: string,
     ...classes: string[]
 ): string {
+    // text可能是浮点数  判断是不是浮点数
+    if (text.toString().indexOf('.') !== -1) {
+        console.log('1231313')
+        return text;
+    }
+    // 判断text是不是number类型
+    if (typeof text === 'number') {
+        return text
+    }
     const template = `<span style="color:red" class="${classes.join(
         ' ',
     )}">${high}</span>`;
@@ -124,3 +148,107 @@ export const expressCompanies = [
     { text: '比利时邮政', value: '比利时邮政' },
     { text: '极兔快递', value: '极兔快递' },
 ];
+
+
+
+/**
+ * 获取架体集体选择器(带库区)禁止库区和架体的选择
+ * @param data
+ * @returns
+ */
+export function getAreaOptionsDisableSelect(
+    data
+) {
+    if (data.length > 0) {
+        let result = new Array();
+        result = []
+        let resultIndx = 0
+        for (let [index, area] of data.entries()) {
+            if (area.shelves.length > 0) {
+                result.push({
+                    value: area.id,
+                    label: area.name,
+                    children: [],
+                });
+                for (let [s_index, shelve] of area.shelves.entries()) {
+                    result[resultIndx].children.push({
+                        value: shelve.id,
+                        label: shelve.name,
+                        children: [],
+                    });
+                    for (let i = 0; i < shelve.max_column; i++) {
+                        result[resultIndx].children[s_index].children.push({
+                            label: `${i + 1}节`,
+                            value: i + 1,
+                            children: [],
+                        });
+                        for (let k = 0; k < shelve.max_row; k++) {
+                            result[resultIndx].children[s_index].children[i].children.push({
+                                label: `${k + 1}层`,
+                                value: k + 1,
+                                children: [
+                                    { label: "左侧", value: "left", children: [] },
+                                    { label: "右侧", value: "right", children: [] },
+                                ],
+                            });
+                        }
+                    }
+                }
+                resultIndx++;
+            }
+        }
+        return result;
+    }
+    return undefined;
+}
+/**
+ * 获取不带库区的及联选择情况，可选是否需要指定id的架体
+ * @param data
+ * @param id
+ * @returns
+ */
+export function getShlefOptionSelect(
+    data,
+    id?: number
+) {
+    if (data.length > 0) {
+        // alert('12312312321')
+        let result = new Array();
+        result = []
+        try {
+            data.forEach(item => {
+                if (item.shelves.length > 0) {
+                    item.shelves.forEach(shelf => {
+                        if (shelf.id === id) {
+                            for (let i = 0; i < shelf.max_column; i++) {
+                                result.push({
+                                    label: `${i + 1}节`,
+                                    value: i + 1,
+                                    children: [],
+                                });
+                                for (let k = 0; k < shelf.max_row; k++) {
+                                    result[i].children.push({
+                                        label: `${k + 1}层`,
+                                        value: k + 1,
+                                        children: [
+                                            { label: "左侧", value: "left", children: [] },
+                                            { label: "右侧", value: "right", children: [] },
+                                        ],
+                                    });
+                                }
+                            }
+
+                        }
+                    })
+                }
+            })
+        } catch (e) { }
+
+        return result;
+    } else {
+        return undefined;
+    }
+}
+
+
+export const baseUrl = 'https://tobacco-bk.singzer.cn';

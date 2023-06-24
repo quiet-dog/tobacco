@@ -30,12 +30,16 @@
                 <div class="px-3" style="height: 60px; border-bottom: 5px whitesmoke solid;">
                     <div class="flex pt-1">
                         <div class="flex">
-                            <ElButton type="primary">新建案件</ElButton>
+                            <ElButton type="primary" @click="$router.push('/home/create')">新建案件</ElButton>
                         </div>
 
                         <div class="flex-grow"></div>
                         <div class="pr-6">
-                            <ElInput placeholder="请输入搜索内容" />
+                            <ElInput v-model="searchValue" @change="changeSearchValue" placeholder="请输入搜索内容">
+                                <template #append>
+                                    <el-button :icon="Search" />
+                                </template>
+                            </ElInput>
                         </div>
                         <div style="width: 120px">
                             <el-select @change="changeTimeValue" v-model="timeValue" placeholder="时间筛选条件">
@@ -43,11 +47,21 @@
                                     :value="item.value" />
                             </el-select>
                         </div>
-                        <div>
+                        <div class="pr-2">
                             <el-date-picker value-format="x" style="width: 250px;" v-model="datePickerValue"
                                 type="daterange" :shortcuts="timeValue === '1' ? datePickerShortcuts : datePickerShortcuts"
                                 range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
                                 @change="changePickerTime" />
+                        </div>
+                        <div>
+                            <el-dropdown split-button type="primary" @click="importFile(1)">
+                                导出所选
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item @click="importFile(2)">导出全部</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
                         </div>
                         <!-- <div>
                             <el-dropdown split-button type="primary">
@@ -66,32 +80,79 @@
                 </div>
                 <div class="px-3 pt-4" style="height: calc(100% - 60px);">
                     <div style="height: calc(100% - 60px);">
-                        <ElTable size="large" max-height="100%" height="100%" @row-click="rowClickTableData"
-                            :data="tableData" :header-cell-style="{ background: '#FAFAFA' }">
-                            <ElTableColumn prop="name" label="样品名称" show-overflow-tooltip></ElTableColumn>
-                            <ElTableColumn prop="code" label="样品编号" show-overflow-tooltip></ElTableColumn>
-                            <ElTableColumn prop="code" label="存放位置" show-overflow-tooltip></ElTableColumn>
-                            <ElTableColumn prop="code" label="案件名称" show-overflow-tooltip></ElTableColumn>
-                            <ElTableColumn prop="code" label="抽样时间" show-overflow-tooltip></ElTableColumn>
-                            <ElTableColumn prop="code" label="鉴定结果" show-overflow-tooltip>
+                        <ElTable v-loading="loadingTable" element-loading-text="正在加载中" size="large" max-height="100%"
+                            height="100%" @row-click="rowClickTableData" :data="tableData"
+                            :header-cell-style="{ background: '#FAFAFA' }">
+                            <ElTableColumn prop="name" label="样品名称" show-overflow-tooltip>
+                                <template #default="scope">
+                                    <span v-html="highText(scope.row.name, searchValue)"></span>
+                                </template>
+                            </ElTableColumn>
+                            <ElTableColumn prop="code" label="样品编号" show-overflow-tooltip>
+                                <template #default="scope">
+                                    <span v-html="highText(scope.row.code, searchValue)"></span>
+                                </template>
+                            </ElTableColumn>
+                            <ElTableColumn prop="location" label="存放位置" show-overflow-tooltip>
+                                <template #header>
+                                    <el-cascader v-if="shelf_id === 0" size="default" v-model="positionFilter"
+                                        :options="positionList" :props="props" placeholder="位置" clearable collapse-tags
+                                        collapse-tags-tooltip @change="changePostion">
+                                        <template v-slot:footer></template>
+                                    </el-cascader>
+                                    <el-cascader v-else v-model="positionFilter2" :props="props" :options="positionList2"
+                                        collapse-tags clearable @change="changePostion2" />
+                                </template>
+                                <template #default="scope">
+                                    <span v-html="highText(scope.row.location, searchValue)"></span>
+                                </template>
+                            </ElTableColumn>
+                            <ElTableColumn prop="law_case.name" label="案件名称" show-overflow-tooltip>
+                                <template #default="scope">
+                                    <span v-html="highText(scope.row.law_case.name, searchValue)"></span>
+                                </template>
+                            </ElTableColumn>
+                            <ElTableColumn prop="law_case.sampling_time" label="抽样时间" show-overflow-tooltip>
+                                <template #default="scope">
+                                    {{ formatDate(scope.row.law_case.sampling_time) }}
+                                </template>
+                            </ElTableColumn>
+                            <ElTableColumn prop="is_real" label="鉴定结果" show-overflow-tooltip>
                                 <template #default="scope">
                                     <el-tag v-if="scope.row.is_real" type="success">真烟</el-tag>
                                     <el-tag v-else type="danger">假烟</el-tag>
                                 </template>
                             </ElTableColumn>
-                            <ElTableColumn prop="code" label="库存状态" show-overflow-tooltip></ElTableColumn>
-                            <ElTableColumn prop="code" label="入库人" show-overflow-tooltip></ElTableColumn>
-                            <ElTableColumn prop="info" label="入库时间" show-overflow-tooltip></ElTableColumn>
-                            <ElTableColumn prop="info" label="期满倒计时" show-overflow-tooltip></ElTableColumn>
-                            <ElTableColumn width="90" label="&nbsp;&nbsp;&nbsp;&nbsp;操作">
+                            <!-- <ElTableColumn prop="code" label="库存状态" show-overflow-tooltip>
+                                <template #default="scope">
+                                    {{ scope.row.status }}
+                                </template>
+                            </ElTableColumn> -->
+                            <ElTableColumn prop="law_case.stocker.username" label="入库人" show-overflow-tooltip>
+                                <template #default="scope">
+                                    <span v-html="highText(scope.row.law_case.stocker.username, searchValue)"></span>
+                                </template>
+                            </ElTableColumn>
+                            <ElTableColumn prop="info" label="入库时间" show-overflow-tooltip>
+                                <template #default="scope">
+                                    {{ scope.row.storage_time === null ? "-" : formatDate(scope.row.storage_time) }}
+                                </template>
+                            </ElTableColumn>
+                            <ElTableColumn prop="info" label="期满倒计时" show-overflow-tooltip>
+                                <template #default="scope">
+                                    {{ scope.row.law_case.expire_time === null ? "-" : getExpireTime(scope.row.expire_time)
+                                    }}
+                                </template>
+                            </ElTableColumn>
+                            <!-- <ElTableColumn width="90" label="&nbsp;&nbsp;&nbsp;&nbsp;操作">
                                 <template #default="scope">
                                     <ElButton type="primary" text @click="">编辑</ElButton>
                                 </template>
-                            </ElTableColumn>
+                            </ElTableColumn> -->
                         </ElTable>
                     </div>
                     <div style="height: 60px;" class="flex py-4">
-                        <div class="pt-1/2">总共{{ total }}</div>
+                        <div class="pt-1/2 text-gray-400">共{{ total }}条 </div>
                         <div class="flex-grow"></div>
                         <div>
                             <el-pagination v-model:currentPage="page" @current-change="handlePage"
@@ -210,6 +271,14 @@
 <script setup lang="ts">
 import { getAreaSelectorApi } from '@/api/area';
 import { getSampleListApi } from '@/api/sample';
+import { highText, formatDate, getExpireTime, getAreaOptionsDisableSelect, getShlefOptionSelect } from '@/utils'
+import { Search } from '@element-plus/icons-vue'
+
+const props = $ref(
+    { multiple: true, }
+)
+let loadingTable = $ref(false)
+// let positionList = $ref([])
 
 let timeValue = $ref('1')
 let timeOption = [
@@ -222,6 +291,10 @@ let timeOption = [
         label: '入库时间',
     }
 ]
+let searchValue = $ref('')
+function changeSearchValue(val) {
+    getSampleList()
+}
 let setActive = $ref(0)
 let drawerVisible = $ref(false)
 const datePickerShortcuts = ref([
@@ -255,13 +328,36 @@ const datePickerShortcuts = ref([
 ]);
 const datePickerValue = $ref(null)
 
+function changePostion(val) {
+    getSampleList()
+}
+function changePostion2(val) {
+    getSampleList()
+}
+
+let positionFilter = $ref([])
+let positionFilter2 = $ref([])
+
+let exportType = $ref(1)
+function importFile(val) {
+    if (val === 1) {
+        exportType = 1
+    } else {
+        exportType = 2
+    }
+    exportExecel()
+}
+
+function exportExecel() {
+
+}
+
+
 const changePickerTime = (val: any) => {
     // console.log(datePickerValue)
     getSampleList()
 }
-let tableData = $ref([{
-    name: "222"
-}])
+let tableData = $ref([])
 let total = $ref(0)
 let page = $ref(1)
 let pageSize = $ref(20)
@@ -310,17 +406,30 @@ function closeDrawer() {
     pageSize2 = 5
     total2 = 0
 }
-
+// let positionList2 = $ref([])
 function getAreaMenuList() {
     getAreaSelectorApi().then(res => {
         treeMenu = res.data as any
-        console.log('treeMenu', treeMenu)
+
     }).catch(err => {
 
     })
 }
 
+let positionList = $computed(() => {
+    return getAreaOptionsDisableSelect(treeMenu)
+})
+let positionList2 = $computed(() => {
+    if (shelf_id === 0) {
+        return []
+    }
+    return getShlefOptionSelect(treeMenu, shelf_id)
+})
+
+
+
 function getSampleList() {
+    loadingTable = true
     getSampleListApi({
         page_index: page,
         page_size: pageSize,
@@ -329,9 +438,15 @@ function getSampleList() {
         storage_time_end: timeValue === '2' ? undefined : datePickerValue === null ? undefined : datePickerValue[1],
         sampling_time_start: timeValue === '1' ? undefined : datePickerValue === null ? undefined : datePickerValue[0],
         sampling_time_end: timeValue === '1' ? undefined : datePickerValue === null ? undefined : datePickerValue[1],
+        keyword: searchValue,
+        is_in_stock: true,
+        locations_filter: shelf_id === 0 ? (positionFilter.length === 0 ? undefined : positionFilter) : positionFilter2.length === 0 ? undefined : positionFilter2
     }).then(res => {
         tableData = res.data.list
         total = res.data.total
+        loadingTable = false
+    }).catch(err => {
+        loadingTable = false
     })
 }
 
@@ -358,6 +473,7 @@ onMounted(() => {
 
 onActivated(() => {
     getAreaMenuList()
+    getSampleList()
 })
 
 </script>

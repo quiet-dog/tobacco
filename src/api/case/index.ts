@@ -48,3 +48,31 @@ export function importFileExeclApi(data: any) {
         responseType: 'blob'
     })
 }
+
+// 统计数量
+export function getCaseCountApi() {
+    return myRequest({
+        url: '/api/admin/law_case/count',
+        method: 'get',
+    })
+}
+// 结束案件
+export function endCaseApi(data) {
+    return myRequest({
+        url: '/api/admin/law_case/archive',
+        method: 'post',
+        data: data,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+}
+
+// 案件出库详情
+export function getCaseOutDetailApi(data) {
+    return myRequest({
+        url: '/api/admin/law_case/outdetail',
+        method: 'post',
+        data: data,
+    })
+}
