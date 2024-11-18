@@ -24,7 +24,12 @@ export function editUserApi(data: any) {
             username: data.username,
             password: data.password,
             role: data.role,
-            info: data.info
+            info: data.info,
+            certificate_code: data.certificate_code,
+            name:data.name,
+            age:data.age,
+            unit:data.unit,
+            gender:data.gender,
         }
     })
 }

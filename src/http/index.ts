@@ -18,7 +18,7 @@ http.interceptors.request.use(config => {
 
     // 将请求的origin换成location.origin
     // config.baseURL = "http://" + location.hostname + ":8091"
-    config.baseURL = "http://192.168.0.193:8091"
+    // config.baseURL = "http://192.168.0.193:8091"
     if (config.url?.includes('/barcode2/query')) {
         return config
     }

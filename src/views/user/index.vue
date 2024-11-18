@@ -22,7 +22,7 @@
                             <ElTableColumn prop="username" label="用户名" />
                             <ElTableColumn prop="role" label="角色" />
                             <ElTableColumn prop="certificate_code" label="证书编号" />
-                            <ElTableColumn prop="certificate_time" label="证书时间" />
+                            <!-- <ElTableColumn prop="certificate_time" label="证书时间" /> -->
                             <ElTableColumn prop="age" label="年龄" />
                             <ElTableColumn prop="unit" label="单位" />
                             <ElTableColumn prop="gender" label="性别" />
@@ -85,12 +85,6 @@
                 <ElFormItem prop="certificate_code" label="证书编号">
                     <ElInput v-model="form.certificate_code" placeholder="请填写证书编号" />
                 </ElFormItem>
-                <ElFormItem prop="certificate_time" label="证书时间">
-                    <el-date-picker  
-    type="date"  
-    :value="form.certificate_time"  
-    format="yyyy-MM-dd" /> 
-                </ElFormItem>
                 <ElFormItem prop="age" label="年龄">
                     <ElInput v-model="form.age" placeholder="请填写年龄" />
                 </ElFormItem>
@@ -98,7 +92,7 @@
                     <ElInput v-model="form.unit" placeholder="请填写单位" />
                 </ElFormItem>
                 <ElFormItem prop="gender" label="性别">
-                    <ElInput v-model="form.age" placeholder="请填写性别" />
+                    <ElInput v-model="form.gender" placeholder="请填写性别" />
                 </ElFormItem>
             </ElForm>
             <template #footer>
@@ -145,21 +139,16 @@
                 <ElFormItem prop="name" label="名字">
                     <ElInput v-model="form2.name" placeholder="请填写名字" />
                 </ElFormItem>
+                <ElFormItem prop="age" label="年龄">
+                    <ElInput v-model="form2.age" placeholder="请填写年龄" />
+                </ElFormItem>
                 <ElFormItem prop="info" label="备注">
                     <ElInput v-model="form2.info" placeholder="请填写备注" />
                 </ElFormItem>
                 <ElFormItem prop="certificate_code" label="证书编号">
                     <ElInput v-model="form2.certificate_code" placeholder="请填写证书编号" />
                 </ElFormItem>
-                <ElFormItem prop="certificate_time" label="证书编号">
-                    <el-date-picker  
-    type="date"  
-    :value="form2.certificate_time"  
-    format="yyyy-MM-dd" />  
-                </ElFormItem>
-                <ElFormItem prop="age" label="年龄">
-                    <ElInput v-model="form2.certificate_time" placeholder="请填写年龄" />
-                </ElFormItem>
+   
                 <ElFormItem prop="unit" label="单位">
                     <ElInput v-model="form2.unit" placeholder="请填写单位" />
                 </ElFormItem>
@@ -199,7 +188,7 @@ let form = $ref({
     info: '',
     role: 'user',
     certificate_code:'',
-    certificate_time:'',
+  
     name:'',
     age:'',
     unit:'',
@@ -230,7 +219,6 @@ let form2 = $ref({
     role: '',
     name:'',
     certificate_code:'',
-    certificate_time:'',
     age:'',
     unit:'',
     gender:''
@@ -269,7 +257,6 @@ function editUser(row) {
     form2.info = row.info
     form2.role = row.role
     form2.certificate_code = row.certificate_code
-    form2.certificate_time = row.certificate_time
     form2.age = row.age
     form2.unit = row.unit
     form2.gender =row.gender
@@ -363,7 +350,6 @@ function closed1() {
     form.username = ''
     form.role = 'user'
     form.certificate_code = ''
-    form.certificate_time = ''
     form.age = ''
     form.unit = ''
     form.gender = ''
@@ -378,7 +364,6 @@ function close2() {
     form2.username = ''
     form2.role = ''
     form2.certificate_code = ''
-    form2.certificate_time = ''
     form2.age = ''
     form2.unit = ''
     form2.gender = ''
