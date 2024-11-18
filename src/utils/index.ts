@@ -251,4 +251,4 @@ export function getShlefOptionSelect(
 }
 
 
-export const baseUrl = 'https://tobacco-bk.singzer.cn';
+export const baseUrl = location.origin + ':8091';

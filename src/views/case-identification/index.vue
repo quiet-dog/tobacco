@@ -31,7 +31,8 @@
                         </div>
                         <div class="pr-2">
                             <el-date-picker value-format="x" style="width: 250px;" v-model="datePickerValue"
-                                type="daterange" :shortcuts="timeValue === '1' ? datePickerShortcuts : datePickerShortcuts"
+                                type="daterange"
+                                :shortcuts="timeValue === '1' ? datePickerShortcuts : datePickerShortcuts"
                                 range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
                                 @change="changePickerTime" />
                         </div>
@@ -50,8 +51,8 @@
             </template>
             <template #table>
                 <ElTable v-loading="loadingTable" element-loading-text="正在加载中" empty-text="暂无案件"
-                    @filter-change="fileterChange" @selection-change="handleSelectionChange" size="large" max-height="100%"
-                    style="width: 100%" height="100%" @row-click="handleRowDrawer" :data="tableData"
+                    @filter-change="fileterChange" @selection-change="handleSelectionChange" size="large"
+                    max-height="100%" style="width: 100%" height="100%" @row-click="handleRowDrawer" :data="tableData"
                     :header-cell-style="{ background: '#FAFAFA' }">
                     <el-table-column fixed type="selection" width="55" />
                     <el-table-column fixed width="100" prop="id" label="流水号" show-overflow-tooltip>
@@ -82,7 +83,7 @@
                     <el-table-column :column-key="'reason'" width="150" :filters="reasonList" prop="reason" label="查扣原因"
                         show-overflow-tooltip>
                         <template #default="scope">
-                            <el-tag v-if="scope.row.reason === '民事案件'" type="primary">{{ scope.row.reason }}</el-tag>
+                            <el-tag v-if="scope.row.reason === '行政案件'" type="primary">{{ scope.row.reason }}</el-tag>
                             <el-tag v-else>{{ scope.row.reason }}</el-tag>
                         </template>
                     </el-table-column>
@@ -101,8 +102,8 @@
                             <span v-html="highText(scope.row.sampling_site, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column :column-key="'entrust_unit'" width="120" :filters="positionList" prop="entrust_unit"
-                        label="委托单位" show-overflow-tooltip />
+                    <el-table-column :column-key="'entrust_unit'" width="120" :filters="positionList"
+                        prop="entrust_unit" label="委托单位" show-overflow-tooltip />
                     <el-table-column prop="express_company" width="120" :column-key="'express_company_filter'"
                         :filters="expressCompanies" label="快递公司" show-overflow-tooltip>
                         <template #default="scope">
@@ -154,19 +155,19 @@
                             <div class="ml-1 pl-4">
                                 <el-descriptions title="" :column="2">
                                     <el-descriptions-item label-align="left" label="名称:">{{ taskInfo.name
-                                    }}</el-descriptions-item>
+                                        }}</el-descriptions-item>
                                     <el-descriptions-item label-align="right" label="委托单位:">{{ taskInfo.entrust_unit
-                                    }}</el-descriptions-item>
+                                        }}</el-descriptions-item>
                                     <el-descriptions-item label-align="left" label="当事人:">{{ taskInfo.party
-                                    }}</el-descriptions-item>
+                                        }}</el-descriptions-item>
                                     <el-descriptions-item label-align="right" label="查扣原因:">
                                         <el-tag>{{ taskInfo.reason }}</el-tag>
                                     </el-descriptions-item>
                                     <el-descriptions-item label-align="left" label="抽样时间:">{{
                                         formatDate(taskInfo.sampling_time)
-                                    }}</el-descriptions-item>
+                                        }}</el-descriptions-item>
                                     <el-descriptions-item label-align="right" label="查扣地点:">{{ taskInfo.seized_site
-                                    }}</el-descriptions-item>
+                                        }}</el-descriptions-item>
                                 </el-descriptions>
                             </div>
                             <div class="mt-12">
@@ -296,10 +297,10 @@
                             <div class="flex-grow">
                             </div>
                             <div class="pr-12">
-                                <ElButton type="primary" @click="setIsSample(scannerTable1[0].id, true)">正品</ElButton>
+                                <ElButton type="primary" @click="setIsSample(scannerTable1[0].id, true)">真烟</ElButton>
                             </div>
                             <div>
-                                <ElButton type="danger" @click="setIsSample(scannerTable1[0].id, false)">赝品</ElButton>
+                                <ElButton type="danger" @click="setIsSample(scannerTable1[0].id, false)">假烟</ElButton>
                             </div>
                             <div class="flex-grow">
                             </div>
@@ -335,20 +336,21 @@
                 <div v-if="targetDialog === 2" class="w-full h-full">
                     <div>
                         <el-tabs v-model="tabsValue" @tab-change="changeTabs">
-                            <el-tab-pane name="0" :label="`正品&nbsp;${real_quantity}`"></el-tab-pane>
-                            <el-tab-pane name="1" :label="`赝品&nbsp;${fake_quantity}`"></el-tab-pane>
+                            <el-tab-pane name="0" :label="`真烟&nbsp;${real_quantity}`"></el-tab-pane>
+                            <el-tab-pane name="1" :label="`假烟&nbsp;${fake_quantity}`"></el-tab-pane>
                         </el-tabs>
                     </div>
                     <div style="height: 450px;">
-                        <ElTable :header-cell-style="{ background: '#FAFAFA' }" height="100%" :data="scannerTableT_table">
+                        <ElTable :header-cell-style="{ background: '#FAFAFA' }" height="100%"
+                            :data="scannerTableT_table">
                             <ElTableColumn prop="code" label="编号"></ElTableColumn>
                             <ElTableColumn prop="name" label="样品名称"></ElTableColumn>
                             <ElTableColumn prop="manufacturer" label="厂商"></ElTableColumn>
                             <ElTableColumn prop="packing_spec" align="center" label="包装形式"></ElTableColumn>
                             <ElTableColumn prop="is_real" label="鉴定结果">
                                 <template #default="scope">
-                                    <el-tag v-if="scope.row.is_real" type="success">正品</el-tag>
-                                    <el-tag v-else type="danger">赝品</el-tag>
+                                    <el-tag v-if="scope.row.is_real" type="success">真烟</el-tag>
+                                    <el-tag v-else type="danger">假烟</el-tag>
                                 </template>
                             </ElTableColumn>
                             <ElTableColumn prop="operator.username" label="鉴定人"></ElTableColumn>
@@ -467,15 +469,15 @@
                     <div class="flex">
                         <div :style="{ width: tabsValue4 === '2' ? 'calc(100% - 190px)' : '100%' }">
                             <el-tabs v-model="tabsValue4" @tab-change="changeTabs4">
-                                <el-tab-pane name="0" :label="`正品&nbsp;${real_quantity}`"></el-tab-pane>
-                                <el-tab-pane name="1" :label="`赝品&nbsp;${fake_quantity}`"></el-tab-pane>
+                                <el-tab-pane name="0" :label="`真烟&nbsp;${real_quantity}`"></el-tab-pane>
+                                <el-tab-pane name="1" :label="`假烟&nbsp;${fake_quantity}`"></el-tab-pane>
                                 <el-tab-pane name="2" :label="`未鉴定&nbsp;${unidentified_quantity}`"></el-tab-pane>
                             </el-tabs>
                         </div>
                         <div class="flex-grow"></div>
                         <div style="width: 190px;height: 34px;margin-top: 8px;" v-if="tabsValue4 === '2'">
-                            <ElButton type="primary" @click="setAllCaseStatus(true)" :loading="loading2">均为正品</ElButton>
-                            <ElButton type="danger" @click="setAllCaseStatus(false)">均为赝品</ElButton>
+                            <ElButton type="primary" @click="setAllCaseStatus(true)" :loading="loading2">均为真烟</ElButton>
+                            <ElButton type="danger" @click="setAllCaseStatus(false)">均为假烟</ElButton>
                         </div>
                     </div>
                     <div>
@@ -485,8 +487,8 @@
                             <ElTableColumn prop="packing_spec" label="包装形式"></ElTableColumn>
                             <ElTableColumn label="鉴定结果">
                                 <template #default="scope">
-                                    <el-tag v-if="scope.row.is_real" type="success">正品</el-tag>
-                                    <el-tag v-else type="danger">赝品</el-tag>
+                                    <el-tag v-if="scope.row.is_real" type="success">真烟</el-tag>
+                                    <el-tag v-else type="danger">假烟</el-tag>
                                 </template>
                             </ElTableColumn>
                             <ElTableColumn prop="operator.username" label="鉴定人"></ElTableColumn>
@@ -505,8 +507,8 @@
                         </div>
                         <div>
                             <el-pagination v-model:currentPage="page4" @current-change="handlePage4"
-                                @size-change="handeleSize4" v-model:page-size="pageSize4" large layout="prev, pager, next"
-                                :total="total4" />
+                                @size-change="handeleSize4" v-model:page-size="pageSize4" large
+                                layout="prev, pager, next" :total="total4" />
                         </div>
                     </div>
                 </div>
@@ -597,7 +599,7 @@ function fileterChange(val) {
 
 let reasonList = [
     { text: '刑事案件', value: '刑事案件' },
-    { text: '民事案件', value: '民事案件' },
+    { text: '行政案件', value: '行政案件' },
 ]
 
 

@@ -3,7 +3,7 @@ import http from "@/http";
 import { AxiosRequestConfig } from "axios";
 // 封装响应的类型
 // 创建异步请求
-export const baseURL = "https://tobacco-bk.singzer.cn";
+export const baseURL = location.protocol + "://" + location.hostname + ":8091";
 // 判断当前环境是nwjs还是浏览器
 async function myRequest<T>(options: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     try {
@@ -11,7 +11,7 @@ async function myRequest<T>(options: AxiosRequestConfig): Promise<AxiosResponse<
 
 
         const res = (await http(options)).data as AxiosResponse<T>;
-
+        console.log("res", res)
         // 判断res是不Blob类型
         if (res instanceof Blob) {
             console.log('123131', res)

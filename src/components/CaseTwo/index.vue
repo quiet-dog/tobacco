@@ -126,7 +126,8 @@
                     <div class="flex-grow"></div>
                     <div>
                         <el-form ref="formRef9">
-                            <el-form-item :rules="[{ required: true, message: '请填写打印机ip地址', trigger: ['blur', 'change'] }]"
+                            <el-form-item
+                                :rules="[{ required: true, message: '请填写打印机ip地址', trigger: ['blur', 'change'] }]"
                                 label="打印机ip地址">
                                 <ElInput v-model="ipAddr" placeholder="请按回车进行连接" @keyup.enter="changeIpAddr" />
                             </el-form-item>
@@ -442,10 +443,10 @@ function createTobaccoDetail() {
             code: tobaccoForm.code,
             case_name: formF.name,
             danwei: formF.entrust_unit,
-            person: formF.reason,
-            reason: formF.sampler,
+            person: formF.sampler,
+            reason: formF.reason,
             money: formF.value,
-            link: baseUrl + "/r/" + tobaccoForm.code
+            link: tobaccoForm.code
         })
     }
 

@@ -30,7 +30,8 @@
                         </div>
                         <div class="pr-2">
                             <el-date-picker value-format="x" style="width: 250px;" v-model="datePickerValue"
-                                type="daterange" :shortcuts="timeValue === '1' ? datePickerShortcuts : datePickerShortcuts"
+                                type="daterange"
+                                :shortcuts="timeValue === '1' ? datePickerShortcuts : datePickerShortcuts"
                                 range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
                                 @change="changePickerTime" />
                         </div>
@@ -63,8 +64,8 @@
             </template>
             <template #table>
                 <ElTable v-loading="loadingTable" element-loading-text="正在加载中" empty-text="暂无案件"
-                    @filter-change="fileterChange" @selection-change="handleSelectionChange" size="large" max-height="100%"
-                    height="100%" @row-click="handleRowDrawer" :data="tableData"
+                    @filter-change="fileterChange" @selection-change="handleSelectionChange" size="large"
+                    max-height="100%" height="100%" @row-click="handleRowDrawer" :data="tableData"
                     :header-cell-style="{ background: '#FAFAFA' }">
                     <el-table-column fixed type="selection" width="55" />
                     <el-table-column fixed width="200" prop="report_code" label="报告编号" show-overflow-tooltip>
@@ -95,7 +96,7 @@
                     <el-table-column width="120" :column-key="'reason'" :filters="reasonList" prop="reason" label="查扣原因"
                         show-overflow-tooltip>
                         <template #default="scope">
-                            <el-tag v-if="scope.row.reason === '民事案件'" type="primary">{{ scope.row.reason }}</el-tag>
+                            <el-tag v-if="scope.row.reason === '行政案件'" type="primary">{{ scope.row.reason }}</el-tag>
                             <el-tag v-else>{{ scope.row.reason }}</el-tag>
                         </template>
                     </el-table-column>
@@ -119,8 +120,8 @@
                             <span v-html="highText(scope.row.sampling_site, searchValue)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column :column-key="'entrust_unit'" :filters="positionList" width="120" prop="entrust_unit"
-                        label="委托单位" show-overflow-tooltip />
+                    <el-table-column :column-key="'entrust_unit'" :filters="positionList" width="120"
+                        prop="entrust_unit" label="委托单位" show-overflow-tooltip />
                     <el-table-column prop="express_company" width="120" :column-key="'express_company_filter'"
                         :filters="expressCompanies" label="快递公司" show-overflow-tooltip>
                         <template #default="scope">
@@ -170,25 +171,25 @@
                         <div class="grid grid-cols-14">
                             <el-descriptions title="" :column="3">
                                 <el-descriptions-item label-align="left" label="名称">{{ taskInfo.name
-                                }}</el-descriptions-item>
+                                    }}</el-descriptions-item>
                                 <el-descriptions-item label-align="left" label="报告编号">{{ taskInfo.report_code
-                                }}</el-descriptions-item>
+                                    }}</el-descriptions-item>
                                 <el-descriptions-item label-align="right" label="委托单位">{{ taskInfo.entrust_unit
-                                }}</el-descriptions-item>
+                                    }}</el-descriptions-item>
                                 <el-descriptions-item label-align="left" label="当事人">{{ taskInfo.party
-                                }}</el-descriptions-item>
+                                    }}</el-descriptions-item>
                                 <el-descriptions-item label-align="left" label="抽样人">{{ taskInfo.sampler
-                                }}</el-descriptions-item>
+                                    }}</el-descriptions-item>
                                 <el-descriptions-item label-align="left" label="鉴定人">{{ taskInfo.identifier
-                                }}</el-descriptions-item>
+                                    }}</el-descriptions-item>
                                 <el-descriptions-item label-align="left" label="抽样时间">{{ taskInfo.sampling_time ?
                                     formatDate(taskInfo.sampling_time) : '-'
-                                }}</el-descriptions-item>
+                                    }}</el-descriptions-item>
                                 <el-descriptions-item label-align="right" label="查扣原因">
                                     <el-tag>{{ taskInfo.reason }}</el-tag>
                                 </el-descriptions-item>
                                 <el-descriptions-item label-align="right" label="查扣地点">{{ taskInfo.seized_site
-                                }}</el-descriptions-item>
+                                    }}</el-descriptions-item>
                             </el-descriptions>
                             <div class="mt-12 ">
                                 <el-steps class="my-step" :active="setActive" finish-status="success" align-center>
@@ -260,13 +261,15 @@
                                     </el-table-column>
                                     <el-table-column prop="is_real" label="鉴定结果" show-overflow-tooltip>
                                         <template #default="scope">
-                                            <el-tag :type="scope.row.is_real ? 'primay' : 'danger'">{{ scope.row.is_real ?
+                                            <el-tag :type="scope.row.is_real ? 'primay' : 'danger'">{{ scope.row.is_real
+                                                ?
                                                 '真烟' : '假烟' }}</el-tag>
                                         </template>
                                     </el-table-column>
                                     <el-table-column prop="law_case.identifier" label="鉴定人" show-overflow-tooltip>
                                     </el-table-column>
-                                    <el-table-column prop="location" label="存放位置" show-overflow-tooltip></el-table-column>
+                                    <el-table-column prop="location" label="存放位置"
+                                        show-overflow-tooltip></el-table-column>
                                     <el-table-column prop="storage_time" label="入库时间" show-overflow-tooltip>
                                         <template #default="scope">
                                             {{ scope.row.storage_time ? formatDate(scope.row.storage_time) : '-' }}
@@ -302,8 +305,8 @@
         <ElDialog v-model="drawer1" title="文件列表" @opened="prewview" @closed="closedDrawer2">
             <ul style="display: none;" id="images">
                 <li v-for="item in fileTable">
-                    <img v-if="item.mime_type.search('image') !== -1" :src="`${baseUrl}/api/admin/file/${item.path}`" alt=""
-                        srcset="">
+                    <img v-if="item.mime_type.search('image') !== -1" :src="`${baseUrl}/api/admin/file/${item.path}`"
+                        alt="" srcset="">
                 </li>
             </ul>
             <ElTable :data="fileTable">
@@ -316,18 +319,25 @@
                     <template #default="scope">
                         <!-- <el-link type="primary" target="_blank"
                             :href="`http://192.168.0.81:8081/api/admin/file/${scope.row.path}`">查看</el-link> -->
-                        <ElButton v-if="scope.row.mime_type.search('image') !== -1" @click="previewImgs(scope.row.id)">查看
+                        <ElButton v-if="scope.row != undefined && scope.row.mime_type.search('image') !== -1"
+                            @click="previewImgs(scope.row.id)">
+                            查看
                         </ElButton>
-                        <ElButton v-else-if="scope.row.mime_type.search('video') !== -1" @click="previewTv(scope.row)">查看
+                        <ElButton v-else-if="scope.row != undefined && scope.row.mime_type.search('video') !== -1"
+                            @click="previewTv(scope.row)">
+                            查看
                         </ElButton>
-                        <ElButton v-else-if="scope.row.name.search('docx') !== -1 || scope.row.name.search('doc') !== -1"
+                        <ElButton
+                            v-else-if="scope.row != undefined && scope.row.name.search('docx') !== -1 || scope.row.name.search('doc') !== -1"
                             @click="previewDocx(scope.row)">
                             查看
                         </ElButton>
-                        <ElButton v-else-if="scope.row.name.search('pdf') !== -1" @click="previewPdf(scope.row)">
+                        <ElButton v-else-if="scope.row != undefined && scope.row.name.search('pdf') !== -1"
+                            @click="previewPdf(scope.row)">
                             查看
                         </ElButton>
-                        <ElButton v-else-if="scope.row.name.search('xlsx') !== -1" @click="previewXlsx(scope.row)">
+                        <ElButton v-else-if="scope.row != undefined && scope.row.name.search('xlsx') !== -1"
+                            @click="previewXlsx(scope.row)">
                             查看
                         </ElButton>
                         <ElButton v-else>
@@ -484,7 +494,7 @@ function fileterChange(val) {
 
 let reasonList = [
     { text: '刑事案件', value: '刑事案件' },
-    { text: '民事案件', value: '民事案件' },
+    { text: '行政案件', value: '行政案件' },
 ]
 
 
@@ -714,7 +724,6 @@ let drawer1 = $ref(false)
 let fileTable = $ref([])
 let fileTotal = $ref(0)
 function openDialog() {
-    drawer1 = true
     getFileListApi({
         law_case_id,
         page_index: 1,
@@ -722,6 +731,7 @@ function openDialog() {
     }).then(res => {
         fileTable = res.data.list
         fileTotal = res.data.total
+        drawer1 = true
     })
 }
 let fileIndex = $computed(() => {

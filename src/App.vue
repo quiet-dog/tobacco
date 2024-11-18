@@ -11,7 +11,6 @@
 <script lang="ts" setup>
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 const locale = ref(zhCn)
-
 onMounted(() => {
     // let code = ""
     // let lastTime: number | null = null;

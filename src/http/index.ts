@@ -1,9 +1,9 @@
 import axios from 'axios'
 
 // const baseURL = import.meta.env.DEV ? "/api" : "http://192.168.0.130:8080";
-const baseURL = "https://tobacco-bk.singzer.cn";
+const baseURL = location.protocol + "://" + location.hostname + ":8091";
 const http = axios.create({
-    baseURL,
+    // baseURL,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -16,6 +16,9 @@ http.interceptors.request.use(config => {
 
     // 判断请求的地址
 
+    // 将请求的origin换成location.origin
+    // config.baseURL = "http://" + location.hostname + ":8091"
+    config.baseURL = "http://192.168.0.193:8091"
     if (config.url?.includes('/barcode2/query')) {
         return config
     }
@@ -23,7 +26,6 @@ http.interceptors.request.use(config => {
         return config
     } else {
         const token = sessionStorage.getItem('token')
-        console.log('token', token)
         if (token) {
             config.headers.Authorization = 'Bearer ' + token
         }
@@ -42,6 +44,7 @@ http.interceptors.response.use(response => {
     return response
 }
     , error => {
+        console.log("res error", error)
 
         let res = {}
         if (error['response'] === undefined) {

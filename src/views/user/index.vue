@@ -18,9 +18,14 @@
                         <ElTable max-height="100%" height="100%" :header-cell-style="{ background: '#FAFAFA' }"
                             :data="tableData">
                             <ElTableColumn prop="id" label="编号" />
+                            <ElTableColumn prop="name" label="名字" />
                             <ElTableColumn prop="username" label="用户名" />
                             <ElTableColumn prop="role" label="角色" />
-                            <ElTableColumn prop="info" label="备注" />
+                            <ElTableColumn prop="certificate_code" label="证书编号" />
+                            <ElTableColumn prop="certificate_time" label="证书时间" />
+                            <ElTableColumn prop="age" label="年龄" />
+                            <ElTableColumn prop="unit" label="单位" />
+                            <ElTableColumn prop="gender" label="性别" />
                             <ElTableColumn prop="created_at" label="创建时间" />
                             <ElTableColumn width="140" label="操作">
                                 <template #default="scope">
@@ -71,8 +76,29 @@
                         <el-option label="普通用户" value="user" />
                     </el-select>
                 </el-form-item>
+                <ElFormItem prop="name" label="名字">
+                    <ElInput v-model="form.name" placeholder="请填写名字" />
+                </ElFormItem>
                 <ElFormItem prop="info" label="备注">
                     <ElInput v-model="form.info" placeholder="请填写备注" />
+                </ElFormItem>
+                <ElFormItem prop="certificate_code" label="证书编号">
+                    <ElInput v-model="form.certificate_code" placeholder="请填写证书编号" />
+                </ElFormItem>
+                <ElFormItem prop="certificate_time" label="证书时间">
+                    <el-date-picker  
+    type="date"  
+    :value="form.certificate_time"  
+    format="yyyy-MM-dd" /> 
+                </ElFormItem>
+                <ElFormItem prop="age" label="年龄">
+                    <ElInput v-model="form.age" placeholder="请填写年龄" />
+                </ElFormItem>
+                <ElFormItem prop="unit" label="单位">
+                    <ElInput v-model="form.unit" placeholder="请填写单位" />
+                </ElFormItem>
+                <ElFormItem prop="gender" label="性别">
+                    <ElInput v-model="form.age" placeholder="请填写性别" />
                 </ElFormItem>
             </ElForm>
             <template #footer>
@@ -116,8 +142,29 @@
                         <el-option label="普通用户" value="user" />
                     </el-select>
                 </el-form-item>
+                <ElFormItem prop="name" label="名字">
+                    <ElInput v-model="form2.name" placeholder="请填写名字" />
+                </ElFormItem>
                 <ElFormItem prop="info" label="备注">
                     <ElInput v-model="form2.info" placeholder="请填写备注" />
+                </ElFormItem>
+                <ElFormItem prop="certificate_code" label="证书编号">
+                    <ElInput v-model="form2.certificate_code" placeholder="请填写证书编号" />
+                </ElFormItem>
+                <ElFormItem prop="certificate_time" label="证书编号">
+                    <el-date-picker  
+    type="date"  
+    :value="form2.certificate_time"  
+    format="yyyy-MM-dd" />  
+                </ElFormItem>
+                <ElFormItem prop="age" label="年龄">
+                    <ElInput v-model="form2.certificate_time" placeholder="请填写年龄" />
+                </ElFormItem>
+                <ElFormItem prop="unit" label="单位">
+                    <ElInput v-model="form2.unit" placeholder="请填写单位" />
+                </ElFormItem>
+                <ElFormItem prop="gender" label="性别">
+                    <ElInput v-model="form2.gender" placeholder="请填写性别" />
                 </ElFormItem>
             </ElForm>
             <template #footer>
@@ -150,7 +197,13 @@ let form = $ref({
     username: '',
     password: '',
     info: '',
-    role: 'user'
+    role: 'user',
+    certificate_code:'',
+    certificate_time:'',
+    name:'',
+    age:'',
+    unit:'',
+    gender:'',
 })
 let searchInput = $ref('')
 /**
@@ -162,6 +215,12 @@ let searchInput = $ref('')
                 "role": "admin",
                 "info": "",
                 "is_init": false
+
+                 <ElTableColumn prop="certificate_code" label="证书编号" />
+                            <ElTableColumn prop="certificate_time" label="证书时间" />
+                            <ElTableColumn prop="age" label="年龄" />
+                            <ElTableColumn prop="unit" label="单位" />
+                            <ElTableColumn prop="gender" label="性别" />
  */
 let form2 = $ref({
     username: '',
@@ -169,6 +228,12 @@ let form2 = $ref({
     info: '',
     id: 0,
     role: '',
+    name:'',
+    certificate_code:'',
+    certificate_time:'',
+    age:'',
+    unit:'',
+    gender:''
 })
 const formRef = ref()
 const formRef2 = ref()
@@ -203,6 +268,12 @@ function editUser(row) {
     form2.username = row.username
     form2.info = row.info
     form2.role = row.role
+    form2.certificate_code = row.certificate_code
+    form2.certificate_time = row.certificate_time
+    form2.age = row.age
+    form2.unit = row.unit
+    form2.gender =row.gender
+    form2.name = row.name
     dialog2 = true
 }
 
@@ -291,6 +362,12 @@ function closed1() {
     form.password = ''
     form.username = ''
     form.role = 'user'
+    form.certificate_code = ''
+    form.certificate_time = ''
+    form.age = ''
+    form.unit = ''
+    form.gender = ''
+    form.name = ''
     formRef.value.resetFields()
 }
 
@@ -300,6 +377,11 @@ function close2() {
     form2.password = ''
     form2.username = ''
     form2.role = ''
+    form2.certificate_code = ''
+    form2.certificate_time = ''
+    form2.age = ''
+    form2.unit = ''
+    form2.gender = ''
     formRef2.value.resetFields()
 }
 onMounted(() => {

@@ -6,12 +6,12 @@
             </div>
             <div>
                 <ElForm ref="formRef" :model="form" label-position="right" label-width="100">
-                    <ElFormItem :rules="[{ required: true, message: '请填写案件名称', trigger: ['blur', 'change'] }]" prop="name"
-                        label="案件名称" style="width: 300px;">
+                    <ElFormItem :rules="[{ required: true, message: '请填写案件名称', trigger: ['blur', 'change'] }]"
+                        prop="name" label="案件名称" style="width: 300px;">
                         <ElInput v-model="form.name" placeholder="请输入案件名称"></ElInput>
                     </ElFormItem>
-                    <ElFormItem :rules="[{ required: true, message: '请填写当事人', trigger: ['blur', 'change'], }]" prop="party"
-                        label="当事人" style="width: 300px;">
+                    <ElFormItem :rules="[{ required: true, message: '请填写当事人', trigger: ['blur', 'change'], }]"
+                        prop="party" label="当事人" style="width: 300px;">
                         <ElInput v-model="form.party" placeholder="请输入当事人姓名"></ElInput>
                     </ElFormItem>
                     <ElFormItem :rules="[{ required: true, message: '请填写委托单位', trigger: ['blur', 'change'], }]"
@@ -26,7 +26,7 @@
                         prop="reason" label="查扣原因" style="width: 300px;">
                         <el-select v-model="form.reason" placeholder="请选择">
                             <el-option label="刑事案件" value="刑事案件" />
-                            <el-option label="民事案件" value="民事案件" />
+                            <el-option label="行政案件" value="行政案件" />
                         </el-select>
                     </ElFormItem>
                     <ElFormItem :rules="[{ required: true, message: '请填写案值（元）', trigger: ['blur', 'change'], }]"
@@ -50,14 +50,15 @@
                                 </el-cascader>
                             </el-col>
                             <el-col :span="12">
-                                <ElInput v-model="delivery_location" @input="delivery_location_input" placeholder="请输入发货地点">
+                                <ElInput v-model="delivery_location" @input="delivery_location_input"
+                                    placeholder="请输入发货地点">
                                 </ElInput>
                             </el-col>
                         </el-row>
                     </ElFormItem>
                     <ElFormItem style="width: 500px;"
-                        :rules="[{ required: true, message: '请填写查扣地址', trigger: ['blur', 'change'], }]" prop="seized_site"
-                        label="查扣地址">
+                        :rules="[{ required: true, message: '请填写查扣地址', trigger: ['blur', 'change'], }]"
+                        prop="seized_site" label="查扣地址">
                         <el-row>
                             <el-col :span="12">
                                 <el-cascader :key="reload" filterable placeholder="请选择地区" :options="regionData"
@@ -65,13 +66,14 @@
                                 </el-cascader>
                             </el-col>
                             <el-col :span="12">
-                                <ElInput v-model="seized_site" @input="seized_site_input" placeholder="请输入查扣地址"></ElInput>
+                                <ElInput v-model="seized_site" @input="seized_site_input" placeholder="请输入查扣地址">
+                                </ElInput>
                             </el-col>
                         </el-row>
                     </ElFormItem>
                     <ElFormItem style="width: 500px;"
-                        :rules="[{ required: true, message: '请填写抽样地址', trigger: ['blur', 'change'], }]" prop="sampling_site"
-                        label="抽样地址">
+                        :rules="[{ required: true, message: '请填写抽样地址', trigger: ['blur', 'change'], }]"
+                        prop="sampling_site" label="抽样地址">
                         <el-row>
                             <el-col :span="12">
                                 <el-cascader :key="reload" filterable placeholder="请选择地区" :options="regionData"
@@ -91,8 +93,7 @@
                     </ElFormItem>
                     <ElFormItem style="width: 300px;" prop="sampling_time" label="抽样时间">
                         <el-date-picker type="date" v-model="sampling_time" placeholder="Pick a day"
-                            :disabled-date="disabledDate" :shortcuts="shortcuts" @change="changeDatePicker"
-                            value-format="" />
+                            :shortcuts="shortcuts" @change="changeDatePicker" value-format="" />
                     </ElFormItem>
                 </ElForm>
             </div>
